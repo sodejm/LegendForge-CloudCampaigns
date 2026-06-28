@@ -11,6 +11,9 @@ This index is the navigation hub for LegendForge documentation. It highlights th
   - Start here for the rebrand overview
   - Includes quick-start deployment instructions
   - Explains the universal tabletop positioning
+- **[TODO.md](TODO.md)** - Backlog of planned work items
+  - Organizes upcoming work into features, stories, and tasks
+  - Tracks identity, authentication, and campaign automation priorities
 
 ### New Strategy and Positioning Documents
 - **[SUPPORTED_SYSTEMS.md](SUPPORTED_SYSTEMS.md)** - Compatible Foundry systems and operational guidance
@@ -93,6 +96,7 @@ This index is the navigation hub for LegendForge documentation. It highlights th
 - `README.md`
 - `SUPPORTED_SYSTEMS.md`
 - `PROJECT_PHILOSOPHY.md`
+- `TODO.md`
 
 ### Attribution and Compliance
 - `ATTRIBUTION.md`

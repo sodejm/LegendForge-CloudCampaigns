@@ -485,6 +485,10 @@ When switching or adding systems in Foundry:
 
 ## 📚 Additional Resources
 
+## ✅ Current TODO Backlog
+
+Planned work items are tracked in **[TODO.md](TODO.md)**, organized into features, stories, and tasks for future implementation planning.
+
 ### Core Documentation
 
 - [SUPPORTED_SYSTEMS.md](SUPPORTED_SYSTEMS.md) - System compatibility overview
@@ -492,6 +496,7 @@ When switching or adding systems in Foundry:
 - [ATTRIBUTION.md](ATTRIBUTION.md) - Technical attribution and license references
 - [CREDITS.md](CREDITS.md) - Community recognition and acknowledgments
 - [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) - Documentation map
+- [TODO.md](TODO.md) - Prioritized feature backlog with stories and tasks
 
 ### Official Documentation
 
