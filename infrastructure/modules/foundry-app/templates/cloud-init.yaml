@@ -1,0 +1,186 @@
+# =============================================================================
+# infrastructure/modules/foundry-app/templates/cloud-init.yaml
+# =============================================================================
+# LegendForge application bootstrap configuration for Foundry-powered multi-system runtime provisioning.
+# Supports LegendForge's universal tabletop platform across multiple game systems.
+# =============================================================================
+
+#cloud-config
+# =============================================================================
+# LegendForge Cloud-Init Configuration
+# =============================================================================
+# This script:
+#   1. Installs Docker and required dependencies
+#   2. Mounts and formats the persistent data volume (first-boot)
+#   3. Launches Foundry VTT container via felddy/foundryvtt
+#   4. Sets up Cloudflare Tunnel for secure ingress
+#   5. Disables all inbound ports (tunnel is outbound-only)
+#
+# CREDITS:
+# - Foundry VTT: https://github.com/foundryvtt
+# - felddy/foundryvtt Docker Image: https://github.com/felddy/foundryvtt-docker
+# - Cloudflare Tunnel: https://www.cloudflare.com/products/tunnel/
+# - Cloud-Init: https://cloud-init.io/
+# - Docker: https://www.docker.com/
+# - Ubuntu: https://ubuntu.com/
+# =============================================================================
+
+---
+write_files:
+  # Docker compose for LegendForge + Cloudflared
+  - path: /opt/foundry/docker-compose.yml
+    permissions: '0644'
+    content: |
+      version: '3.8'
+      services:
+        foundry:
+          image: ${foundry_image}
+          container_name: foundry
+          restart: unless-stopped
+          environment:
+            - FOUNDRY_LICENSE_KEY=${foundry_license_key}
+            - FOUNDRY_ADMIN_KEY=${foundry_admin_key}
+            - FOUNDRY_HOSTNAME=${foundry_hostname}
+            - TZ=${timezone}
+            %{ if foundry_release_url != "" ~}
+            - FOUNDRY_RELEASE_URL=${foundry_release_url}
+            %{ endif ~}
+            %{ if foundry_username != "" && foundry_password != "" ~}
+            - FOUNDRY_USERNAME=${foundry_username}
+            - FOUNDRY_PASSWORD=${foundry_password}
+            %{ endif ~}
+          ports:
+            - "30000:30000"  # Web UI (tunnel only, no external access)
+          volumes:
+            - ${data_mount_path}:/data
+          healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:30000/api/health"]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 60s
+          networks:
+            - foundry-net
+
+        cloudflared:
+          image: ${cloudflared_image}
+          container_name: cloudflared
+          restart: unless-stopped
+          command: tunnel run
+          environment:
+            - TUNNEL_TOKEN=${cloudflare_tunnel_token}
+          depends_on:
+            - foundry
+          networks:
+            - foundry-net
+
+      networks:
+        foundry-net:
+          driver: bridge
+
+  # Data volume setup script (runs once on first boot)
+  - path: /opt/foundry/setup-data-volume.sh
+    permissions: '0755'
+    owner: root:root
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+
+      DATA_DEVICE="${data_device}"
+      DATA_MOUNT_PATH="${data_mount_path}"
+      FS_LABEL="${data_volume_fs_label}"
+      SENTINEL_FILE="$${DATA_MOUNT_PATH}/.formatted"
+
+      # Check if already mounted and formatted
+      if [ -f "$${SENTINEL_FILE}" ]; then
+        echo "Data volume already formatted, skipping..."
+        exit 0
+      fi
+
+      # Create mount directory
+      mkdir -p "$${DATA_MOUNT_PATH}"
+
+      # Check if device is already formatted
+      if ! sudo blkid "$${DATA_DEVICE}" >/dev/null 2>&1; then
+        echo "Formatting $${DATA_DEVICE}..."
+        sudo mkfs.ext4 -F -L "$${FS_LABEL}" "$${DATA_DEVICE}"
+      fi
+
+      # Mount by label for stable mounting
+      sudo mount -L "$${FS_LABEL}" "$${DATA_MOUNT_PATH}"
+
+      # Ensure proper permissions
+      sudo chown -R 1000:1000 "$${DATA_MOUNT_PATH}"
+      sudo chmod -R 750 "$${DATA_MOUNT_PATH}"
+
+      # Add to fstab for persistent mounting
+      if ! grep -q "LABEL=$${FS_LABEL}" /etc/fstab; then
+        echo "LABEL=$${FS_LABEL} $${DATA_MOUNT_PATH} ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
+      fi
+
+      # Mark as formatted
+      touch "$${SENTINEL_FILE}"
+      echo "Data volume setup complete!"
+
+# =============================================================================
+# Package Updates and Docker Installation
+# =============================================================================
+package_update: true
+package_upgrade: true
+
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - jq
+  - htop
+  - net-tools
+
+# =============================================================================
+# Docker Installation
+# =============================================================================
+apt:
+  sources:
+    docker:
+      source: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $RELEASE stable"
+      keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+
+# =============================================================================
+# Runcmd: Execute on First Boot
+# =============================================================================
+runcmd:
+  # Install Docker
+  - apt-get update
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+  # Start Docker service
+  - systemctl start docker
+  - systemctl enable docker
+
+  # Setup data volume
+  - /opt/foundry/setup-data-volume.sh
+
+  # Create foundry user and group
+  - groupadd -f -r foundry || true
+  - useradd -r -g foundry -d /opt/foundry -s /sbin/nologin -c "Foundry VTT" foundry || true
+
+  # Set permissions
+  - chown -R foundry:foundry /opt/foundry
+
+  # Start Foundry via Docker Compose
+  - cd /opt/foundry && docker-compose up -d
+
+  # Wait for services to be ready
+  - sleep 10
+
+  # Log status
+  - docker ps
+  - docker logs foundry || true
+  - docker logs cloudflared || true
+
+# =============================================================================
+# Final Message
+# =============================================================================
+final_message: "System booted successfully. Foundry and Cloudflare Tunnel are starting."

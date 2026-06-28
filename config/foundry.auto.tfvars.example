@@ -1,0 +1,39 @@
+# =============================================================================
+# FOUNDRY / DEPLOYMENT CONFIG — copy to "foundry.auto.tfvars" and adjust.
+#
+#   cp config/foundry.auto.tfvars.example config/foundry.auto.tfvars
+#
+# These values are NOT secret, but the real file is git-ignored along with all
+# other *.tfvars to keep the public repo clean. Edit freely.
+# =============================================================================
+
+# Public hostname your players connect to. MUST be a record inside your
+# Cloudflare-managed zone below.
+foundry_hostname = "vtt.thesiblings523.com"
+
+# Your Cloudflare-managed registered domain (zone name).
+cloudflare_zone = "thesiblings523.com"
+
+# --- Cloudflare Access (zero-trust login gate in front of Foundry) -----------
+# Email addresses allowed to reach Foundry BEFORE the Foundry login screen.
+# Set to [] to DISABLE the Access gate entirely (NOT recommended).
+access_allowed_emails = ["you@example.com"]
+
+# --- Spin up / spin down ------------------------------------------------------
+# true  = compute VM exists and Foundry is online.
+# false = destroy the (expensive) VM but KEEP the persistent data volume,
+#         the Cloudflare tunnel, and DNS. Re-apply with true to come back online.
+compute_enabled = true
+
+# --- Optional break-glass SSH (default: SSH fully closed) --------------------
+# Restrict SSH to a single admin IP in CIDR form, e.g. "203.0.113.10/32".
+# Leave null to keep inbound SSH closed (recommended; use the provider console).
+admin_ssh_cidr = null
+
+# An SSH public key string to install for the admin user. Required only if you
+# set admin_ssh_cidr above.
+admin_ssh_public_key = null
+
+# --- Sizing (sane low-cost defaults; override per provider as needed) ---------
+# Data volume size in GB (persists across spin up/down).
+data_volume_size_gb = 20

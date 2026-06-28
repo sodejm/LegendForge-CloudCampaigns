@@ -1,0 +1,47 @@
+minimum_pre_commit_version: "3.7.0"
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: local
+    hooks:
+      - id: terraform-fmt-check
+        name: terraform fmt check
+        entry: bash scripts/terraform-fmt-check.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: semgrep
+        name: semgrep scan
+        entry: bash scripts/semgrep-scan.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, pre-push]
+
+      - id: trufflehog-precommit
+        name: trufflehog staged files scan
+        entry: bash scripts/trufflehog-precommit.sh
+        language: system
+        stages: [pre-commit]
+
+      - id: terraform-quality
+        name: terraform lint and validate
+        entry: bash scripts/terraform-quality.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+      - id: trufflehog-prepush
+        name: trufflehog repository scan
+        entry: bash scripts/trufflehog-prepush.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

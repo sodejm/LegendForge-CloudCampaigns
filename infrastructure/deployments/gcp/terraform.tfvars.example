@@ -1,0 +1,111 @@
+# =============================================================================
+# D&D Foundry VTT on GCP - Terraform Configuration Example
+# =============================================================================
+# Copy this file to terraform.auto.tfvars and fill in your values
+# =============================================================================
+
+# GCP Project Configuration
+gcp_project_id = "your-gcp-project-id"
+project_name   = "foundry-dnd"
+
+# Regional Configuration
+primary_region   = "us-central1"
+secondary_region = "us-east1"
+enable_multi_region = false
+
+# Network Configuration
+primary_subnet_cidr = "10.0.0.0/20"
+secondary_subnet_cidr = "10.16.0.0/20"
+
+# IMPORTANT: Restrict SSH access to your IP(s) in production!
+# Get your public IP: curl -s https://api.ipify.org
+admin_source_ranges = ["203.0.113.0/32"]  # Example: your office IP
+
+# Foundry Hostname and Domain
+foundry_hostname = "foundry.example.com"
+domain_name      = "foundry.example.com"
+
+# =============================================================================
+# Compute Configuration
+# =============================================================================
+
+# Machine types (adjust based on expected player count):
+# - n2-standard-2   (2vCPU, 8GB RAM)   - Small campaigns (5-10 players)
+# - n2-standard-4   (4vCPU, 16GB RAM)  - Medium campaigns (10-25 players)
+# - n2-standard-8   (8vCPU, 32GB RAM)  - Large campaigns (25+ players)
+
+compute_machine_type = "n2-standard-2"
+boot_disk_image      = "ubuntu-2404-lts"
+data_disk_size_gb    = 500
+
+# Auto-scaling
+min_instances = 2
+max_instances = 5
+cpu_target_utilization = 0.7
+
+# =============================================================================
+# Database Configuration
+# =============================================================================
+
+# Cloud SQL machine types:
+# - db-custom-2-7680  (2vCPU, 7.5GB RAM)  - Recommended for small/medium
+# - db-custom-4-16384 (4vCPU, 16GB RAM)   - For larger installations
+
+cloudsql_machine_type = "db-custom-2-7680"
+database_version      = "POSTGRES_15"
+foundry_database_name = "foundry"
+foundry_db_user       = "foundry_app"
+foundry_backup_user   = "foundry_backup"
+enable_cloudsql_public_ip = false
+
+# =============================================================================
+# Secrets & Security (KEEP THESE SECRET!)
+# =============================================================================
+
+# Foundry License Key (from your Foundry account)
+foundry_license_key = "YOUR_FOUNDRY_LICENSE_KEY_HERE"
+
+# Admin password for Foundry setup
+foundry_admin_key = "YOUR_SECURE_ADMIN_PASSWORD_HERE"
+
+# Optional: Foundry account credentials for authenticated downloads
+# (Leave empty if using release URL instead)
+foundry_username = ""
+foundry_password = ""
+
+# Cloudflare Tunnel token (from Cloudflare Zero Trust dashboard)
+# This allows outbound-only connections for maximum security
+cloudflare_tunnel_token = "YOUR_CLOUDFLARE_TUNNEL_TOKEN_HERE"
+
+# Database password (will be generated if not provided)
+database_password = "YOUR_SECURE_DB_PASSWORD_HERE"
+
+enable_deletion_protection = true
+
+# =============================================================================
+# Load Balancer & CDN
+# =============================================================================
+
+enable_cdn = true
+enable_cloud_armor = true
+
+# =============================================================================
+# Monitoring & Alerting
+# =============================================================================
+
+# Optional: Add notification channels for alerts
+# See: https://cloud.google.com/monitoring/support/notification-channels-api/notification-channels
+notification_channel_ids = []
+# Example: ["projects/my-project/notificationChannels/1234567890"]
+
+# =============================================================================
+# Labels & Tags
+# =============================================================================
+
+labels = {
+  app         = "foundry-vtt"
+  environment = "production"
+  managed_by  = "terraform"
+  project     = "dnd-campaign"
+  owner       = "your-team"
+}

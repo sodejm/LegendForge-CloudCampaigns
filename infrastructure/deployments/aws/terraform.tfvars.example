@@ -1,0 +1,71 @@
+# =============================================================================
+# AWS Deployment Terraform Variables
+# =============================================================================
+# Copy this file to terraform.tfvars and fill in the values
+
+aws_region = "us-east-1"
+environment = "prod"
+
+# =============================================================================
+# VPC
+# =============================================================================
+vpc_cidr = "10.0.0.0/16"
+
+# =============================================================================
+# Security
+# =============================================================================
+# Set to your IP in CIDR notation to enable SSH, e.g., "203.0.113.42/32"
+admin_ssh_cidr = null
+
+# =============================================================================
+# Database
+# =============================================================================
+database_username = "foundryadmin"
+database_password = "CHANGEME_SECURE_PASSWORD_HERE"
+
+rds_instance_class      = "db.t3.medium"
+rds_allocated_storage   = 100
+rds_iops                = 3000
+rds_storage_throughput  = 125
+backup_retention_days   = 30
+
+# =============================================================================
+# Compute
+# =============================================================================
+ec2_instance_type       = "t3.medium"
+ec2_root_volume_size    = 20
+ec2_data_volume_size    = 50
+
+asg_min_size            = 2
+asg_max_size            = 4
+asg_desired_capacity    = 2
+
+# =============================================================================
+# Foundry VTT
+# =============================================================================
+foundry_hostname         = "vtt.example.com"
+foundry_image            = "felddy/foundryvtt@sha256:YOUR_DIGEST_HERE"
+cloudflared_image        = "cloudflare/cloudflared:latest"
+cloudflare_tunnel_token  = "YOUR_TUNNEL_TOKEN_HERE"
+foundry_license_key      = "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+foundry_admin_key        = "CHANGE_ME_TO_SECURE_PASSWORD"
+
+# =============================================================================
+# DNS
+# =============================================================================
+route53_zone_id = "Z1234567890ABC"
+
+# =============================================================================
+# Monitoring
+# =============================================================================
+cloudwatch_log_retention_days = 30
+
+# =============================================================================
+# Tags
+# =============================================================================
+tags = {
+  Project     = "Foundry-VTT"
+  Team        = "DevOps"
+  CostCenter  = "Engineering"
+  Environment = "prod"
+}

@@ -1,0 +1,88 @@
+# ---------------------------------------------------------------------------
+# Secrets & local input — NEVER commit these. This repo is PUBLIC.
+# ---------------------------------------------------------------------------
+# Ignore ALL tfvars (they may contain license keys, tokens, passwords)...
+*.tfvars
+*.tfvars.json
+# ...but keep the safe, placeholder example files.
+!*.tfvars.example
+
+# Generic secret material
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
+*.kdbx
+id_rsa*
+id_ed25519*
+.env
+.env.*
+!.env.example
+.envrc
+.direnv/
+/secrets/
+*secret*.json
+*credentials*.json
+
+# ---------------------------------------------------------------------------
+# Terraform / OpenTofu
+# ---------------------------------------------------------------------------
+# Local .terraform directories
+**/.terraform/*
+.terraform/
+
+# State files (may contain sensitive values) — local-only by design
+*.tfstate
+*.tfstate.*
+.terraform.tfstate.lock.info
+
+# Plan output
+*.tfplan
+*.tfplan.*
+plan.out
+
+# Crash logs
+crash.log
+crash.*.log
+*.log
+*.log.*
+
+# CLI config / overrides
+.terraformrc
+terraform.rc
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# NOTE: .terraform.lock.hcl is intentionally NOT ignored — commit it for
+# reproducible provider versions.
+
+# ---------------------------------------------------------------------------
+# OS / editor noise
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+*.swo
+
+# Local config / generated logs
+.env.local
+secrets.tfvars
+secrets.auto.tfvars
+.logs/
+.pre-commit-cache/
+.semgrep/
+.tflint.d/
+.trufflehog/
+
+# Build output
+dist/
+build/

@@ -1,0 +1,46 @@
+# Azure D&D Foundry VTT Deployment Configuration
+# Copy this file to terraform.tfvars and fill in your values
+
+# Environment and Location
+environment = "prod"
+location    = "eastus"
+project_name = "dnd-foundry"
+
+# Foundry Configuration
+foundry_version      = "11.315"
+foundry_license_key  = "YOUR_LICENSE_KEY_HERE"  # Get from https://foundryvtt.com/me/account
+
+# Database Configuration
+database_engine             = "mysql"  # or "postgres"
+database_version            = "8.0"
+database_sku_name          = "Standard_B2s"  # For production: Standard_D2s_v3 or higher
+database_storage_size       = 100  # GB
+database_admin_username    = "azureadmin"
+database_password          = "ChangeMe!Secure123"  # Use a strong password
+backup_retention_days      = 35
+geo_redundant_backup_enabled = true
+high_availability_enabled  = true
+
+# Compute Configuration
+vm_size                = "Standard_D4s_v5"  # 4 vCPU, 16 GB RAM
+scale_set_capacity     = 2
+scale_set_min_capacity = 2
+scale_set_max_capacity = 10
+vm_admin_username     = "azureuser"
+vm_ssh_public_key     = "ssh-rsa AAAA... your-public-key"  # Generate with: ssh-keygen -t rsa -b 4096
+
+# Monitoring
+enable_monitoring = true
+alert_email      = "admin@example.com"
+
+# Storage
+enable_cdn = true
+
+# Common Tags
+common_tags = {
+  Project       = "D&D Foundry VTT"
+  ManagedBy     = "Terraform"
+  Environment   = "Production"
+  CostCenter    = "IT"
+  Owner         = "DevOps Team"
+}

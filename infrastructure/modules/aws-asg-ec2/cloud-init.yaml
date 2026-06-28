@@ -1,0 +1,232 @@
+# =============================================================================
+# infrastructure/modules/aws-asg-ec2/cloud-init.yaml
+# =============================================================================
+# LegendForge AWS Asg Ec2 module configuration for universal tabletop infrastructure supporting multiple game systems.
+# Supports LegendForge's universal tabletop platform across multiple game systems.
+# =============================================================================
+
+#cloud-config
+# =============================================================================
+# Cloud-init configuration for LegendForge on AWS EC2
+# =============================================================================
+
+groups:
+  - docker
+
+users:
+  - name: ubuntu
+    groups: docker
+    sudo: ALL=(ALL) NOPASSWD:ALL
+
+packages:
+  - awscli
+  - awslogs
+  - docker.io
+  - jq
+
+write_files:
+  - path: /opt/foundry/.env
+    owner: root:root
+    permissions: '0600'
+    content: |
+      FOUNDRY_HOSTNAME="${foundry_hostname}"
+      FOUNDRY_LICENSE_KEY="${foundry_license_key}"
+      FOUNDRY_ADMIN_KEY="${foundry_admin_key}"
+      DB_HOST="${db_host}"
+      DB_PORT="${db_port}"
+      DB_NAME="${db_name}"
+      DB_USERNAME="${db_username}"
+      DB_PASSWORD="${db_password}"
+      AWS_S3_BUCKET="${foundry_data_bucket}"
+      AWS_REGION="${aws_region}"
+
+  - path: /opt/foundry/docker-compose.yaml
+    owner: root:root
+    permissions: '0644'
+    content: |
+      version: '3.8'
+      services:
+        foundry:
+          image: ${foundry_image}
+          container_name: foundry
+          restart: always
+          ports:
+            - "30000:30000"
+          environment:
+            FOUNDRY_HOSTNAME: $${FOUNDRY_HOSTNAME}
+            FOUNDRY_LICENSE_KEY: $${FOUNDRY_LICENSE_KEY}
+            FOUNDRY_ADMIN_KEY: $${FOUNDRY_ADMIN_KEY}
+            DB_HOST: $${DB_HOST}
+            DB_PORT: $${DB_PORT}
+            DB_NAME: $${DB_NAME}
+            DB_USERNAME: $${DB_USERNAME}
+            DB_PASSWORD: $${DB_PASSWORD}
+          volumes:
+            - /opt/foundry/data:/data
+          healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:30000/api/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+
+        cloudflared:
+          image: ${cloudflared_image}
+          container_name: cloudflared
+          restart: always
+          command: tunnel run --token ${cloudflare_tunnel_token}
+          networks:
+            - foundry
+
+        watchtower:
+          image: containrrr/watchtower:latest
+          container_name: watchtower
+          restart: always
+          volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+          command: --interval 300 foundry cloudflared
+
+  - path: /opt/foundry/setup-volume.sh
+    owner: root:root
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+      
+      DEVICE="/dev/nvme1n1"
+      MOUNT_PATH="/opt/foundry/data"
+      LABEL="FOUNDRY_DATA"
+      
+      # Wait for device to be available
+      for i in {1..30}; do
+        if [ -b "$DEVICE" ]; then
+          echo "Device $DEVICE found"
+          break
+        fi
+        echo "Waiting for $DEVICE... (attempt $i/30)"
+        sleep 1
+      done
+      
+      if ! [ -b "$DEVICE" ]; then
+        echo "ERROR: Device $DEVICE not found"
+        exit 1
+      fi
+      
+      # Check if already formatted
+      if sudo blkid "$DEVICE" | grep -q "$LABEL"; then
+        echo "Volume already formatted, skipping format"
+      else
+        echo "Formatting $DEVICE..."
+        sudo mkfs.ext4 -L "$LABEL" "$DEVICE"
+      fi
+      
+      # Mount if not already mounted
+      if ! mountpoint -q "$MOUNT_PATH"; then
+        echo "Mounting $DEVICE to $MOUNT_PATH..."
+        sudo mkdir -p "$MOUNT_PATH"
+        sudo mount -L "$LABEL" "$MOUNT_PATH"
+        sudo chown -R 1000:1000 "$MOUNT_PATH"
+      fi
+      
+      # Add to fstab for persistence
+      if ! grep -q "$LABEL" /etc/fstab; then
+        echo "Adding to fstab..."
+        sudo sh -c 'echo "LABEL='$LABEL' '$MOUNT_PATH' ext4 defaults,nofail 0 2" >> /etc/fstab'
+      fi
+
+  - path: /opt/foundry/cloudwatch-config.json
+    owner: root:root
+    permissions: '0644'
+    content: |
+      {
+        "logs": {
+          "logs_collected": {
+            "files": {
+              "collect_list": [
+                {
+                  "file_path": "/opt/foundry/logs/foundry.log",
+                  "log_group_name": "${cloudwatch_log_group}",
+                  "log_stream_name": "{instance_id}/foundry"
+                },
+                {
+                  "file_path": "/opt/foundry/logs/docker.log",
+                  "log_group_name": "${cloudwatch_log_group}",
+                  "log_stream_name": "{instance_id}/docker"
+                }
+              ]
+            }
+          }
+        },
+        "metrics": {
+          "namespace": "Foundry",
+          "metrics_collected": {
+            "cpu": {
+              "measurement": [
+                {
+                  "name": "cpu_usage_idle",
+                  "rename": "CPU_USAGE_IDLE",
+                  "unit": "Percent"
+                },
+                {
+                  "name": "cpu_usage_iowait",
+                  "rename": "CPU_USAGE_IOWAIT",
+                  "unit": "Percent"
+                },
+                "cpu_time_guest"
+              ],
+              "metrics_collection_interval": 60,
+              "resources": [
+                "*"
+              ],
+              "totalcpu": false
+            },
+            "disk": {
+              "measurement": [
+                {
+                  "name": "used_percent",
+                  "rename": "DISK_USED_PERCENT",
+                  "unit": "Percent"
+                }
+              ],
+              "metrics_collection_interval": 60,
+              "resources": [
+                "*"
+              ]
+            },
+            "mem": {
+              "measurement": [
+                {
+                  "name": "mem_used_percent",
+                  "rename": "MEM_USED_PERCENT",
+                  "unit": "Percent"
+                }
+              ],
+              "metrics_collection_interval": 60
+            }
+          }
+        }
+      }
+
+runcmd:
+  # Setup volume
+  - /opt/foundry/setup-volume.sh
+
+  # Start Docker daemon
+  - systemctl start docker
+  - systemctl enable docker
+
+  # Install docker-compose
+  - curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  - chmod +x /usr/local/bin/docker-compose
+
+  # Create logs directory
+  - mkdir -p /opt/foundry/logs
+  - chown -R 1000:1000 /opt/foundry
+
+  # Start LegendForge application containers
+  - cd /opt/foundry && docker-compose up -d
+
+  # Configure CloudWatch agent
+  - /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/foundry/cloudwatch-config.json -s
+
+final_message: "Foundry VTT instance is ready"
