@@ -100,9 +100,9 @@ resource "aws_cloudwatch_dashboard" "foundry" {
       {
         type = "log"
         properties = {
-          query   = "fields @timestamp, @message | stats count() by bin(5m)"
-          region  = var.aws_region
-          title   = "Application Log Events"
+          query  = "fields @timestamp, @message | stats count() by bin(5m)"
+          region = var.aws_region
+          title  = "Application Log Events"
         }
       }
     ]

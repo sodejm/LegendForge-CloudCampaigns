@@ -22,7 +22,7 @@ output "database_name" {
   description = "Name of the Foundry database"
   value = var.db_engine == "mysql" ? (
     try(azurerm_mysql_flexible_database.foundry[0].name, null)
-  ) : (
+    ) : (
     try(azurerm_postgresql_flexible_server_database.foundry[0].name, null)
   )
 }
