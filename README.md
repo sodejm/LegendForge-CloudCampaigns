@@ -485,7 +485,7 @@ When switching or adding systems in Foundry:
 
 ## 📚 Additional Resources
 
-## ✅ Current TODO Backlog
+### ✅ Current TODO Backlog
 
 Planned work items are tracked in **[TODO.md](TODO.md)**, organized into features, stories, and tasks for future implementation planning.
 
@@ -496,7 +496,7 @@ Planned work items are tracked in **[TODO.md](TODO.md)**, organized into feature
 - [ATTRIBUTION.md](ATTRIBUTION.md) - Technical attribution and license references
 - [CREDITS.md](CREDITS.md) - Community recognition and acknowledgments
 - [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) - Documentation map
-- [TODO.md](TODO.md) - Prioritized feature backlog with stories and tasks
+- [TODO.md](TODO.md) - Feature backlog with stories and tasks
 
 ### Official Documentation
 

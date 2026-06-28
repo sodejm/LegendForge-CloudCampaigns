@@ -227,5 +227,5 @@ Please open an issue in this repository.
 
 ---
 
-**Last Updated:** June 28, 2026
+**Last Updated:** June 28, 2026<br>
 **LegendForge Motto:** Infrastructure for every Foundry-compatible tabletop story

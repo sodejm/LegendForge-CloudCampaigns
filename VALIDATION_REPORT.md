@@ -1,8 +1,8 @@
 # Terraform Infrastructure Validation Report
 ## LegendForge Multi-Cloud Deployment
 
-**Validation Date:** June 28, 2026
-**Repository:** LegendForge-CloudCampaigns
+**Validation Date:** June 28, 2026<br>
+**Repository:** LegendForge-CloudCampaigns<br>
 **Status:** ✅ ALL ISSUES RESOLVED
 
 ---
@@ -248,6 +248,6 @@ The Foundry VTT infrastructure as code repository is now:
 
 ---
 
-**Report Generated:** 2026-06-28
-**Validation Status:** ✅ PASSED - ALL ISSUES RESOLVED
+**Report Generated:** 2026-06-28<br>
+**Validation Status:** ✅ PASSED - ALL ISSUES RESOLVED<br>
 **Next Phase:** Ready for terraform init → terraform plan → terraform apply

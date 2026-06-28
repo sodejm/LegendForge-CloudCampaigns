@@ -59,7 +59,7 @@ resource "google_compute_instance" "foundry" {
 
   # User data / Cloud Init + OS Login
   metadata = {
-    user-data      = base64encode(module.foundry_app.user_data)
+    user-data      = module.foundry_app.user_data_raw
     enable-oslogin = "TRUE"
   }
 
