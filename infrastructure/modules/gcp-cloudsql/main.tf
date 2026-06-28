@@ -51,7 +51,7 @@ resource "google_sql_database_instance" "foundry_primary" {
       private_network        = var.vpc_network_id
       enable_private_ip      = true
       allocated_ip_range     = null
-      
+
       authorized_networks {
         name  = "gcp-internal"
         value = var.primary_subnet_cidr
