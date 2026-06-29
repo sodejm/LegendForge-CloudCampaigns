@@ -27,6 +27,7 @@ fi
 IFS=',' read -r -a deployment_names <<< "${TARGET_DEPLOYMENTS}"
 
 for deployment_name in "${deployment_names[@]}"; do
+  deployment_name="${deployment_name//[[:space:]]/}"
   [[ -n "${deployment_name}" ]] || continue
   deployment_dir="${ROOT_DIR}/infrastructure/deployments/${deployment_name}"
   [[ -d "${deployment_dir}" ]] || continue
