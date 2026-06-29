@@ -182,6 +182,25 @@ resource "aws_s3_bucket_lifecycle_configuration" "logs" {
 # S3 Bucket Policies
 # =============================================================================
 
+locals {
+  cloudfront_allow_statement = var.cloudfront_distribution_id != "" ? [
+    {
+      Sid    = "AllowCloudFrontOAC"
+      Effect = "Allow"
+      Principal = {
+        Service = "cloudfront.amazonaws.com"
+      }
+      Action   = "s3:GetObject"
+      Resource = "${aws_s3_bucket.cloudfront_assets.arn}/*"
+      Condition = {
+        StringEquals = {
+          "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${var.cloudfront_distribution_id}"
+        }
+      }
+    }
+  ] : []
+}
+
 # Deny unencrypted uploads
 resource "aws_s3_bucket_policy" "foundry_data" {
   bucket = aws_s3_bucket.foundry_data.id
@@ -225,37 +244,26 @@ resource "aws_s3_bucket_policy" "cloudfront_assets" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowCloudFrontOAC"
-        Effect = "Allow"
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        }
-        Action = "s3:GetObject"
-        Resource = "${aws_s3_bucket.cloudfront_assets.arn}/*"
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${var.cloudfront_distribution_id}"
+    Statement = concat(
+      local.cloudfront_allow_statement,
+      [
+        {
+          Sid    = "DenyUnencryptedTransport"
+          Effect = "Deny"
+          Principal = "*"
+          Action = "s3:*"
+          Resource = [
+            aws_s3_bucket.cloudfront_assets.arn,
+            "${aws_s3_bucket.cloudfront_assets.arn}/*"
+          ]
+          Condition = {
+            Bool = {
+              "aws:SecureTransport" = "false"
+            }
           }
         }
-      },
-      {
-        Sid    = "DenyUnencryptedTransport"
-        Effect = "Deny"
-        Principal = "*"
-        Action = "s3:*"
-        Resource = [
-          aws_s3_bucket.cloudfront_assets.arn,
-          "${aws_s3_bucket.cloudfront_assets.arn}/*"
-        ]
-        Condition = {
-          Bool = {
-            "aws:SecureTransport" = "false"
-          }
-        }
-      }
-    ]
+      ]
+    )
   })
 }
 
