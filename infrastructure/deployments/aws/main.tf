@@ -152,7 +152,6 @@ module "cloudfront" {
   create_invalidation       = false
   tags                      = local.common_tags
 
-  depends_on = [module.alb, module.s3]
 }
 
 # =============================================================================
@@ -219,7 +218,6 @@ module "route53" {
   create_certificate  = var.create_certificate
   tags                = local.common_tags
 
-  depends_on = [module.alb]
 }
 
 # =============================================================================
