@@ -16,10 +16,10 @@ Common capabilities described in the repository:
 
 Start with:
 
-- [AWS deployment README](../infrastructure/deployments/aws/README.md)
-- [AWS deployment guide](../infrastructure/deployments/aws/DEPLOYMENT_GUIDE.md)
-- [AWS architecture](../infrastructure/deployments/aws/ARCHITECTURE.md)
-- [AWS quick reference](../infrastructure/deployments/aws/QUICK_REFERENCE.md)
+- [AWS deployment README](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws/README.md)
+- [AWS deployment guide](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws/DEPLOYMENT_GUIDE.md)
+- [AWS architecture](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws/ARCHITECTURE.md)
+- [AWS quick reference](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws/QUICK_REFERENCE.md)
 
 ## Azure
 
@@ -34,9 +34,9 @@ Repository guidance includes:
 
 Start with:
 
-- [AZURE_QUICKSTART.md](../AZURE_QUICKSTART.md)
-- [AZURE_DEPLOYMENT.md](../AZURE_DEPLOYMENT.md)
-- [README_AZURE.md](../README_AZURE.md)
+- [AZURE_QUICKSTART.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/AZURE_QUICKSTART.md)
+- [AZURE_DEPLOYMENT.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/AZURE_DEPLOYMENT.md)
+- [README_AZURE.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/README_AZURE.md)
 
 ## GCP
 
@@ -51,10 +51,10 @@ Repository guidance includes:
 
 Start with:
 
-- [GCP deployment README](../infrastructure/deployments/gcp/README.md)
-- [GCP deployment guide](../infrastructure/deployments/gcp/DEPLOYMENT_GUIDE.md)
-- [GCP architecture](../infrastructure/deployments/gcp/ARCHITECTURE.md)
-- [GCP quick reference](../infrastructure/deployments/gcp/QUICK_REFERENCE.md)
+- [GCP deployment README](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/README.md)
+- [GCP deployment guide](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/DEPLOYMENT_GUIDE.md)
+- [GCP architecture](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/ARCHITECTURE.md)
+- [GCP quick reference](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/QUICK_REFERENCE.md)
 
 ## Hetzner
 
@@ -69,7 +69,7 @@ Repository guidance includes:
 
 Start with:
 
-- [Hetzner deployment README](../infrastructure/deployments/hetzner/README.md)
+- [Hetzner deployment README](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/hetzner/README.md)
 
 ## Fast Selection Guide
 
