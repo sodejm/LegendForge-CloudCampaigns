@@ -59,18 +59,14 @@ resource "google_compute_instance" "foundry" {
 
   # User data / Cloud Init
   metadata = {
-    user-data = base64encode(module.foundry_app.user_data)
+    enable-oslogin         = "TRUE"
+    user-data              = base64encode(module.foundry_app.user_data)
   }
 
   # Service account
   service_account {
     email  = google_service_account.foundry.email
     scopes = ["cloud-platform"]
-  }
-
-  # Enable OS Login (security best practice)
-  metadata = {
-    enable-oslogin = "TRUE"
   }
 
   labels = local.common_labels
