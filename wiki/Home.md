@@ -62,15 +62,15 @@ If you are new to LegendForge, read these pages in order:
 
 ## Key Repository Documents
 
-- [README.md](../README.md)
-- [DOCUMENTATION_INDEX.md](../DOCUMENTATION_INDEX.md)
-- [PROJECT_PHILOSOPHY.md](../PROJECT_PHILOSOPHY.md)
-- [SUPPORTED_SYSTEMS.md](../SUPPORTED_SYSTEMS.md)
-- [AWS deployment docs](../infrastructure/deployments/aws/README.md)
-- [GCP deployment docs](../infrastructure/deployments/gcp/README.md)
-- [Hetzner deployment docs](../infrastructure/deployments/hetzner/README.md)
-- [Azure quickstart](../AZURE_QUICKSTART.md)
-- [Azure deployment guide](../AZURE_DEPLOYMENT.md)
+- [README.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/README.md)
+- [DOCUMENTATION_INDEX.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/DOCUMENTATION_INDEX.md)
+- [PROJECT_PHILOSOPHY.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/PROJECT_PHILOSOPHY.md)
+- [SUPPORTED_SYSTEMS.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/SUPPORTED_SYSTEMS.md)
+- [AWS deployment docs](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws/README.md)
+- [GCP deployment docs](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/README.md)
+- [Hetzner deployment docs](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/hetzner/README.md)
+- [Azure quickstart](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/AZURE_QUICKSTART.md)
+- [Azure deployment guide](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/AZURE_DEPLOYMENT.md)
 
 ## Summary
 

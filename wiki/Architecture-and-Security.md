@@ -52,8 +52,8 @@ The repository emphasizes:
 
 ## Related Sources
 
-- [PROJECT_PHILOSOPHY.md](../PROJECT_PHILOSOPHY.md)
-- [SUPPORTED_SYSTEMS.md](../SUPPORTED_SYSTEMS.md)
-- [INFRASTRUCTURE_SUMMARY.md](../INFRASTRUCTURE_SUMMARY.md)
-- [AWS_INFRASTRUCTURE_SUMMARY.md](../AWS_INFRASTRUCTURE_SUMMARY.md)
-- [GCP_INFRASTRUCTURE_INDEX.md](../GCP_INFRASTRUCTURE_INDEX.md)
+- [PROJECT_PHILOSOPHY.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/PROJECT_PHILOSOPHY.md)
+- [SUPPORTED_SYSTEMS.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/SUPPORTED_SYSTEMS.md)
+- [INFRASTRUCTURE_SUMMARY.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/INFRASTRUCTURE_SUMMARY.md)
+- [AWS_INFRASTRUCTURE_SUMMARY.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/AWS_INFRASTRUCTURE_SUMMARY.md)
+- [GCP_INFRASTRUCTURE_INDEX.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/GCP_INFRASTRUCTURE_INDEX.md)
