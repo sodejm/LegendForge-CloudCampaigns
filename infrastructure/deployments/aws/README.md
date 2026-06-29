@@ -278,7 +278,7 @@ Pre-configured dashboard shows:
 - RDS metrics (connections, latency, storage)
 - Application logs (errors, warnings)
 
-**Access**: 
+**Access**:
 ```bash
 terraform output cloudwatch_dashboard_url
 ```
