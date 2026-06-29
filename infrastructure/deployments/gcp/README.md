@@ -381,4 +381,3 @@ This Terraform configuration is provided for LegendForge deployment on Google Cl
 **Terraform**: >= 1.5
 **Google Cloud Provider**: >= 5.0
 **Status**: Production-Ready ✅
-
