@@ -322,6 +322,20 @@ terraform destroy   -var-file="../../config/foundry.auto.tfvars"   -var-file="..
 
 ⚠️ **WARNING:** This deletes data volumes. Create snapshots first if needed.
 
+### Post-Deployment End-to-End Test
+
+After `terraform apply`, validate that the live deployment is fully working with the provider-agnostic end-to-end smoke test. It discovers the `foundry_url` Terraform output and checks DNS resolution, service reachability, the Foundry `/setup` endpoint, TLS validity, and response latency.
+
+```bash
+# Auto-discover the URL from a deployment directory
+scripts/post-deploy-e2e-test.sh infrastructure/deployments/aws
+
+# Or test an explicit URL
+FOUNDRY_URL=https://vtt.example.com scripts/post-deploy-e2e-test.sh
+```
+
+The script exits non-zero if any check fails, so it can be run after every deploy or in CI. Tune `TIMEOUT` and `MAX_LATENCY_MS` via environment variables.
+
 ## 🔐 Security Best Practices
 
 1. **Secrets Management**
