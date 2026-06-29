@@ -27,18 +27,20 @@ fi
 IFS=',' read -r -a deployment_names <<< "${TARGET_DEPLOYMENTS}"
 
 for deployment_name in "${deployment_names[@]}"; do
+  [[ -n "${deployment_name}" ]] || continue
   deployment_dir="${ROOT_DIR}/infrastructure/deployments/${deployment_name}"
   [[ -d "${deployment_dir}" ]] || continue
 
   terraform fmt -check -recursive "${deployment_dir}"
-  terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-asg-ec2"
-  terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-alb"
-  terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-cloudfront"
-  terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-cloudwatch"
-  terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-iam"
-  terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-rds"
-  terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-route53"
-  terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-s3"
-  terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-security-groups"
-  terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-vpc"
 done
+
+terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-asg-ec2"
+terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-alb"
+terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-cloudfront"
+terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-cloudwatch"
+terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-iam"
+terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-rds"
+terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-route53"
+terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-s3"
+terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-security-groups"
+terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-vpc"
