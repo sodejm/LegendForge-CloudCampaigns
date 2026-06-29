@@ -35,13 +35,7 @@ for deployment_name in "${deployment_names[@]}"; do
   terraform fmt -check -recursive "${deployment_dir}"
 done
 
-terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-asg-ec2"
-terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-alb"
-terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-cloudfront"
-terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-cloudwatch"
-terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-iam"
-terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-rds"
-terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-route53"
-terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-s3"
-terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-security-groups"
-terraform fmt -check -recursive "${ROOT_DIR}/infrastructure/modules/aws-vpc"
+shopt -s nullglob
+for module_dir in "${ROOT_DIR}/infrastructure/modules"/*/; do
+  terraform fmt -check -recursive "${module_dir}"
+done
