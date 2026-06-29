@@ -52,13 +52,13 @@ provider "google-beta" {
 module "vpc" {
   source = "../../modules/gcp-vpc"
 
-  project_name        = var.project_name
-  primary_region      = var.primary_region
-  secondary_region    = var.secondary_region
-  primary_subnet_cidr = var.primary_subnet_cidr
-  secondary_subnet_cidr = var.secondary_subnet_cidr
+  project_name            = var.project_name
+  primary_region          = var.primary_region
+  secondary_region        = var.secondary_region
+  primary_subnet_cidr     = var.primary_subnet_cidr
+  secondary_subnet_cidr   = var.secondary_subnet_cidr
   enable_secondary_subnet = var.enable_multi_region
-  admin_source_ranges = var.admin_source_ranges
+  admin_source_ranges     = var.admin_source_ranges
 }
 
 # =============================================================================
@@ -79,16 +79,16 @@ module "iam" {
 module "secrets" {
   source = "../../modules/gcp-secrets"
 
-  project_name                = var.project_name
-  region                      = var.primary_region
-  gcp_project_number          = data.google_client_config.current.project_number
-  foundry_compute_sa_email    = module.iam.foundry_compute_sa_email
-  database_password           = var.database_password
-  foundry_license_key         = var.foundry_license_key
-  foundry_admin_key           = var.foundry_admin_key
-  foundry_username            = var.foundry_username
-  foundry_password            = var.foundry_password
-  cloudflare_tunnel_token     = var.cloudflare_tunnel_token
+  project_name             = var.project_name
+  region                   = var.primary_region
+  gcp_project_number       = data.google_client_config.current.project_number
+  foundry_compute_sa_email = module.iam.foundry_compute_sa_email
+  database_password        = var.database_password
+  foundry_license_key      = var.foundry_license_key
+  foundry_admin_key        = var.foundry_admin_key
+  foundry_username         = var.foundry_username
+  foundry_password         = var.foundry_password
+  cloudflare_tunnel_token  = var.cloudflare_tunnel_token
 }
 
 # =============================================================================
@@ -98,20 +98,20 @@ module "secrets" {
 module "cloudsql" {
   source = "../../modules/gcp-cloudsql"
 
-  project_name           = var.project_name
-  primary_region         = var.primary_region
-  replica_region         = var.secondary_region
-  database_version       = var.database_version
-  machine_type           = var.cloudsql_machine_type
-  foundry_database_name  = var.foundry_database_name
-  foundry_db_user        = var.foundry_db_user
-  foundry_backup_user    = var.foundry_backup_user
-  vpc_network_id         = module.vpc.vpc_id
-  primary_subnet_cidr    = var.primary_subnet_cidr
-  enable_public_ip       = var.enable_cloudsql_public_ip
-  enable_read_replica    = var.enable_multi_region
+  project_name             = var.project_name
+  primary_region           = var.primary_region
+  replica_region           = var.secondary_region
+  database_version         = var.database_version
+  machine_type             = var.cloudsql_machine_type
+  foundry_database_name    = var.foundry_database_name
+  foundry_db_user          = var.foundry_db_user
+  foundry_backup_user      = var.foundry_backup_user
+  vpc_network_id           = module.vpc.vpc_id
+  primary_subnet_cidr      = var.primary_subnet_cidr
+  enable_public_ip         = var.enable_cloudsql_public_ip
+  enable_read_replica      = var.enable_multi_region
   enable_automated_backups = true
-  deletion_protection    = var.enable_deletion_protection
+  deletion_protection      = var.enable_deletion_protection
 
   labels = var.labels
 }
@@ -123,11 +123,11 @@ module "cloudsql" {
 module "storage" {
   source = "../../modules/gcp-storage"
 
-  project_name              = var.project_name
-  primary_region            = var.primary_region
-  backup_location           = var.backup_location
-  kms_key_id                = module.secrets.kms_key_id
-  foundry_compute_sa_email  = module.iam.foundry_compute_sa_email
+  project_name             = var.project_name
+  primary_region           = var.primary_region
+  backup_location          = var.backup_location
+  kms_key_id               = module.secrets.kms_key_id
+  foundry_compute_sa_email = module.iam.foundry_compute_sa_email
 
   labels = var.labels
 }
@@ -152,7 +152,7 @@ module "compute" {
   vpc_network_name          = module.vpc.vpc_name
   subnet_name               = module.vpc.primary_subnet_name
   kms_key_id                = module.secrets.kms_key_id
-  startup_script            = templatefile("${path.module}/templates/cloud-init.yaml", {
+  startup_script = templatefile("${path.module}/templates/cloud-init.yaml", {
     project_name           = var.project_name
     foundry_license_key    = "projects/${var.gcp_project_id}/secrets/${var.project_name}-foundry-license-key/versions/latest"
     foundry_admin_key      = "projects/${var.gcp_project_id}/secrets/${var.project_name}-foundry-admin-key/versions/latest"
@@ -188,11 +188,11 @@ module "compute" {
 module "loadbalancer" {
   source = "../../modules/gcp-loadbalancer"
 
-  project_name       = var.project_name
-  domain_name        = var.domain_name
-  instance_group_id  = module.compute.instance_group_id
-  health_check_id    = module.compute.health_check_id
-  enable_cdn         = var.enable_cdn
+  project_name               = var.project_name
+  domain_name                = var.domain_name
+  instance_group_id          = module.compute.instance_group_id
+  health_check_id            = module.compute.health_check_id
+  enable_cdn                 = var.enable_cdn
   enable_adaptive_protection = var.enable_cloud_armor
 
   depends_on = [module.compute]
@@ -205,11 +205,11 @@ module "loadbalancer" {
 module "monitoring" {
   source = "../../modules/gcp-monitoring"
 
-  instance_group_name       = module.compute.instance_group_name
-  domain_name               = var.domain_name
-  gcp_project_id            = var.gcp_project_id
-  database_instance_name    = module.cloudsql.database_instance_name
-  notification_channel_ids  = var.notification_channel_ids
+  instance_group_name      = module.compute.instance_group_name
+  domain_name              = var.domain_name
+  gcp_project_id           = var.gcp_project_id
+  database_instance_name   = module.cloudsql.database_instance_name
+  notification_channel_ids = var.notification_channel_ids
 
   depends_on = [module.compute, module.cloudsql]
 }

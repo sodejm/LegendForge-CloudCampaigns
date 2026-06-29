@@ -7,11 +7,11 @@
 
 # MySQL Flexible Server
 resource "azurerm_mysql_flexible_server" "main" {
-  count               = var.db_engine == "mysql" ? 1 : 0
-  name                = "mysql-${var.project_name}-${var.environment}"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  administrator_login = var.admin_username
+  count                  = var.db_engine == "mysql" ? 1 : 0
+  name                   = "mysql-${var.project_name}-${var.environment}"
+  location               = var.location
+  resource_group_name    = var.resource_group_name
+  administrator_login    = var.admin_username
   administrator_password = var.admin_password
 
   sku_name                     = var.db_sku_name
@@ -44,11 +44,11 @@ resource "azurerm_mysql_flexible_server" "main" {
 
 # PostgreSQL Flexible Server
 resource "azurerm_postgresql_flexible_server" "main" {
-  count               = var.db_engine == "postgres" ? 1 : 0
-  name                = "postgres-${var.project_name}-${var.environment}"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  administrator_login = var.admin_username
+  count                  = var.db_engine == "postgres" ? 1 : 0
+  name                   = "postgres-${var.project_name}-${var.environment}"
+  location               = var.location
+  resource_group_name    = var.resource_group_name
+  administrator_login    = var.admin_username
   administrator_password = var.admin_password
 
   sku_name                     = var.db_sku_name
@@ -89,11 +89,11 @@ resource "azurerm_mysql_flexible_database" "foundry" {
 
 # PostgreSQL Database
 resource "azurerm_postgresql_flexible_server_database" "foundry" {
-  count               = var.db_engine == "postgres" ? 1 : 0
-  name                = replace(var.project_name, "-", "_")
-  server_id           = azurerm_postgresql_flexible_server.main[0].id
-  collation           = "en_US.utf8"
-  charset             = "UTF8"
+  count     = var.db_engine == "postgres" ? 1 : 0
+  name      = replace(var.project_name, "-", "_")
+  server_id = azurerm_postgresql_flexible_server.main[0].id
+  collation = "en_US.utf8"
+  charset   = "UTF8"
 }
 
 # MySQL Firewall Rule (allow from app subnet)

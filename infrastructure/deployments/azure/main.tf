@@ -35,9 +35,9 @@ provider "random" {}
 module "networking" {
   source = "../../modules/azure/networking"
 
-  environment   = var.environment
-  location      = var.location
-  project_name  = var.project_name
+  environment        = var.environment
+  location           = var.location
+  project_name       = var.project_name
   vnet_address_space = var.vnet_address_space
 
   tags = merge(var.common_tags, {
@@ -49,19 +49,19 @@ module "networking" {
 module "security" {
   source = "../../modules/azure/security"
 
-  environment             = var.environment
-  location                = var.location
-  resource_group_name     = module.networking.resource_group_name
-  project_name            = var.project_name
-  tenant_id               = data.azurerm_client_config.current.tenant_id
-  principal_id            = data.azurerm_client_config.current.object_id
-  vnet_id                 = module.networking.vnet_id
-  storage_subnet_id       = module.networking.storage_subnet_id
+  environment         = var.environment
+  location            = var.location
+  resource_group_name = module.networking.resource_group_name
+  project_name        = var.project_name
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  principal_id        = data.azurerm_client_config.current.object_id
+  vnet_id             = module.networking.vnet_id
+  storage_subnet_id   = module.networking.storage_subnet_id
 
   secrets = {
-    foundry_license_key    = var.foundry_license_key
-    database_password      = var.database_password
-    storage_account_key    = module.storage.storage_account_primary_access_key
+    foundry_license_key = var.foundry_license_key
+    database_password   = var.database_password
+    storage_account_key = module.storage.storage_account_primary_access_key
   }
 
   tags = merge(var.common_tags, {
@@ -75,15 +75,15 @@ module "security" {
 module "storage" {
   source = "../../modules/azure/storage"
 
-  environment                       = var.environment
-  location                          = var.location
-  resource_group_name               = module.networking.resource_group_name
-  project_name                      = var.project_name
-  storage_subnet_id                 = module.networking.storage_subnet_id
-  vnet_id                           = module.networking.vnet_id
-  app_subnet_id                     = module.networking.app_subnet_id
-  managed_identity_principal_id     = module.compute.managed_identity_principal_id
-  enable_cdn                        = var.enable_cdn
+  environment                   = var.environment
+  location                      = var.location
+  resource_group_name           = module.networking.resource_group_name
+  project_name                  = var.project_name
+  storage_subnet_id             = module.networking.storage_subnet_id
+  vnet_id                       = module.networking.vnet_id
+  app_subnet_id                 = module.networking.app_subnet_id
+  managed_identity_principal_id = module.compute.managed_identity_principal_id
+  enable_cdn                    = var.enable_cdn
 
   tags = merge(var.common_tags, {
     Module = "storage"
@@ -96,19 +96,19 @@ module "storage" {
 module "database" {
   source = "../../modules/azure/database"
 
-  environment             = var.environment
-  location                = var.location
-  resource_group_name     = module.networking.resource_group_name
-  project_name            = var.project_name
-  database_subnet_id      = module.networking.database_subnet_id
-  vnet_id                 = module.networking.vnet_id
-  admin_username          = var.database_admin_username
-  admin_password          = var.database_password
-  db_engine               = var.database_engine
-  db_version              = var.database_version
-  db_sku_name             = var.database_sku_name
-  db_storage_size         = var.database_storage_size
-  backup_retention_days   = var.backup_retention_days
+  environment                  = var.environment
+  location                     = var.location
+  resource_group_name          = module.networking.resource_group_name
+  project_name                 = var.project_name
+  database_subnet_id           = module.networking.database_subnet_id
+  vnet_id                      = module.networking.vnet_id
+  admin_username               = var.database_admin_username
+  admin_password               = var.database_password
+  db_engine                    = var.database_engine
+  db_version                   = var.database_version
+  db_sku_name                  = var.database_sku_name
+  db_storage_size              = var.database_storage_size
+  backup_retention_days        = var.backup_retention_days
   geo_redundant_backup_enabled = var.geo_redundant_backup_enabled
   high_availability_enabled    = var.high_availability_enabled
 
@@ -155,16 +155,16 @@ module "monitoring" {
   count  = var.enable_monitoring ? 1 : 0
   source = "../../modules/azure/monitoring"
 
-  environment             = var.environment
-  location                = var.location
-  resource_group_name     = module.networking.resource_group_name
-  project_name            = var.project_name
-  metric_alert_email      = var.alert_email
-  scale_set_id            = module.compute.scale_set_id
-  load_balancer_id        = module.compute.load_balancer_id
-  storage_account_id      = module.storage.storage_account_id
-  database_server_id      = module.database.mysql_server_id
-  key_vault_id            = module.security.key_vault_id
+  environment         = var.environment
+  location            = var.location
+  resource_group_name = module.networking.resource_group_name
+  project_name        = var.project_name
+  metric_alert_email  = var.alert_email
+  scale_set_id        = module.compute.scale_set_id
+  load_balancer_id    = module.compute.load_balancer_id
+  storage_account_id  = module.storage.storage_account_id
+  database_server_id  = module.database.mysql_server_id
+  key_vault_id        = module.security.key_vault_id
 
   tags = merge(var.common_tags, {
     Module = "monitoring"
