@@ -216,7 +216,11 @@ variable "create_certificate" {
 variable "acm_certificate_arn" {
   description = "ACM certificate ARN used by the ALB HTTPS listener."
   type        = string
-  default     = ""
+
+  validation {
+    condition     = length(trimspace(var.acm_certificate_arn)) > 0
+    error_message = "acm_certificate_arn must be set to a valid ACM certificate ARN because the ALB module always creates an HTTPS listener."
+  }
 }
 
 variable "cloudfront_distribution_id" {
