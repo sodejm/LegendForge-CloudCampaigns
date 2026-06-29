@@ -209,11 +209,11 @@ resource "aws_s3_bucket_policy" "foundry_data" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "DenyUnencryptedObjectUploads"
-        Effect = "Deny"
+        Sid       = "DenyUnencryptedObjectUploads"
+        Effect    = "Deny"
         Principal = "*"
-        Action = "s3:PutObject"
-        Resource = "${aws_s3_bucket.foundry_data.arn}/*"
+        Action    = "s3:PutObject"
+        Resource  = "${aws_s3_bucket.foundry_data.arn}/*"
         Condition = {
           StringNotEquals = {
             "s3:x-amz-server-side-encryption" = "AES256"
@@ -221,10 +221,10 @@ resource "aws_s3_bucket_policy" "foundry_data" {
         }
       },
       {
-        Sid    = "DenyUnencryptedTransport"
-        Effect = "Deny"
+        Sid       = "DenyUnencryptedTransport"
+        Effect    = "Deny"
         Principal = "*"
-        Action = "s3:*"
+        Action    = "s3:*"
         Resource = [
           aws_s3_bucket.foundry_data.arn,
           "${aws_s3_bucket.foundry_data.arn}/*"
@@ -248,10 +248,10 @@ resource "aws_s3_bucket_policy" "cloudfront_assets" {
       local.cloudfront_allow_statement,
       [
         {
-          Sid    = "DenyUnencryptedTransport"
-          Effect = "Deny"
+          Sid       = "DenyUnencryptedTransport"
+          Effect    = "Deny"
           Principal = "*"
-          Action = "s3:*"
+          Action    = "s3:*"
           Resource = [
             aws_s3_bucket.cloudfront_assets.arn,
             "${aws_s3_bucket.cloudfront_assets.arn}/*"
