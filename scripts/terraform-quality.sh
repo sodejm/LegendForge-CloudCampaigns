@@ -17,9 +17,8 @@ TARGET_DEPLOYMENTS="${TERRAFORM_QUALITY_TARGETS:-aws}"
 IFS=',' read -r -a deployment_names <<< "${TARGET_DEPLOYMENTS}"
 
 for deployment_name in "${deployment_names[@]}"; do
+  [[ -n "${deployment_name}" ]] || continue
   deployment_dir="${ROOT_DIR}/infrastructure/deployments/${deployment_name}"
-  [[ -d "${deployment_dir}" ]] || continue
-  echo "Running Terraform validate + TFLint in ${deployment_dir}"
   terraform -chdir="${deployment_dir}" init -backend=false -input=false -no-color >/dev/null
   terraform -chdir="${deployment_dir}" validate -no-color
   if [[ -f "${deployment_dir}/.tflint.hcl" ]]; then
