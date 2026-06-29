@@ -39,6 +39,16 @@ This index is the navigation hub for LegendForge documentation. It highlights th
   - Contains Azure deployment guidance
   - Complements the LegendForge core docs with provider-specific details
 
+### GitHub Wiki Source Pages
+- **[wiki/Home.md](wiki/Home.md)** - Wiki landing page and overview
+- **[wiki/Quickstart.md](wiki/Quickstart.md)** - Shortest path to a first deployment
+- **[wiki/Installation.md](wiki/Installation.md)** - Setup prerequisites and configuration inputs
+- **[wiki/Provider-Guide.md](wiki/Provider-Guide.md)** - Provider selection and platform-specific doc links
+- **[wiki/How-To.md](wiki/How-To.md)** - Common operator tasks and workflows
+- **[wiki/Prompts.md](wiki/Prompts.md)** - Planning and operational checklist prompts
+- **[wiki/Use-Cases.md](wiki/Use-Cases.md)** - Common deployment and community scenarios
+- **[wiki/Architecture-and-Security.md](wiki/Architecture-and-Security.md)** - Shared architecture and security themes
+
 ---
 
 ## 🎯 Recommended Reading Paths
@@ -105,6 +115,16 @@ This index is the navigation hub for LegendForge documentation. It highlights th
 - `deployments/hetzner/README.md`
 - `README_AZURE.md`
 
+### GitHub Wiki Pages
+- `wiki/Home.md`
+- `wiki/Quickstart.md`
+- `wiki/Installation.md`
+- `wiki/Provider-Guide.md`
+- `wiki/How-To.md`
+- `wiki/Prompts.md`
+- `wiki/Use-Cases.md`
+- `wiki/Architecture-and-Security.md`
+
 ---
 
 ## 📝 Attribution in Infrastructure
@@ -128,6 +148,7 @@ The `modules/foundry-app/` area is the clearest expression of the project's syst
 - Use **README.md** for setup flow
 - Review **SUPPORTED_SYSTEMS.md** for system-family guidance
 - Follow the provider-specific README in `deployments/`
+- Use the pages under **`wiki/`** when you want GitHub wiki-ready navigation
 
 ### If You Are Reviewing Compliance or Upstream Dependencies
 - Use **ATTRIBUTION.md** first
