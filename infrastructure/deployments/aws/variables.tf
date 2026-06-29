@@ -213,6 +213,18 @@ variable "create_certificate" {
   default     = true
 }
 
+variable "acm_certificate_arn" {
+  description = "ACM certificate ARN used by the ALB HTTPS listener."
+  type        = string
+  default     = ""
+}
+
+variable "cloudfront_distribution_id" {
+  description = "Optional CloudFront distribution ID used to scope S3 bucket policy access."
+  type        = string
+  default     = ""
+}
+
 # =============================================================================
 # CloudWatch Configuration
 # =============================================================================
