@@ -20,6 +20,10 @@ for deployment_name in "${deployment_names[@]}"; do
   deployment_name="${deployment_name//[[:space:]]/}"
   [[ -n "${deployment_name}" ]] || continue
   deployment_dir="${ROOT_DIR}/infrastructure/deployments/${deployment_name}"
+  if [[ ! -d "${deployment_dir}" ]]; then
+    echo "ERROR: deployment directory '${deployment_dir}' does not exist. Check TERRAFORM_QUALITY_TARGETS." >&2
+    exit 1
+  fi
   terraform -chdir="${deployment_dir}" init -backend=false -input=false -no-color >/dev/null
   terraform -chdir="${deployment_dir}" validate -no-color
   if [[ -f "${deployment_dir}/.tflint.hcl" ]]; then

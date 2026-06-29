@@ -169,7 +169,6 @@ module "cloudfront" {
   assets_bucket_domain_name = module.s3.cloudfront_assets_bucket_name
   alb_domain_name           = module.alb.alb_dns_name
   use_default_certificate   = true
-  create_invalidation       = false
   tags                      = local.common_tags
 
   depends_on = [module.alb, module.s3]
