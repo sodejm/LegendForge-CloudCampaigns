@@ -280,3 +280,8 @@ output "compute_enabled" {
   description = "Whether compute resources are enabled for this deployment."
   value       = var.compute_enabled
 }
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID"
+  value       = module.cloudfront.distribution_id
+}
