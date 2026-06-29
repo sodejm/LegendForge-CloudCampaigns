@@ -1,0 +1,116 @@
+{
+  "name": "Thorne Blackwood",
+  "type": "character",
+  "flags": {
+    "legendforge": {
+      "id": "char_thorne_blackwood",
+      "schemaVersion": "1.0.0"
+    }
+  },
+  "system": {
+    "abilities": {
+      "str": {
+        "value": 16
+      },
+      "dex": {
+        "value": 10
+      },
+      "con": {
+        "value": 14
+      },
+      "int": {
+        "value": 8
+      },
+      "wis": {
+        "value": 12
+      },
+      "cha": {
+        "value": 15
+      }
+    },
+    "attributes": {
+      "hp": {
+        "value": 22,
+        "max": 28,
+        "temp": 0
+      },
+      "ac": {
+        "calc": "flat",
+        "flat": 18
+      },
+      "movement": {
+        "walk": 30
+      }
+    },
+    "details": {
+      "race": "Half-Elf",
+      "background": "Soldier",
+      "alignment": "Lawful Good",
+      "xp": {
+        "value": 900
+      },
+      "biography": {
+        "value": "Sworn to protect the village of Ravenshollow."
+      }
+    },
+    "currency": {
+      "pp": 0,
+      "gp": 45,
+      "sp": 8,
+      "cp": 12
+    }
+  },
+  "items": [
+    {
+      "name": "Paladin",
+      "type": "class",
+      "system": {
+        "levels": 3
+      }
+    },
+    {
+      "name": "Longsword",
+      "type": "loot",
+      "system": {
+        "quantity": 1,
+        "equipped": true,
+        "description": {
+          "value": ""
+        }
+      }
+    },
+    {
+      "name": "Shield",
+      "type": "loot",
+      "system": {
+        "quantity": 1,
+        "equipped": true,
+        "description": {
+          "value": ""
+        }
+      }
+    },
+    {
+      "name": "Chain Mail",
+      "type": "loot",
+      "system": {
+        "quantity": 1,
+        "equipped": true,
+        "description": {
+          "value": ""
+        }
+      }
+    },
+    {
+      "name": "Potion of Healing",
+      "type": "loot",
+      "system": {
+        "quantity": 2,
+        "equipped": false,
+        "description": {
+          "value": ""
+        }
+      }
+    }
+  ]
+}

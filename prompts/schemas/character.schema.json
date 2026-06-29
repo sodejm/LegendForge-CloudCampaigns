@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://legendforge.dev/schemas/character.schema.json",
+  "title": "CharacterInformation",
+  "description": "Storable, updatable player character profile. 5e-by-default but reusable across Foundry-compatible systems.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema contract version for safe migrations."
+    },
+    "id": {
+      "type": "string",
+      "description": "Stable unique identifier for storage and updates.",
+      "minLength": 1
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time this record was modified."
+    },
+    "ownerPlayerId": {
+      "type": "string",
+      "description": "id of the player who controls this character (see player.schema.json)."
+    },
+    "system": {
+      "type": "string",
+      "default": "dnd5e",
+      "description": "Ruleset the character belongs to."
+    },
+    "characterName": {
+      "type": "string",
+      "description": "The full name of the character.",
+      "minLength": 1
+    },
+    "characterClass": {
+      "type": "string",
+      "description": "Primary class or profession (e.g., Mage, Rogue, Paladin)."
+    },
+    "ancestry": {
+      "type": "string",
+      "description": "Species / race / lineage."
+    },
+    "background": {
+      "type": "string",
+      "description": "Character background or origin."
+    },
+    "level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20,
+      "description": "Current character level."
+    },
+    "experiencePoints": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "proficiencyBonus": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 2
+    },
+    "alignment": {
+      "type": "string",
+      "enum": [
+        "Lawful Good", "Neutral Good", "Chaotic Good",
+        "Lawful Neutral", "True Neutral", "Chaotic Neutral",
+        "Lawful Evil", "Neutral Evil", "Chaotic Evil"
+      ]
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "strength": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "dexterity": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "constitution": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "intelligence": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "wisdom": { "type": "integer", "minimum": 1, "maximum": 30 },
+        "charisma": { "type": "integer", "minimum": 1, "maximum": 30 }
+      },
+      "required": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"],
+      "additionalProperties": false
+    },
+    "hitPoints": {
+      "type": "object",
+      "properties": {
+        "current": { "type": "integer" },
+        "max": { "type": "integer", "minimum": 1 },
+        "temporary": { "type": "integer", "minimum": 0, "default": 0 }
+      },
+      "required": ["current", "max"],
+      "additionalProperties": false
+    },
+    "armorClass": { "type": "integer", "minimum": 0 },
+    "speed": { "type": "integer", "minimum": 0, "description": "Movement in feet." },
+    "conditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Active conditions (e.g., poisoned, prone, exhaustion 2)."
+    },
+    "currency": {
+      "type": "object",
+      "properties": {
+        "pp": { "type": "integer", "minimum": 0, "default": 0 },
+        "gp": { "type": "integer", "minimum": 0, "default": 0 },
+        "sp": { "type": "integer", "minimum": 0, "default": 0 },
+        "cp": { "type": "integer", "minimum": 0, "default": 0 }
+      },
+      "additionalProperties": false
+    },
+    "inventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "quantity": { "type": "integer", "minimum": 0, "default": 1 },
+          "equipped": { "type": "boolean", "default": false },
+          "notes": { "type": "string" }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      }
+    },
+    "spellSlots": {
+      "type": "object",
+      "description": "Map of slot level to remaining/total, keyed '1'..'9'.",
+      "patternProperties": {
+        "^[1-9]$": {
+          "type": "object",
+          "properties": {
+            "current": { "type": "integer", "minimum": 0 },
+            "max": { "type": "integer", "minimum": 0 }
+          },
+          "required": ["current", "max"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["schemaVersion", "id", "characterName", "characterClass", "level", "attributes", "hitPoints"],
+  "additionalProperties": false
+}
