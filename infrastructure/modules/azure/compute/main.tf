@@ -74,21 +74,21 @@ resource "azurerm_lb_rule" "https" {
 
 # Health Probes
 resource "azurerm_lb_probe" "http" {
-  name            = "probe-http"
-  loadbalancer_id = azurerm_lb.main.id
-  protocol        = "Http"
-  port            = 30000
-  request_path    = "/api/health"
+  name                = "probe-http"
+  loadbalancer_id     = azurerm_lb.main.id
+  protocol            = "Http"
+  port                = 30000
+  request_path        = "/api/health"
   interval_in_seconds = 15
   number_of_probes    = 3
 }
 
 resource "azurerm_lb_probe" "https" {
-  name            = "probe-https"
-  loadbalancer_id = azurerm_lb.main.id
-  protocol        = "Https"
-  port            = 30001
-  request_path    = "/api/health"
+  name                = "probe-https"
+  loadbalancer_id     = azurerm_lb.main.id
+  protocol            = "Https"
+  port                = 30001
+  request_path        = "/api/health"
   interval_in_seconds = 15
   number_of_probes    = 3
 }
@@ -108,17 +108,17 @@ locals {
 
 # Virtual Machine Scale Set
 resource "azurerm_linux_virtual_machine_scale_set" "main" {
-  name                            = "vmss-${var.project_name}-${var.environment}"
-  location                        = var.location
-  resource_group_name             = var.resource_group_name
-  sku                             = var.vm_size
-  instances                       = var.scale_set_capacity
-  admin_username                  = var.admin_username
-  overprovision                   = false
-  health_probe_id                 = azurerm_lb_probe.http.id
-  upgrade_mode                    = "Rolling"
-  zone_balance                    = true
-  zones                           = ["1", "2", "3"]
+  name                = "vmss-${var.project_name}-${var.environment}"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  sku                 = var.vm_size
+  instances           = var.scale_set_capacity
+  admin_username      = var.admin_username
+  overprovision       = false
+  health_probe_id     = azurerm_lb_probe.http.id
+  upgrade_mode        = "Rolling"
+  zone_balance        = true
+  zones               = ["1", "2", "3"]
 
   admin_ssh_key {
     username   = var.admin_username
@@ -188,14 +188,14 @@ resource "azurerm_monitor_autoscale_setting" "cpu" {
 
     rule {
       metric_trigger {
-        metric_name              = "Percentage CPU"
-        metric_resource_id       = azurerm_linux_virtual_machine_scale_set.main.id
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "GreaterThan"
-        threshold                = 75
+        metric_name        = "Percentage CPU"
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.main.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "GreaterThan"
+        threshold          = 75
       }
 
       scale_action {
@@ -208,14 +208,14 @@ resource "azurerm_monitor_autoscale_setting" "cpu" {
 
     rule {
       metric_trigger {
-        metric_name              = "Percentage CPU"
-        metric_resource_id       = azurerm_linux_virtual_machine_scale_set.main.id
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "LessThan"
-        threshold                = 25
+        metric_name        = "Percentage CPU"
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.main.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "LessThan"
+        threshold          = 25
       }
 
       scale_action {
@@ -246,14 +246,14 @@ resource "azurerm_monitor_autoscale_setting" "memory" {
 
     rule {
       metric_trigger {
-        metric_name              = "Available Memory Bytes"
-        metric_resource_id       = azurerm_linux_virtual_machine_scale_set.main.id
-        time_grain               = "PT1M"
-        statistic                = "Average"
-        time_window              = "PT5M"
-        time_aggregation         = "Average"
-        operator                 = "LessThan"
-        threshold                = 536870912 # 512MB
+        metric_name        = "Available Memory Bytes"
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.main.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "LessThan"
+        threshold          = 536870912 # 512MB
       }
 
       scale_action {
