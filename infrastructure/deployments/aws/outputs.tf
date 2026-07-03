@@ -29,7 +29,7 @@ output "connect_command" {
 
 output "foundry_summary" {
   description = "Summary of Foundry deployment on AWS"
-  value       = "LegendForge deployed to ${var.environment} — ASG: ${module.asg_ec2.asg_name}, URL: https://${var.foundry_hostname}"
+  value       = "Foundry deployed to ${var.environment} — ASG: ${module.asg_ec2.asg_name}, URL: https://${var.foundry_hostname}"
 }
 
 # ===== Next Steps =====
