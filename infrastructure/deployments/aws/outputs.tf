@@ -2,44 +2,34 @@
 # AWS Deployment Outputs — Summary and Important Information
 # =============================================================================
 
-output "instance_id" {
-  description = "EC2 instance ID"
-  value       = module.foundry_aws.instance_id
+output "asg_name" {
+  description = "Auto Scaling Group name for Foundry instances"
+  value       = module.asg_ec2.asg_name
 }
 
-output "instance_public_ip" {
-  description = "Public IP address of the EC2 instance"
-  value       = module.foundry_aws.instance_public_ip
-}
-
-output "instance_public_dns" {
-  description = "Public DNS name of the EC2 instance"
-  value       = module.foundry_aws.instance_public_dns
+output "alb_dns" {
+  description = "ALB DNS name (entry point for the Foundry application)"
+  value       = module.alb.alb_dns_name
 }
 
 output "vpc_id" {
   description = "VPC ID"
-  value       = module.foundry_aws.vpc_id
+  value       = module.vpc.vpc_id
 }
 
 output "security_group_id" {
-  description = "Security group ID for Foundry instance"
-  value       = module.foundry_aws.security_group_id
-}
-
-output "data_volume_id" {
-  description = "EBS volume ID for Foundry persistent data"
-  value       = module.foundry_aws.data_volume_id
+  description = "Security group ID for Foundry ASG instances"
+  value       = module.security_groups.asg_security_group_id
 }
 
 output "connect_command" {
-  description = "AWS Systems Manager command to connect to the instance"
-  value       = module.foundry_aws.instance_connect_command
+  description = "AWS Systems Manager command to connect to a running Foundry instance"
+  value       = "aws ssm start-session --target $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names ${module.asg_ec2.asg_name} --query 'AutoScalingGroups[0].Instances[0].InstanceId' --output text) --region ${var.aws_region}"
 }
 
 output "foundry_summary" {
   description = "Summary of Foundry deployment on AWS"
-  value       = module.foundry_aws.foundry_instance_summary
+  value       = "LegendForge deployed to ${var.environment} — ASG: ${module.asg_ec2.asg_name}, URL: https://${var.foundry_hostname}"
 }
 
 # ===== Next Steps =====
@@ -47,11 +37,11 @@ output "next_steps" {
   description = "Next steps for completing the deployment"
   value = var.compute_enabled ? (
     <<-EOT
-      1. Verify the Foundry instance is running:
-         aws ec2 describe-instances --instance-ids ${module.foundry_aws.instance_id} --region ${var.aws_region}
+      1. Verify the Auto Scaling Group is running:
+         aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names ${module.asg_ec2.asg_name} --region ${var.aws_region}
 
-      2. Connect to the instance using Systems Manager:
-         ${module.foundry_aws.instance_connect_command}
+      2. Connect to an instance using Systems Manager:
+         aws ssm start-session --target $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names ${module.asg_ec2.asg_name} --query 'AutoScalingGroups[0].Instances[0].InstanceId' --output text) --region ${var.aws_region}
 
       3. Monitor Docker container startup:
          docker ps
