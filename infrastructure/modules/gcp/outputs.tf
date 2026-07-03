@@ -14,7 +14,7 @@ output "instance_name" {
 
 output "instance_public_ip" {
   description = "Public IP of the instance (if assigned)"
-  value       = var.compute_enabled && length(google_compute_instance.foundry[0].network_interface) > 0 ? (
+  value = var.compute_enabled && length(google_compute_instance.foundry[0].network_interface) > 0 ? (
     length(google_compute_instance.foundry[0].network_interface[0].access_config) > 0 ?
     google_compute_instance.foundry[0].network_interface[0].access_config[0].nat_ip : null
   ) : null
@@ -58,11 +58,11 @@ output "service_account_id" {
 output "instance_summary" {
   description = "Summary of GCP instance details"
   value = var.compute_enabled ? {
-    instance_name = google_compute_instance.foundry[0].name
-    zone          = google_compute_instance.foundry[0].zone
-    machine_type  = google_compute_instance.foundry[0].machine_type
-    internal_ip   = google_compute_instance.foundry[0].network_interface[0].network_ip
-    vpc_network   = google_compute_network.foundry.name
+    instance_name   = google_compute_instance.foundry[0].name
+    zone            = google_compute_instance.foundry[0].zone
+    machine_type    = google_compute_instance.foundry[0].machine_type
+    internal_ip     = google_compute_instance.foundry[0].network_interface[0].network_ip
+    vpc_network     = google_compute_network.foundry.name
     service_account = google_service_account.foundry.email
   } : null
 }
