@@ -194,20 +194,3 @@ resource "google_compute_firewall" "foundry_lb" {
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["foundry-compute"]
 }
-
-# --- Output instance group information ---
-output "instance_group_name" {
-  value = google_compute_region_instance_group_manager.foundry.name
-}
-
-output "instance_group_id" {
-  value = google_compute_region_instance_group_manager.foundry.id
-}
-
-output "instance_group_manager_id" {
-  value = google_compute_region_instance_group_manager.foundry.id
-}
-
-output "health_check_id" {
-  value = google_compute_health_check.foundry_http.id
-}

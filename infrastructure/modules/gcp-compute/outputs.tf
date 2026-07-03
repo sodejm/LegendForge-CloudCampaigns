@@ -8,6 +8,11 @@ output "instance_group_id" {
   value       = google_compute_region_instance_group_manager.foundry.id
 }
 
+output "instance_group_manager_id" {
+  description = "Instance Group Manager ID"
+  value       = google_compute_region_instance_group_manager.foundry.id
+}
+
 output "instance_template_id" {
   description = "Instance template ID"
   value       = google_compute_instance_template.foundry.id
