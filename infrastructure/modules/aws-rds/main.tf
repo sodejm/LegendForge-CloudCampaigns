@@ -9,10 +9,9 @@
 # DB Subnet Group
 # =============================================================================
 resource "aws_db_subnet_group" "main" {
-  name_prefix         = "${var.environment}-"
-  description         = "DB subnet group for ${var.environment}"
-  subnet_ids          = var.database_subnet_ids
-  skip_final_snapshot = false
+  name_prefix = "${var.environment}-"
+  description = "DB subnet group for ${var.environment}"
+  subnet_ids  = var.database_subnet_ids
 
   tags = merge(
     var.tags,
