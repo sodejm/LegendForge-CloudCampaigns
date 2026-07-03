@@ -74,10 +74,10 @@ resource "google_compute_backend_service" "foundry" {
       seconds = 10
     }
 
-    max_ejection_percent       = 50
-    success_rate_minimum_hosts = 5
+    max_ejection_percent        = 50
+    success_rate_minimum_hosts  = 5
     success_rate_request_volume = 100
-    success_rate_stdev_factor  = 1900
+    success_rate_stdev_factor   = 1900
   }
 
   depends_on = [var.health_check_id]
