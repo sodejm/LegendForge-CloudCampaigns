@@ -225,6 +225,7 @@ resource "aws_s3_bucket_policy" "foundry_data" {
 }
 
 resource "aws_s3_bucket_policy" "cloudfront_assets" {
+  count  = var.cloudfront_distribution_id != "" ? 1 : 0
   bucket = aws_s3_bucket.cloudfront_assets.id
 
   policy = jsonencode({
