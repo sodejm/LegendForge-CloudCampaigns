@@ -120,10 +120,6 @@ resource "google_sql_database_instance" "foundry_replica" {
   region               = var.replica_region
   master_instance_name = google_sql_database_instance.foundry_primary.name
 
-  replica_configuration {
-    kind = "FAILOVER"
-  }
-
   settings {
     tier              = var.machine_type
     availability_type = "ZONAL"
