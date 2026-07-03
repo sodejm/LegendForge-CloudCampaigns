@@ -22,7 +22,7 @@ resource "azurerm_virtual_network" "main" {
   dynamic "ddos_protection_plan" {
     for_each = var.enable_ddos_protection ? [1] : []
     content {
-      id     = azurerm_ddos_protection_plan.main[0].id
+      id     = azurerm_network_ddos_protection_plan.main[0].id
       enable = true
     }
   }
@@ -31,7 +31,7 @@ resource "azurerm_virtual_network" "main" {
 }
 
 # DDoS Protection Plan (Standard)
-resource "azurerm_ddos_protection_plan" "main" {
+resource "azurerm_network_ddos_protection_plan" "main" {
   count               = var.enable_ddos_protection ? 1 : 0
   name                = "ddos-${var.project_name}-${var.environment}"
   location            = var.location
@@ -66,9 +66,9 @@ resource "azurerm_nat_gateway" "main" {
 
 # Associate NAT Gateway with Public IP
 resource "azurerm_nat_gateway_public_ip_association" "main" {
-  count          = var.enable_nat_gateway ? 1 : 0
-  nat_gateway_id = azurerm_nat_gateway.main[0].id
-  public_ip_id   = azurerm_public_ip.nat[0].id
+  count                = var.enable_nat_gateway ? 1 : 0
+  nat_gateway_id       = azurerm_nat_gateway.main[0].id
+  public_ip_address_id = azurerm_public_ip.nat[0].id
 }
 
 # Subnets with Service Endpoints
@@ -89,7 +89,7 @@ resource "azurerm_subnet" "app" {
   private_endpoint_network_policies_enabled = true
   service_endpoints                         = ["Microsoft.Storage", "Microsoft.KeyVault"]
 
-  depends_on = [azurerm_nat_gateway_subnet_association.app]
+  depends_on = [azurerm_subnet_nat_gateway_association.app]
 }
 
 resource "azurerm_subnet" "database" {
@@ -117,7 +117,7 @@ resource "azurerm_subnet" "storage" {
 }
 
 # Associate NAT Gateway with App Subnet
-resource "azurerm_nat_gateway_subnet_association" "app" {
+resource "azurerm_subnet_nat_gateway_association" "app" {
   count          = var.enable_nat_gateway ? 1 : 0
   subnet_id      = azurerm_subnet.app.id
   nat_gateway_id = azurerm_nat_gateway.main[0].id
