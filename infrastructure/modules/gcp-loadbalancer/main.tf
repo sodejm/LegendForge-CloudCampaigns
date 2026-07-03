@@ -30,7 +30,7 @@ resource "google_compute_backend_service" "foundry" {
     max_ttl                      = 86400
     negative_caching             = true
     serve_while_stale            = 86400
-    signed_url_cache_max_age_sec = 0
+    signed_url_cache_max_age_sec = 3600
     bypass_cache_on_request_headers {
       header_name = "Authorization"
     }
