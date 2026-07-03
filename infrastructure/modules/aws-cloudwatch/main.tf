@@ -209,7 +209,7 @@ resource "aws_cloudwatch_metric_alarm" "app_memory_high" {
 resource "aws_cloudwatch_log_metric_filter" "error_logs" {
   name           = "${var.environment}-error-logs"
   log_group_name = aws_cloudwatch_log_group.foundry_application.name
-  filter_pattern = "[ERROR]"
+  pattern        = "[ERROR]"
 
   metric_transformation {
     name      = "ErrorCount"

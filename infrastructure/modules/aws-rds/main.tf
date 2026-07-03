@@ -87,7 +87,7 @@ resource "aws_db_instance" "main" {
   monitoring_role_arn                   = aws_iam_role.rds_monitoring.arn
   performance_insights_enabled          = true
   performance_insights_retention_period = 7
-  enable_iam_database_authentication    = true
+  iam_database_authentication_enabled   = true
 
   # Parameters
   parameter_group_name = aws_db_parameter_group.main.name
