@@ -280,4 +280,5 @@ We want to ensure all contributors and projects are properly credited.
 ---
 
 **Last Updated:** June 28, 2026
+
 **LegendForge Focus:** Universal tabletop infrastructure for Foundry-compatible systems
