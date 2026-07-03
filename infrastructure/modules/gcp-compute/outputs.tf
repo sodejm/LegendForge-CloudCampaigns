@@ -9,7 +9,7 @@ output "instance_group_id" {
 }
 
 output "instance_group_manager_id" {
-  description = "Instance Group Manager ID"
+  description = "Instance Group Manager ID (compatibility alias for instance_group_id)"
   value       = google_compute_region_instance_group_manager.foundry.id
 }
 
