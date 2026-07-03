@@ -85,12 +85,12 @@ resource "hcloud_server" "foundry" {
 
 # ===== Volume (Persistent Data) =====
 resource "hcloud_volume" "foundry_data" {
-  count             = var.compute_enabled ? 1 : 0
-  name              = "${var.project_name}-${var.environment}-data-volume"
-  size              = var.data_volume_size_gb
-  server_id         = hcloud_server.foundry[0].id
-  automount         = false
-  format            = "ext4"
+  count     = var.compute_enabled ? 1 : 0
+  name      = "${var.project_name}-${var.environment}-data-volume"
+  size      = var.data_volume_size_gb
+  server_id = hcloud_server.foundry[0].id
+  automount = false
+  format    = "ext4"
 
   labels = {
     project = var.project_name
