@@ -552,4 +552,3 @@
 - Cloud SQL Best Practices: https://cloud.google.com/sql/docs/mysql/best-practices
 - Cloud Armor: https://cloud.google.com/armor/docs
 - Terraform GCP Provider: https://registry.terraform.io/providers/hashicorp/google/latest/docs
-
