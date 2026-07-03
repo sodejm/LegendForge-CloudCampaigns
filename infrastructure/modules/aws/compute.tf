@@ -65,11 +65,11 @@ resource "aws_key_pair" "admin" {
 
 # ===== EBS Volume Attachment =====
 resource "aws_volume_attachment" "foundry_data" {
-  count           = var.compute_enabled ? 1 : 0
-  device_name     = "/dev/sdf"
-  volume_id       = aws_ebs_volume.foundry_data[0].id
-  instance_id     = aws_instance.foundry[0].id
-  force_detach    = false
+  count        = var.compute_enabled ? 1 : 0
+  device_name  = "/dev/sdf"
+  volume_id    = aws_ebs_volume.foundry_data[0].id
+  instance_id  = aws_instance.foundry[0].id
+  force_detach = false
 }
 
 # ===== Foundry App Module (Provider-agnostic cloud-init generator) =====
@@ -77,19 +77,19 @@ resource "aws_volume_attachment" "foundry_data" {
 module "foundry_app" {
   source = "../../modules/foundry-app"
 
-  foundry_hostname         = var.foundry_hostname
-  data_device              = "/dev/disk/by-id/nvme-*-volume-foundry-data"  # AWS EBS volume ID reference
-  data_mount_path          = var.data_mount_path
-  data_volume_fs_label     = var.data_volume_fs_label
-  foundry_image            = var.foundry_image
-  cloudflared_image        = var.cloudflared_image
-  timezone                 = var.timezone
-  foundry_username         = var.foundry_username
-  foundry_password         = var.foundry_password
-  foundry_release_url      = var.foundry_release_url
-  foundry_license_key      = var.foundry_license_key
-  foundry_admin_key        = var.foundry_admin_key
-  cloudflare_tunnel_token  = var.cloudflare_tunnel_token
+  foundry_hostname        = var.foundry_hostname
+  data_device             = "/dev/disk/by-id/nvme-*-volume-foundry-data" # AWS EBS volume ID reference
+  data_mount_path         = var.data_mount_path
+  data_volume_fs_label    = var.data_volume_fs_label
+  foundry_image           = var.foundry_image
+  cloudflared_image       = var.cloudflared_image
+  timezone                = var.timezone
+  foundry_username        = var.foundry_username
+  foundry_password        = var.foundry_password
+  foundry_release_url     = var.foundry_release_url
+  foundry_license_key     = var.foundry_license_key
+  foundry_admin_key       = var.foundry_admin_key
+  cloudflare_tunnel_token = var.cloudflare_tunnel_token
 }
 
 # ===== CloudWatch Detailed Monitoring (if enabled) =====

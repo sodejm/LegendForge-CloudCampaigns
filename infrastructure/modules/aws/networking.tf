@@ -77,8 +77,8 @@ resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block      = "0.0.0.0/0"
-    gateway_id      = aws_internet_gateway.main.id
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
   }
 
   tags = merge(local.common_tags, {
@@ -178,12 +178,12 @@ resource "aws_security_group" "database" {
 
 # ===== VPC Flow Logs to CloudWatch =====
 resource "aws_flow_log" "vpc" {
-  count                   = var.enable_monitoring ? 1 : 0
-  iam_role_arn            = aws_iam_role.vpc_flow_logs[0].arn
-  log_destination         = aws_cloudwatch_log_group.vpc_flow_logs[0].arn
-  traffic_type            = "ALL"
-  vpc_id                  = aws_vpc.main.id
-  log_destination_type    = "cloud-watch-logs"
+  count                = var.enable_monitoring ? 1 : 0
+  iam_role_arn         = aws_iam_role.vpc_flow_logs[0].arn
+  log_destination      = aws_cloudwatch_log_group.vpc_flow_logs[0].arn
+  traffic_type         = "ALL"
+  vpc_id               = aws_vpc.main.id
+  log_destination_type = "cloud-watch-logs"
 
   tags = merge(local.common_tags, {
     Name = "${local.name_prefix}-vpc-flow-logs"

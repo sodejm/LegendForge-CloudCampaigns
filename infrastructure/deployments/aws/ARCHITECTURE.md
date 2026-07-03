@@ -442,4 +442,3 @@ EC2 (Foundry) → VPC Endpoint (S3) → S3 Bucket
 | CloudWatch | - | Varies | $2 |
 | Route53 | - | $0.50/zone | $0.50 |
 | **Total (2 instances)** | - | - | **~$150-200** |
-

@@ -58,7 +58,7 @@ data "aws_secretsmanager_secret_version" "db_password" {
 # Use in RDS module
 module "rds" {
   source = "../../modules/aws-rds"
-  
+
   database_password = jsondecode(data.aws_secretsmanager_secret_version.db_password.secret_string).password
   # ... other variables
 }
@@ -108,17 +108,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      
+
       - name: Terraform Deploy
         run: |
           cd deployments/aws
