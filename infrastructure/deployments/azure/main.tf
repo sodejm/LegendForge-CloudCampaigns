@@ -137,17 +137,13 @@ module "compute" {
   foundry_license_key        = var.foundry_license_key
   database_host              = module.database.mysql_server_fqdn
   database_name              = var.project_name
-  storage_account_name       = module.storage.storage_account_name
-  storage_account_key        = module.storage.storage_account_primary_access_key
-  key_vault_uri              = module.security.key_vault_uri
   enable_monitoring          = var.enable_monitoring
-  log_analytics_workspace_id = var.enable_monitoring ? module.monitoring[0].log_analytics_workspace_id : ""
 
   tags = merge(var.common_tags, {
     Module = "compute"
   })
 
-  depends_on = [module.database, module.storage]
+  depends_on = [module.database]
 }
 
 # Monitoring Module for LegendForge multi-system operations.
