@@ -19,9 +19,6 @@ terraform {
 
 provider "azurerm" {
   features {
-    virtual_machine {
-      delete_os_disk_on_delete = true
-    }
     key_vault {
       purge_soft_delete_on_destroy = false
     }
