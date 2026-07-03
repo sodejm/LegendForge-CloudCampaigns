@@ -20,7 +20,8 @@ data "hcloud_image" "ubuntu" {
 
 # ===== Network =====
 resource "hcloud_network" "foundry" {
-  name = "${var.project_name}-${var.environment}-network"
+  name     = "${var.project_name}-${var.environment}-network"
+  ip_range = var.network_cidr
 }
 
 resource "hcloud_network_subnet" "foundry" {
@@ -38,23 +39,20 @@ resource "hcloud_firewall" "foundry" {
   dynamic "rule" {
     for_each = var.admin_ssh_cidr != null ? [1] : []
     content {
-      direction = "in"
-      port      = "22"
-      protocol  = "tcp"
-      source {
-        cidr = var.admin_ssh_cidr
-      }
+      direction  = "in"
+      port       = "22"
+      protocol   = "tcp"
+      source_ips = [var.admin_ssh_cidr]
     }
   }
 
   # Egress: Allow all (implicit in Hetzner)
   rule {
-    direction = "out"
-    port      = "any"
-    protocol  = "esp"
-    destination {
-      cidr = "0.0.0.0/0"
-    }
+    direction       = "out"
+    port            = ""
+    protocol        = "any"
+    source_ips      = ["0.0.0.0/0", "::/0"]
+    destination_ips = ["0.0.0.0/0", "::/0"]
   }
 
   labels = {
