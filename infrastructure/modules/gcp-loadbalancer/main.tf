@@ -31,6 +31,12 @@ resource "google_compute_backend_service" "foundry" {
     negative_caching  = true
     serve_while_stale = 86400
 
+    cache_key_policy {
+      include_host         = true
+      include_protocol     = true
+      include_query_string = true
+    }
+
     negative_caching_policy {
       code = 404
       ttl  = 120
@@ -180,7 +186,6 @@ resource "google_compute_security_policy" "foundry" {
     action   = "allow"
     priority = "65535"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "true"
       }
@@ -193,7 +198,6 @@ resource "google_compute_security_policy" "foundry" {
     action   = "rate_based_ban"
     priority = "1000"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "true"
       }
@@ -232,7 +236,6 @@ resource "google_compute_security_policy" "foundry" {
     action   = "deny(403)"
     priority = "3000"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "evaluatePreconfiguredExpr('sqli-v33-stable')"
       }
@@ -245,7 +248,6 @@ resource "google_compute_security_policy" "foundry" {
     action   = "deny(403)"
     priority = "3100"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "evaluatePreconfiguredExpr('xss-v33-stable')"
       }
