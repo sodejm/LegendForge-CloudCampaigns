@@ -125,6 +125,18 @@ variable "key_vault_uri" {
   type        = string
 }
 
+variable "enable_monitoring" {
+  description = "Whether to enable monitoring integrations for LegendForge compute resources."
+  type        = bool
+  default     = false
+}
+
+variable "log_analytics_workspace_id" {
+  description = "Log Analytics workspace identifier for LegendForge monitoring integrations."
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "Metadata tags applied to LegendForge universal tabletop infrastructure resources."
   type        = map(string)
