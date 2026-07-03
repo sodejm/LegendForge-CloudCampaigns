@@ -170,8 +170,8 @@ For guidance on common system families, see **[SUPPORTED_SYSTEMS.md](SUPPORTED_S
 ```bash
 cd infrastructure/deployments/aws
 terraform init
-terraform plan -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
-terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
+terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
+terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
 ```
 
 **Features:** VPC, EC2, EBS, RDS-ready, CloudWatch monitoring, Systems Manager Session Manager
@@ -183,8 +183,8 @@ terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../co
 ```bash
 cd infrastructure/deployments/azure
 terraform init
-terraform plan -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
-terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
+terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
+terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
 ```
 
 **Features:** VNet, VMs, Key Vault RBAC, Bastion break-glass, Managed Disks
@@ -196,8 +196,8 @@ terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../co
 ```bash
 cd infrastructure/deployments/gcp
 terraform init
-terraform plan -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars" -var="project_id=your-project-id"
-terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars" -var="project_id=your-project-id"
+terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars" -var="project_id=your-project-id"
+terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars" -var="project_id=your-project-id"
 ```
 
 **Features:** Compute Engine, VPC, Cloud NAT, OS Login, Secret Manager, Cloud Monitoring
@@ -210,8 +210,8 @@ terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../co
 export HCLOUD_TOKEN="your-hetzner-token"
 cd infrastructure/deployments/hetzner
 terraform init
-terraform plan -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
-terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
+terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
+terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
 ```
 
 **Features:** Simple, cost-effective, EU-based, SSD volumes, straightforward management
@@ -305,19 +305,19 @@ hcloud volume create-backup <volume-id>
 All platforms support spin-down via variable:
 
 ```bash
-terraform apply -var="compute_enabled=false"   -var-file="../../config/foundry.auto.tfvars"   -var-file="../../config/secrets.auto.tfvars"
+terraform apply -var="compute_enabled=false"   -var-file="../../../config/foundry.auto.tfvars"   -var-file="../../../config/secrets.auto.tfvars"
 ```
 
 ### Resume Deployment
 
 ```bash
-terraform apply -var="compute_enabled=true"   -var-file="../../config/foundry.auto.tfvars"   -var-file="../../config/secrets.auto.tfvars"
+terraform apply -var="compute_enabled=true"   -var-file="../../../config/foundry.auto.tfvars"   -var-file="../../../config/secrets.auto.tfvars"
 ```
 
 ### Destroy Infrastructure
 
 ```bash
-terraform destroy   -var-file="../../config/foundry.auto.tfvars"   -var-file="../../config/secrets.auto.tfvars"
+terraform destroy   -var-file="../../../config/foundry.auto.tfvars"   -var-file="../../../config/secrets.auto.tfvars"
 ```
 
 ⚠️ **WARNING:** This deletes data volumes. Create snapshots first if needed.
@@ -471,7 +471,7 @@ Update Foundry by changing `foundry_image` in config and re-applying:
 foundry_image = "felddy/foundryvtt@sha256:new-digest"
 
 # Apply changes
-terraform apply -var-file="../../config/foundry.auto.tfvars"                 -var-file="../../config/secrets.auto.tfvars"
+terraform apply -var-file="../../../config/foundry.auto.tfvars"                 -var-file="../../../config/secrets.auto.tfvars"
 ```
 
 ### Multi-System Change Management

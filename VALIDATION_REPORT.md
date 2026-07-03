@@ -187,7 +187,7 @@ Removed 6 unused variable definitions for code cleanliness:
 
 2. **Planning:**
    ```bash
-   terraform plan -var-file=../../config/secrets.auto.tfvars -out=tfplan
+   terraform plan -var-file=../../../config/secrets.auto.tfvars -out=tfplan
    ```
 
 3. **Cloud-Init Testing:**
