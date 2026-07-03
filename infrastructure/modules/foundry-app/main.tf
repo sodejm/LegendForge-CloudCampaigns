@@ -25,17 +25,3 @@ locals {
   })
 }
 
-# =============================================================================
-# Output: cloud-init user-data for VM provisioning
-# =============================================================================
-output "user_data" {
-  description = "Cloud-init user-data script for LegendForge provisioning"
-  value       = base64encode(local.cloud_init_template)
-  sensitive   = true
-}
-
-output "user_data_raw" {
-  description = "Cloud-init user-data script (unencoded)"
-  value       = local.cloud_init_template
-  sensitive   = true
-}
