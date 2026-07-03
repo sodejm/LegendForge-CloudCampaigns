@@ -56,10 +56,10 @@ resource "azurerm_key_vault_access_policy" "main" {
 
 # Store secrets
 resource "azurerm_key_vault_secret" "secrets" {
-  for_each = nonsensitive(var.secrets)
+  for_each = nonsensitive(toset(keys(var.secrets)))
 
   name         = replace(each.key, "_", "-")
-  value        = each.value
+  value        = var.secrets[each.key]
   key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [azurerm_key_vault_access_policy.main]
