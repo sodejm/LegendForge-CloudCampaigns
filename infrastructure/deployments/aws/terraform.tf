@@ -14,6 +14,16 @@ terraform {
 
   # For now, use local state. Migrate to S3 backend after initial setup.
   # To migrate: run 'terraform init' after uncommenting the backend block above.
+
+  # Terraform version and provider requirements
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
 }
 
 # ===== S3 Bucket for Terraform State (Optional: create outside Terraform first) =====
@@ -28,13 +38,3 @@ terraform {
 # Instructions:
 # 1. Create manually: aws dynamodb create-table --table-name foundry-terraform-locks --attribute-definitions AttributeName=LockID,AttributeType=S --key-schema AttributeName=LockID,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --region us-east-1
 # 2. Add TTL: aws dynamodb update-time-to-live --table-name foundry-terraform-locks --time-to-live-specification AttributeName=Expires,Enabled=true --region us-east-1
-
-# Terraform version and provider requirements
-required_version = ">= 1.0"
-
-required_providers {
-  aws = {
-    source  = "hashicorp/aws"
-    version = "~> 5.0"
-  }
-}
