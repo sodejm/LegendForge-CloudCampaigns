@@ -30,6 +30,7 @@ output "connect_command" {
 output "foundry_summary" {
   description = "Summary of Foundry deployment on AWS"
   value       = "Foundry deployed to ${var.environment} — ASG: ${module.asg_ec2.asg_name}, URL: https://${var.foundry_hostname}"
+  sensitive   = true
 }
 
 # ===== Next Steps =====
@@ -60,4 +61,5 @@ output "next_steps" {
          terraform apply -var="compute_enabled=true"
     EOT
   ) : "Instance is disabled (compute_enabled=false). Run: terraform apply -var='compute_enabled=true'"
+  sensitive = true
 }
