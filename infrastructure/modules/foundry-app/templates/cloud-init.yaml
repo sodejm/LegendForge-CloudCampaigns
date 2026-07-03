@@ -100,6 +100,16 @@ write_files:
       # Create mount directory
       mkdir -p "$${DATA_MOUNT_PATH}"
 
+      # Resolve wildcard device paths when providers expose stable prefixes instead of exact names
+      if [[ "$${DATA_DEVICE}" == *"*"* || "$${DATA_DEVICE}" == *"?"* || "$${DATA_DEVICE}" == *"["* ]]; then
+        MATCHED_DEVICES=( $${DATA_DEVICE} )
+        if [ "$${#MATCHED_DEVICES[@]}" -eq 0 ] || [ "$${MATCHED_DEVICES[0]}" = "$${DATA_DEVICE}" ]; then
+          echo "No device matched pattern $${DATA_DEVICE}" >&2
+          exit 1
+        fi
+        DATA_DEVICE="$${MATCHED_DEVICES[0]}"
+      fi
+
       # Check if device is already formatted
       if ! sudo blkid "$${DATA_DEVICE}" >/dev/null 2>&1; then
         echo "Formatting $${DATA_DEVICE}..."
