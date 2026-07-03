@@ -19,12 +19,12 @@ locals {
   }
 
   # Networking defaults
-  vnet_cidr             = var.vnet_cidr
-  subnet_cidr           = var.subnet_cidr
-  bastion_subnet_cidr   = var.bastion_subnet_cidr
+  vnet_cidr           = var.vnet_cidr
+  subnet_cidr         = var.subnet_cidr
+  bastion_subnet_cidr = var.bastion_subnet_cidr
 
   # Compute defaults
-  vm_size = var.vm_size
+  vm_size         = var.vm_size
   os_disk_size_gb = 30
 }
 

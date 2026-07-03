@@ -73,7 +73,7 @@ variable "data_disk_size_gb" {
 variable "data_disk_type" {
   description = "Storage setting for LegendForge persistent worlds, assets, backups, or shared multi-system data."
   type        = string
-  default     = "Premium_LRS"  # Premium SSD
+  default     = "Premium_LRS" # Premium SSD
   validation {
     condition     = contains(["Standard_LRS", "Premium_LRS", "StandardSSD_LRS", "UltraSSD_LRS"], var.data_disk_type)
     error_message = "Must be one of: Standard_LRS, Premium_LRS, StandardSSD_LRS, UltraSSD_LRS"
@@ -195,5 +195,5 @@ variable "timezone" {
 variable "image_resource_group" {
   description = "Resource group containing the VM image for LegendForge's universal tabletop infrastructure."
   type        = string
-  default     = ""  # Use current resource group if empty
+  default     = "" # Use current resource group if empty
 }
