@@ -213,6 +213,12 @@ variable "create_certificate" {
   default     = true
 }
 
+variable "certificate_arn" {
+  description = "ARN of a pre-existing ACM certificate to attach to the ALB HTTPS listener. Required when create_certificate is false; ignored when create_certificate is true and the certificate is managed separately."
+  type        = string
+  default     = ""
+}
+
 # =============================================================================
 # CloudWatch Configuration
 # =============================================================================

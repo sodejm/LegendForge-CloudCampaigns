@@ -68,6 +68,8 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+data "aws_caller_identity" "current" {}
+
 # =============================================================================
 # Module: VPC for LegendForge multi-system operations.
 # =============================================================================
@@ -124,7 +126,6 @@ module "s3" {
   source = "../../modules/aws-s3"
 
   environment                = var.environment
-  cloudfront_distribution_id = try(module.cloudfront.distribution_id, "")
   tags                       = local.common_tags
 
   depends_on = [module.vpc]
@@ -153,7 +154,7 @@ module "alb" {
   vpc_id                = module.vpc.vpc_id
   public_subnet_ids     = module.vpc.public_subnet_ids
   alb_security_group_id = module.security_groups.alb_security_group_id
-  certificate_arn       = module.route53.certificate_arn
+  certificate_arn       = var.certificate_arn
   tags                  = local.common_tags
 
   depends_on = [module.vpc, module.security_groups]
@@ -240,6 +241,51 @@ module "route53" {
   tags                = local.common_tags
 
   depends_on = [module.alb]
+}
+
+# =============================================================================
+# S3 Bucket Policy: CloudFront Assets
+# Applied after CloudFront is provisioned to break the S3 ↔ CloudFront cycle.
+# =============================================================================
+resource "aws_s3_bucket_policy" "cloudfront_assets" {
+  bucket = module.s3.cloudfront_assets_bucket_name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontOAC"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${module.s3.cloudfront_assets_bucket_arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${module.cloudfront.distribution_id}"
+          }
+        }
+      },
+      {
+        Sid       = "DenyUnencryptedTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          module.s3.cloudfront_assets_bucket_arn,
+          "${module.s3.cloudfront_assets_bucket_arn}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      }
+    ]
+  })
+
+  depends_on = [module.s3, module.cloudfront]
 }
 
 # =============================================================================
