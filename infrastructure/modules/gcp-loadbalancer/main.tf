@@ -31,6 +31,12 @@ resource "google_compute_backend_service" "foundry" {
     negative_caching  = true
     serve_while_stale = 86400
 
+    cache_key_policy {
+      include_host         = true
+      include_protocol     = true
+      include_query_string = true
+    }
+
     negative_caching_policy {
       code = 404
       ttl  = 120
