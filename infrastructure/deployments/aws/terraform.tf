@@ -14,6 +14,16 @@ terraform {
 
   # For now, use local state. Migrate to S3 backend after initial setup.
   # To migrate: run 'terraform init' after uncommenting the backend block above.
+
+  # Terraform version and provider requirements
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
 }
 
 # ===== S3 Bucket for Terraform State (Optional: create outside Terraform first) =====
