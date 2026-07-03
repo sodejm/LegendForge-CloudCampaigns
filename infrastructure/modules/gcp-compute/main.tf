@@ -74,7 +74,7 @@ resource "google_compute_instance_template" "foundry" {
   labels = var.labels
 
   # Shielded VM security
-  shielded_vm_config {
+  shielded_instance_config {
     enable_secure_boot          = true
     enable_vtpm                 = true
     enable_integrity_monitoring = true
