@@ -108,12 +108,11 @@ resource "azurerm_mysql_flexible_server_firewall_rule" "app" {
 
 # PostgreSQL Firewall Rule (allow from app subnet)
 resource "azurerm_postgresql_flexible_server_firewall_rule" "app" {
-  count               = var.db_engine == "postgres" ? 1 : 0
-  name                = "AllowAppSubnet"
-  server_name         = azurerm_postgresql_flexible_server.main[0].name
-  resource_group_name = var.resource_group_name
-  start_ip_address    = "10.0.2.0"
-  end_ip_address      = "10.0.3.255"
+  count            = var.db_engine == "postgres" ? 1 : 0
+  name             = "AllowAppSubnet"
+  server_id        = azurerm_postgresql_flexible_server.main[0].id
+  start_ip_address = "10.0.2.0"
+  end_ip_address   = "10.0.3.255"
 }
 
 # Private DNS Zones
@@ -167,9 +166,8 @@ resource "azurerm_mysql_flexible_server_configuration" "max_connections" {
 
 # PostgreSQL Configuration
 resource "azurerm_postgresql_flexible_server_configuration" "max_connections" {
-  count               = var.db_engine == "postgres" ? 1 : 0
-  name                = "max_connections"
-  server_name         = azurerm_postgresql_flexible_server.main[0].name
-  resource_group_name = var.resource_group_name
-  value               = "500"
+  count     = var.db_engine == "postgres" ? 1 : 0
+  name      = "max_connections"
+  server_id = azurerm_postgresql_flexible_server.main[0].id
+  value     = "500"
 }

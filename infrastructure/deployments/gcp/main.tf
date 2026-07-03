@@ -81,7 +81,7 @@ module "secrets" {
 
   project_name             = var.project_name
   region                   = var.primary_region
-  gcp_project_number       = data.google_client_config.current.project_number
+  gcp_project_number       = data.google_project.current.number
   foundry_compute_sa_email = module.iam.foundry_compute_sa_email
   database_password        = var.database_password
   foundry_license_key      = var.foundry_license_key
@@ -219,6 +219,7 @@ module "monitoring" {
 # =============================================================================
 
 data "google_client_config" "current" {}
+data "google_project" "current" {}
 
 # =============================================================================
 # Outputs

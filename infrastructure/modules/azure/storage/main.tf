@@ -71,7 +71,7 @@ resource "azurerm_private_endpoint" "blob" {
   name                = "pe-blob-${var.environment}"
   location            = var.location
   resource_group_name = var.resource_group_name
-  subnet_id           = var.app_subnet_id
+  subnet_id           = var.storage_subnet_id
 
   private_service_connection {
     name                           = "psc-blob"
@@ -136,6 +136,7 @@ resource "azurerm_cdn_endpoint" "media" {
 
 # Storage Account Access Policy - Grant managed identity access
 resource "azurerm_role_assignment" "storage_blob_data_contributor" {
+  count                = var.managed_identity_principal_id != "" ? 1 : 0
   scope                = azurerm_storage_account.main.id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = var.managed_identity_principal_id
@@ -143,6 +144,7 @@ resource "azurerm_role_assignment" "storage_blob_data_contributor" {
 
 # Storage Account Access Policy - Grant managed identity read access
 resource "azurerm_role_assignment" "storage_blob_data_reader" {
+  count                = var.managed_identity_principal_id != "" ? 1 : 0
   scope                = azurerm_storage_account.main.id
   role_definition_name = "Storage Blob Data Reader"
   principal_id         = var.managed_identity_principal_id

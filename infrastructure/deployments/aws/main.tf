@@ -123,9 +123,8 @@ module "rds" {
 module "s3" {
   source = "../../modules/aws-s3"
 
-  environment                = var.environment
-  cloudfront_distribution_id = try(module.cloudfront.distribution_id, "")
-  tags                       = local.common_tags
+  environment = var.environment
+  tags        = local.common_tags
 
   depends_on = [module.vpc]
 }
@@ -153,7 +152,6 @@ module "alb" {
   vpc_id                = module.vpc.vpc_id
   public_subnet_ids     = module.vpc.public_subnet_ids
   alb_security_group_id = module.security_groups.alb_security_group_id
-  certificate_arn       = module.route53.certificate_arn
   tags                  = local.common_tags
 
   depends_on = [module.vpc, module.security_groups]

@@ -23,9 +23,9 @@ resource "azurerm_key_vault" "main" {
   purge_protection_enabled        = true
   public_network_access_enabled   = true
 
-  network_rules {
+  network_acls {
     default_action = "Deny"
-    bypass         = ["AzureServices"]
+    bypass         = "AzureServices"
   }
 
   tags = var.tags
@@ -52,7 +52,7 @@ resource "azurerm_key_vault_access_policy" "main" {
 
 # Store secrets
 resource "azurerm_key_vault_secret" "secrets" {
-  for_each = var.secrets
+  for_each = nonsensitive(var.secrets)
 
   name         = replace(each.key, "_", "-")
   value        = each.value
@@ -103,14 +103,4 @@ resource "azurerm_private_dns_a_record" "keyvault" {
   records             = [azurerm_private_endpoint.keyvault.private_service_connection[0].private_ip_address]
 }
 
-# Allow Key Vault through firewall
-resource "azurerm_key_vault_network_rule" "main" {
-  key_vault_id = azurerm_key_vault.main.id
-
-  default_action             = "Deny"
-  bypass                     = ["AzureServices"]
-  virtual_network_subnet_ids = []
-  ip_rules                   = []
-
-  depends_on = [azurerm_key_vault_access_policy.main]
-}
+# Network rules are configured via network_acls block in azurerm_key_vault above

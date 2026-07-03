@@ -24,14 +24,16 @@ resource "google_compute_backend_service" "foundry" {
   enable_cdn = var.enable_cdn
 
   cdn_policy {
-    cache_mode                      = "CACHE_ALL_STATIC"
-    client_ttl                      = 3600
-    default_ttl                     = 3600
-    max_ttl                         = 86400
-    negative_caching                = true
-    negative_caching_ttl            = 120
-    serve_while_stale               = 86400
-    bypass_cache_on_request_headers = ["Authorization"]
+    cache_mode                   = "CACHE_ALL_STATIC"
+    client_ttl                   = 3600
+    default_ttl                  = 3600
+    max_ttl                      = 86400
+    negative_caching             = true
+    serve_while_stale            = 86400
+    signed_url_cache_max_age_sec = 0
+    bypass_cache_on_request_headers {
+      header_name = "Authorization"
+    }
   }
 
   # Connection draining timeout
@@ -67,12 +69,10 @@ resource "google_compute_backend_service" "foundry" {
       seconds = 10
     }
 
-    max_ejection_percent                    = 50
-    min_request_volume                      = 50
-    split_external_local_originated_traffic = false
-    success_rate_minimum_hosts              = 5
-    success_rate_request_volume             = 100
-    success_rate_stdev_factor               = 1900
+    max_ejection_percent        = 50
+    success_rate_minimum_hosts  = 5
+    success_rate_request_volume = 100
+    success_rate_stdev_factor   = 1900
   }
 
   depends_on = [var.health_check_id]
@@ -171,11 +171,10 @@ resource "google_compute_security_policy" "foundry" {
   description = "Cloud Armor policy for LegendForge (DDoS, rate limiting, WAF) with multi-system support."
 
   # Default rule (allow)
-  rules {
+  rule {
     action   = "allow"
     priority = "65535"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "true"
       }
@@ -184,11 +183,10 @@ resource "google_compute_security_policy" "foundry" {
   }
 
   # Rate limiting: Max 100 requests per minute per IP
-  rules {
+  rule {
     action   = "rate_based_ban"
     priority = "1000"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "true"
       }
@@ -214,7 +212,6 @@ resource "google_compute_security_policy" "foundry" {
   #   action   = "deny(403)"
   #   priority = "2000"
   #   match {
-  #     versioned_expr = "EXPR_V1"
   #     expr {
   #       expression = "origin.region_code == 'CN' || origin.region_code == 'RU'"
   #     }
@@ -223,11 +220,10 @@ resource "google_compute_security_policy" "foundry" {
   # }
 
   # SQL injection detection
-  rules {
+  rule {
     action   = "deny(403)"
     priority = "3000"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "evaluatePreconfiguredExpr('sqli-v33-stable')"
       }
@@ -236,11 +232,10 @@ resource "google_compute_security_policy" "foundry" {
   }
 
   # XSS detection
-  rules {
+  rule {
     action   = "deny(403)"
     priority = "3100"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "evaluatePreconfiguredExpr('xss-v33-stable')"
       }
