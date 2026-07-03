@@ -198,4 +198,3 @@ resource "google_compute_firewall" "foundry_lb" {
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["foundry-compute"]
 }
-

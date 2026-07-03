@@ -187,4 +187,3 @@ resource "aws_cloudfront_function" "security_headers" {
 }
 
 # Associate security headers function with distribution via cache behaviors above
-
