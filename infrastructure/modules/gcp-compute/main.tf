@@ -94,17 +94,20 @@ resource "google_compute_region_instance_group_manager" "foundry" {
   region = var.primary_region
 
   base_instance_name = "${var.project_name}-foundry"
-  instance_template  = google_compute_instance_template.foundry.id
+  version {
+    instance_template = google_compute_instance_template.foundry.id
+    name              = "primary"
+  }
 
   # Initial target size (can be overridden by autoscaler)
   target_size = var.min_instances
 
   # Rolling update strategy
   update_policy {
-    max_surge       = 1
-    max_unavailable = 0
-    type            = "PROACTIVE"
-    minimal_action  = "RESTART"
+    max_surge_fixed       = 1
+    max_unavailable_fixed = 0
+    type                  = "PROACTIVE"
+    minimal_action        = "RESTART"
   }
 
   # Auto-healing with health checks
