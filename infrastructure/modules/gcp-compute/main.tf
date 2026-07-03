@@ -94,10 +94,10 @@ resource "google_compute_region_instance_group_manager" "foundry" {
   region = var.primary_region
 
   base_instance_name = "${var.project_name}-foundry"
-
   # Instance template version
   version {
     instance_template = google_compute_instance_template.foundry.id
+    name              = "primary"
   }
 
   # Initial target size (can be overridden by autoscaler)
