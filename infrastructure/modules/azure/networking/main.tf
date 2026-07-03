@@ -88,8 +88,6 @@ resource "azurerm_subnet" "app" {
   address_prefixes                          = var.subnet_config.app.address_prefixes
   private_endpoint_network_policies_enabled = true
   service_endpoints                         = ["Microsoft.Storage", "Microsoft.KeyVault"]
-
-  depends_on = [azurerm_subnet_nat_gateway_association.app]
 }
 
 resource "azurerm_subnet" "database" {
