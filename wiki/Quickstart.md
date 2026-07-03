@@ -6,7 +6,7 @@ Use this page when you want the shortest path from repository clone to a running
 
 You need:
 
-1. Terraform 1.0 or newer
+1. Terraform 1.5 or newer
 2. One target cloud platform: AWS, Azure, GCP, or Hetzner
 3. A valid Foundry VTT license or Foundry account download credentials
 4. A Cloudflare-managed DNS zone
@@ -51,8 +51,8 @@ Keep `config/secrets.auto.tfvars` private.
 ```bash
 cd infrastructure/deployments/aws
 terraform init
-terraform plan -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
-terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
+terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
+terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
 ```
 
 #### Azure
@@ -60,8 +60,8 @@ terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../co
 ```bash
 cd infrastructure/deployments/azure
 terraform init
-terraform plan -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
-terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
+terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
+terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
 ```
 
 #### GCP
@@ -69,8 +69,8 @@ terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../co
 ```bash
 cd infrastructure/deployments/gcp
 terraform init
-terraform plan -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars" -var="project_id=your-project-id"
-terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars" -var="project_id=your-project-id"
+terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars" -var="gcp_project_id=your-project-id"
+terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars" -var="gcp_project_id=your-project-id"
 ```
 
 #### Hetzner
@@ -79,8 +79,8 @@ terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../co
 export HCLOUD_TOKEN="your-hetzner-token"
 cd infrastructure/deployments/hetzner
 terraform init
-terraform plan -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
-terraform apply -var-file="../../config/foundry.auto.tfvars" -var-file="../../config/secrets.auto.tfvars"
+terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
+terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
 ```
 
 ### 5. Finalize inside Foundry

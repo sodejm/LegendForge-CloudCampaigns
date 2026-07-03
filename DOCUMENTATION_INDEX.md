@@ -194,4 +194,5 @@ Please open an issue or submit a pull request.
 ---
 
 **Last Updated:** June 28, 2026
+
 **LegendForge Positioning:** Universal tabletop infrastructure for Foundry-compatible systems
