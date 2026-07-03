@@ -11,9 +11,8 @@ resource "google_sql_database_instance" "foundry_primary" {
   region           = var.primary_region
 
   settings {
-    tier                = var.machine_type
-    availability_type   = "REGIONAL" # High Availability with failover replica
-    deletion_protection = var.deletion_protection
+    tier              = var.machine_type
+    availability_type = "REGIONAL" # High Availability with failover replica
 
     # Backup configuration
     backup_configuration {
@@ -23,6 +22,7 @@ resource "google_sql_database_instance" "foundry_primary" {
         retained_backups = 30
         retention_unit   = "COUNT"
       }
+      location                       = var.backup_location
       start_time                     = "02:00"
       transaction_log_retention_days = 7
     }
@@ -45,12 +45,10 @@ resource "google_sql_database_instance" "foundry_primary" {
 
     # IP configuration
     ip_configuration {
-      require_ssl         = true
-      enable_private_path = false
-      ipv4_enabled        = var.enable_public_ip
-      private_network     = var.vpc_network_id
-      enable_private_ip   = true
-      allocated_ip_range  = null
+      require_ssl        = true
+      ipv4_enabled       = var.enable_public_ip
+      private_network    = var.vpc_network_id
+      allocated_ip_range = null
 
       authorized_networks {
         name  = "gcp-internal"
@@ -60,7 +58,6 @@ resource "google_sql_database_instance" "foundry_primary" {
 
     # Maintenance window
     maintenance_window {
-      kind         = "MYSQL"
       day          = 0 # Sunday
       hour         = 3
       update_track = "stable"
@@ -72,12 +69,6 @@ resource "google_sql_database_instance" "foundry_primary" {
       query_string_length     = 1024
       record_application_tags = false
     }
-
-    # Backup location
-    backup_configuration {
-      location = var.backup_location
-    }
-
     # User labels
     user_labels = var.labels
   }
@@ -151,11 +142,4 @@ resource "google_sql_database_instance" "foundry_replica" {
 resource "google_sql_ssl_cert" "foundry_ssl" {
   common_name = "foundry-app"
   instance    = google_sql_database_instance.foundry_primary.name
-}
-
-# --- Backup of replica instance (if enabled) ---
-resource "google_sql_backup_run" "backup" {
-  count    = var.enable_automated_backups ? 1 : 0
-  instance = google_sql_database_instance.foundry_primary.name
-  type     = "ON_DEMAND"
 }
