@@ -91,7 +91,6 @@ resource "hcloud_volume" "foundry_data" {
   server_id         = hcloud_server.foundry[0].id
   automount         = false
   format            = "ext4"
-  linux_device_name = "/dev/disk/by-id/scsi-0HC_Volume_${hcloud_volume.foundry_data[0].id}"
 
   labels = {
     project = var.project_name
