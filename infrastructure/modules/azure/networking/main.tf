@@ -73,28 +73,28 @@ resource "azurerm_nat_gateway_public_ip_association" "main" {
 
 # Subnets with Service Endpoints
 resource "azurerm_subnet" "gateway" {
-  name                                      = var.subnet_config.gateway.name
-  resource_group_name                       = azurerm_resource_group.main.name
-  virtual_network_name                      = azurerm_virtual_network.main.name
-  address_prefixes                          = var.subnet_config.gateway.address_prefixes
+  name                              = var.subnet_config.gateway.name
+  resource_group_name               = azurerm_resource_group.main.name
+  virtual_network_name              = azurerm_virtual_network.main.name
+  address_prefixes                  = var.subnet_config.gateway.address_prefixes
   private_endpoint_network_policies = "Enabled"
   service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Sql"]
 }
 
 resource "azurerm_subnet" "app" {
-  name                                      = var.subnet_config.app.name
-  resource_group_name                       = azurerm_resource_group.main.name
-  virtual_network_name                      = azurerm_virtual_network.main.name
-  address_prefixes                          = var.subnet_config.app.address_prefixes
+  name                              = var.subnet_config.app.name
+  resource_group_name               = azurerm_resource_group.main.name
+  virtual_network_name              = azurerm_virtual_network.main.name
+  address_prefixes                  = var.subnet_config.app.address_prefixes
   private_endpoint_network_policies = "Enabled"
   service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
 resource "azurerm_subnet" "database" {
-  name                                      = var.subnet_config.database.name
-  resource_group_name                       = azurerm_resource_group.main.name
-  virtual_network_name                      = azurerm_virtual_network.main.name
-  address_prefixes                          = var.subnet_config.database.address_prefixes
+  name                              = var.subnet_config.database.name
+  resource_group_name               = azurerm_resource_group.main.name
+  virtual_network_name              = azurerm_virtual_network.main.name
+  address_prefixes                  = var.subnet_config.database.address_prefixes
   private_endpoint_network_policies = "Enabled"
   service_endpoints                 = ["Microsoft.Sql"]
   delegation {
@@ -106,10 +106,10 @@ resource "azurerm_subnet" "database" {
 }
 
 resource "azurerm_subnet" "storage" {
-  name                                      = var.subnet_config.storage.name
-  resource_group_name                       = azurerm_resource_group.main.name
-  virtual_network_name                      = azurerm_virtual_network.main.name
-  address_prefixes                          = var.subnet_config.storage.address_prefixes
+  name                              = var.subnet_config.storage.name
+  resource_group_name               = azurerm_resource_group.main.name
+  virtual_network_name              = azurerm_virtual_network.main.name
+  address_prefixes                  = var.subnet_config.storage.address_prefixes
   private_endpoint_network_policies = "Enabled"
   service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
