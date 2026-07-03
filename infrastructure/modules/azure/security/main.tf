@@ -33,9 +33,9 @@ resource "azurerm_key_vault" "main" {
 
 # Key Vault Access Policy
 resource "azurerm_key_vault_access_policy" "main" {
-  key_vault_id       = azurerm_key_vault.main.id
-  tenant_id          = var.tenant_id
-  object_id          = var.principal_id
+  key_vault_id = azurerm_key_vault.main.id
+  tenant_id    = var.tenant_id
+  object_id    = var.principal_id
 
   key_permissions = [
     "Get", "List", "Create", "Delete", "Recover", "Backup", "Restore", "Decrypt", "Encrypt", "Update"
@@ -54,9 +54,9 @@ resource "azurerm_key_vault_access_policy" "main" {
 resource "azurerm_key_vault_secret" "secrets" {
   for_each = var.secrets
 
-  name            = replace(each.key, "_", "-")
-  value           = each.value
-  key_vault_id    = azurerm_key_vault.main.id
+  name         = replace(each.key, "_", "-")
+  value        = each.value
+  key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [azurerm_key_vault_access_policy.main]
 }

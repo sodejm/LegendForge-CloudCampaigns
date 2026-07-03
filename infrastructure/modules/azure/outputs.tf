@@ -85,13 +85,13 @@ output "bastion_public_ip" {
 output "vm_summary" {
   description = "Summary of VM details"
   value = var.compute_enabled ? {
-    vm_id         = azurerm_linux_virtual_machine.foundry[0].id
-    vm_name       = azurerm_linux_virtual_machine.foundry[0].name
-    public_ip     = azurerm_public_ip.vm[0].ip_address
-    private_ip    = azurerm_network_interface.compute[0].private_ip_address
-    admin_username = var.admin_username
-    vnet_id       = azurerm_virtual_network.main.id
-    nsg_name      = azurerm_network_security_group.compute.name
+    vm_id             = azurerm_linux_virtual_machine.foundry[0].id
+    vm_name           = azurerm_linux_virtual_machine.foundry[0].name
+    public_ip         = azurerm_public_ip.vm[0].ip_address
+    private_ip        = azurerm_network_interface.compute[0].private_ip_address
+    admin_username    = var.admin_username
+    vnet_id           = azurerm_virtual_network.main.id
+    nsg_name          = azurerm_network_security_group.compute.name
     data_disk_size_gb = var.data_disk_size_gb
   } : null
 }
