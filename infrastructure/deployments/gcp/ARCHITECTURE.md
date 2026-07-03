@@ -109,13 +109,13 @@
 - **VPC Network**: `legendforge-vpc`
   - Regional routing
   - Private by default (no public IPs except load balancer)
-  
+
 - **Subnets**:
   - Primary: `10.0.0.0/20` (us-central1)
   - Secondary: `10.16.0.0/20` (us-east1, optional for DR)
-  
+
 - **Cloud NAT**: Enables outbound internet for Docker pulls, package updates
-  
+
 - **Firewall Rules**:
   - SSH: Only from admin IP ranges (least privilege)
   - Internal: All traffic within subnet
@@ -141,13 +141,13 @@
   - Rolling update policy (1 surge, 0 unavailable)
   - Auto-healing with health checks
   - Named port: 30030 (Foundry port)
-  
+
 - **Auto-Scaling**:
   - Min replicas: 2
   - Max replicas: 5
   - CPU target: 70%
   - Optional: Memory-based scaling
-  
+
 - **Health Checks**:
   - HTTP GET to port 30030, path /
   - Interval: 30s
@@ -165,25 +165,25 @@
   - Machine: db-custom-2-7680 (2vCPU, 7.5GB RAM)
   - Tier: REGIONAL (HA with automatic failover)
   - Private IP only (inside VPC)
-  
+
 - **High Availability**:
   - Primary + standby replica in different zones
   - Automatic failover (< 1 minute)
-  
+
 - **Backups**:
   - Automated daily backups
   - Retention: 30 days
   - Point-in-time recovery: 7 days
   - Manual on-demand backups
-  
+
 - **Databases**:
   - `foundry`: Main application database
   - Users: `foundry_app` (application), `foundry_backup` (backups)
-  
+
 - **SSL/TLS**:
   - All connections encrypted
   - Public IP disabled (private connection only)
-  
+
 - **Optimization**:
   - Query Insights enabled
   - Performance tuning params:
@@ -201,13 +201,13 @@
   - Versioning: Keep 5 versions
   - Lifecycle: Move to NEARLINE after 90 days
   - Encryption: Cloud KMS (optional)
-  
+
 - **Media Assets Bucket** (`foundry-media-*`)
   - Images, sounds, videos, art
   - Versioning: Keep 3 versions
   - Lifecycle: Move to NEARLINE after 90 days
   - Encryption: Cloud KMS (optional)
-  
+
 - **Backups Bucket** (`foundry-backups-*`)
   - Database dumps, config exports
   - Multi-region location (for disaster recovery)
@@ -217,11 +217,11 @@
     - 30-90 days: COLDLINE (cheaper)
     - 90-365 days: ARCHIVE (cheapest)
     - 365+ days: Deleted
-  
+
 - **Logs Bucket** (`foundry-logs-*`)
   - Audit trails and access logs
   - Lifecycle: COLDLINE after 30 days, delete after 90 days
-  
+
 **Access Control**:
 - Uniform bucket-level access (no object ACLs)
 - Public access prevention enabled
@@ -235,7 +235,7 @@
 - **Global HTTPS Load Balancer**:
   - Global anycast IP (optimized routing)
   - Distributes across all instance group zones
-  
+
 - **Backend Service**:
   - Protocol: HTTP (backends are in private VPC)
   - Health checks: HTTP to port 30030
@@ -246,27 +246,27 @@
     - Max pending requests: 100
     - Max requests: 1000
   - Outlier detection: Automatic unhealthy instance removal
-  
+
 - **URL Map**:
   - Routes all paths to Foundry backend
   - Configurable for future expansions
-  
+
 - **SSL Certificate**:
   - Google-managed SSL certificate
   - Auto-provisions for configured domain
   - HTTPS only (HTTP redirects to HTTPS)
-  
+
 - **SSL Policy**:
   - Profile: RESTRICTED
   - Min TLS: 1.2
   - Modern ciphers only
-  
+
 - **Cloud CDN**:
   - Caches static assets
   - TTL: 1 hour (default)
   - Bypasses cache for Authorization headers
   - Automatic compression
-  
+
 - **Cloud Armor**:
   - Rate limiting: 100 req/min per IP
   - SQL injection detection
@@ -286,7 +286,7 @@
   - Backend health (load balancer)
   - Cloud SQL CPU and connections
   - Custom metrics
-  
+
 - **Alert Policies**:
   - High CPU (> 80% for 5 min) → Alert
   - High Memory (> 85% for 5 min) → Alert
@@ -294,22 +294,22 @@
   - Cloud SQL high CPU (> 75%) → Alert
   - Uptime check failed → Alert
   - Error spike detected → Alert
-  
+
 - **Notification Channels**:
   - Email
   - Slack (optional)
   - PagerDuty (optional)
-  
+
 - **Uptime Checks**:
   - External monitoring from 3 regions (USA, Europe, Asia)
   - HTTPS health check every 60 seconds
   - Alert if any check fails
-  
+
 - **Cloud Logging**:
   - Centralized log aggregation
   - Filter by resource, severity, pattern
   - Log retention: Configurable (default 30 days)
-  
+
 - **Error Reporting**:
   - Automatic error grouping
   - Error rate tracking
@@ -326,12 +326,12 @@
   - `foundry-storage`: Cloud Storage access
   - `foundry-monitoring`: Monitoring dashboards
   - `foundry-secrets`: Secret Manager access
-  
+
 - **IAM Roles**:
   - Custom `foundry_compute_role` with minimal permissions
   - Pre-defined roles for each service account
   - Binding per resource (bucket, etc)
-  
+
 - **Secret Manager**:
   - Encrypted at rest (Cloud KMS)
   - Access controlled via IAM
@@ -341,13 +341,13 @@
     - Foundry license key
     - Foundry admin key
     - Cloudflare tunnel token
-  
+
 - **Cloud KMS**:
   - Key ring in primary region
   - Encryption key for secrets
   - 90-day key rotation
   - Audit logging on all operations
-  
+
 - **VPC Service Controls**:
   - Optional: Perimeter for preventing data exfiltration
   - Ingress/egress policies
