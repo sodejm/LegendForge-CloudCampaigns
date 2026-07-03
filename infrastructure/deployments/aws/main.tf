@@ -125,8 +125,8 @@ module "rds" {
 module "s3" {
   source = "../../modules/aws-s3"
 
-  environment                = var.environment
-  tags                       = local.common_tags
+  environment = var.environment
+  tags        = local.common_tags
 
   depends_on = [module.vpc]
 }
