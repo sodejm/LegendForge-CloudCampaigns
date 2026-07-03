@@ -36,6 +36,11 @@ variable "app_subnet_id" {
   type        = string
 }
 
+variable "storage_subnet_id" {
+  description = "Subnet identifier values used by LegendForge infrastructure for storage subnet id."
+  type        = string
+}
+
 variable "account_tier" {
   description = "Storage account tier for LegendForge's universal tabletop infrastructure."
   type        = string
