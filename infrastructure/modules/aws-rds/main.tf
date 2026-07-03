@@ -9,9 +9,9 @@
 # DB Subnet Group
 # =============================================================================
 resource "aws_db_subnet_group" "main" {
-  name_prefix       = "${var.environment}-"
-  description       = "DB subnet group for ${var.environment}"
-  subnet_ids        = var.database_subnet_ids
+  name_prefix         = "${var.environment}-"
+  description         = "DB subnet group for ${var.environment}"
+  subnet_ids          = var.database_subnet_ids
   skip_final_snapshot = false
 
   tags = merge(
@@ -59,11 +59,11 @@ resource "aws_db_instance" "main" {
   instance_class = var.instance_class
 
   # Storage configuration
-  allocated_storage   = var.allocated_storage
-  storage_type        = "gp3"
-  storage_encrypted   = true
-  iops                = var.iops
-  storage_throughput  = var.storage_throughput
+  allocated_storage  = var.allocated_storage
+  storage_type       = "gp3"
+  storage_encrypted  = true
+  iops               = var.iops
+  storage_throughput = var.storage_throughput
 
   # Credentials (from Secrets Manager)
   db_name  = var.database_name
@@ -75,20 +75,20 @@ resource "aws_db_instance" "main" {
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [var.rds_security_group_id]
 
-  backup_retention_period = var.backup_retention_days
-  backup_window           = "03:00-04:00"
-  maintenance_window      = "mon:04:00-mon:05:00"
-  copy_tags_to_snapshot   = true
-  skip_final_snapshot     = false
+  backup_retention_period   = var.backup_retention_days
+  backup_window             = "03:00-04:00"
+  maintenance_window        = "mon:04:00-mon:05:00"
+  copy_tags_to_snapshot     = true
+  skip_final_snapshot       = false
   final_snapshot_identifier = "${var.environment}-foundry-db-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
 
   # Monitoring
-  enabled_cloudwatch_logs_exports = ["postgresql"]
-  monitoring_interval              = 60
-  monitoring_role_arn              = aws_iam_role.rds_monitoring.arn
-  performance_insights_enabled     = true
+  enabled_cloudwatch_logs_exports       = ["postgresql"]
+  monitoring_interval                   = 60
+  monitoring_role_arn                   = aws_iam_role.rds_monitoring.arn
+  performance_insights_enabled          = true
   performance_insights_retention_period = 7
-  enable_iam_database_authentication   = true
+  enable_iam_database_authentication    = true
 
   # Parameters
   parameter_group_name = aws_db_parameter_group.main.name

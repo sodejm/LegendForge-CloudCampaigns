@@ -18,7 +18,7 @@ resource "google_compute_instance_template" "foundry" {
 
   # Instance properties
   service_account {
-    email  = var.foundry_compute_sa_email
+    email = var.foundry_compute_sa_email
     scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
     ]
@@ -39,13 +39,13 @@ resource "google_compute_instance_template" "foundry" {
 
   # Persistent data disk (500 GB by default)
   disk {
-    type             = "PERSISTENT"
-    disk_type        = "pd-ssd"
-    disk_size_gb     = var.data_disk_size_gb
-    device_name      = "foundry-data"
-    auto_delete      = false
-    source_image     = null
-    source_snapshot  = null
+    type            = "PERSISTENT"
+    disk_type       = "pd-ssd"
+    disk_size_gb    = var.data_disk_size_gb
+    device_name     = "foundry-data"
+    auto_delete     = false
+    source_image    = null
+    source_snapshot = null
 
     disk_encryption_key {
       kms_key_self_link = var.kms_key_id != "" ? var.kms_key_id : null
@@ -54,9 +54,9 @@ resource "google_compute_instance_template" "foundry" {
 
   # Network interface
   network_interface {
-    network            = var.vpc_network_name
-    subnetwork         = var.subnet_name
-    network_ip         = null # Assigned automatically
+    network    = var.vpc_network_name
+    subnetwork = var.subnet_name
+    network_ip = null # Assigned automatically
 
     access_config {
       nat_ip = null # No public IP (behind load balancer)
@@ -65,8 +65,8 @@ resource "google_compute_instance_template" "foundry" {
 
   # Metadata and startup script
   metadata = {
-    enable-oslogin       = "TRUE"
-    user-data            = var.startup_script
+    enable-oslogin         = "TRUE"
+    user-data              = var.startup_script
     block-project-ssh-keys = "FALSE"
   }
 
@@ -146,9 +146,9 @@ resource "google_compute_health_check" "foundry_http" {
 
 # --- CPU Autoscaler ---
 resource "google_compute_region_autoscaler" "foundry_cpu" {
-  name       = "${var.project_name}-foundry-autoscaler-cpu"
-  region     = var.primary_region
-  target     = google_compute_region_instance_group_manager.foundry.id
+  name   = "${var.project_name}-foundry-autoscaler-cpu"
+  region = var.primary_region
+  target = google_compute_region_instance_group_manager.foundry.id
 
   autoscaling_policy {
     min_replicas    = var.min_instances
@@ -164,10 +164,10 @@ resource "google_compute_region_autoscaler" "foundry_cpu" {
 # --- Memory Autoscaler (if available) ---
 # Note: GCP memory autoscaling works via custom metrics
 resource "google_compute_region_autoscaler" "foundry_memory" {
-  count      = var.enable_memory_autoscaling ? 1 : 0
-  name       = "${var.project_name}-foundry-autoscaler-memory"
-  region     = var.primary_region
-  target     = google_compute_region_instance_group_manager.foundry.id
+  count  = var.enable_memory_autoscaling ? 1 : 0
+  name   = "${var.project_name}-foundry-autoscaler-memory"
+  region = var.primary_region
+  target = google_compute_region_instance_group_manager.foundry.id
 
   autoscaling_policy {
     min_replicas    = var.min_instances
