@@ -77,8 +77,8 @@ resource "azurerm_subnet" "gateway" {
   resource_group_name                       = azurerm_resource_group.main.name
   virtual_network_name                      = azurerm_virtual_network.main.name
   address_prefixes                          = var.subnet_config.gateway.address_prefixes
-  private_endpoint_network_policies_enabled = true
-  service_endpoints                         = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Sql"]
+  private_endpoint_network_policies = "Enabled"
+  service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Sql"]
 }
 
 resource "azurerm_subnet" "app" {
@@ -86,8 +86,8 @@ resource "azurerm_subnet" "app" {
   resource_group_name                       = azurerm_resource_group.main.name
   virtual_network_name                      = azurerm_virtual_network.main.name
   address_prefixes                          = var.subnet_config.app.address_prefixes
-  private_endpoint_network_policies_enabled = true
-  service_endpoints                         = ["Microsoft.Storage", "Microsoft.KeyVault"]
+  private_endpoint_network_policies = "Enabled"
+  service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
 resource "azurerm_subnet" "database" {
@@ -95,8 +95,8 @@ resource "azurerm_subnet" "database" {
   resource_group_name                       = azurerm_resource_group.main.name
   virtual_network_name                      = azurerm_virtual_network.main.name
   address_prefixes                          = var.subnet_config.database.address_prefixes
-  private_endpoint_network_policies_enabled = true
-  service_endpoints                         = ["Microsoft.Sql"]
+  private_endpoint_network_policies = "Enabled"
+  service_endpoints                 = ["Microsoft.Sql"]
   delegation {
     name = "mysql-delegation"
     service_delegation {
@@ -110,8 +110,8 @@ resource "azurerm_subnet" "storage" {
   resource_group_name                       = azurerm_resource_group.main.name
   virtual_network_name                      = azurerm_virtual_network.main.name
   address_prefixes                          = var.subnet_config.storage.address_prefixes
-  private_endpoint_network_policies_enabled = true
-  service_endpoints                         = ["Microsoft.Storage", "Microsoft.KeyVault"]
+  private_endpoint_network_policies = "Enabled"
+  service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
 }
 
 # Associate NAT Gateway with App Subnet
