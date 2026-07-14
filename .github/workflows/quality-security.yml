@@ -25,13 +25,13 @@ jobs:
           python-version: "3.12"
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@b9cd54a3c349d322d5737b80520c45f5bbd82800 # v3.1.2
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
 
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@1c85301824403cdb6279e8ebdc5fca1c67426189 # v4.0.0
+        uses: terraform-linters/setup-tflint@19a52fbac37dacb22a09518e4ef6ee234f2d4987 # v4.0.0
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@e1523de7587f080470d07d174c89656133be4cb9 # v3.8.1
+        uses: sigstore/cosign-installer@d7d6bc7722e3daa8354c50bcb52f4837da5e9b6a # v3.8.1
         with:
           cosign-release: "v2.4.1"
 
