@@ -22,7 +22,7 @@ resource "google_compute_backend_service" "foundry" {
 
   # Cloud CDN configuration
   enable_cdn = var.enable_cdn
-  
+
   cdn_policy {
     cache_mode              = "CACHE_ALL_STATIC"
     client_ttl              = 3600
@@ -56,17 +56,17 @@ resource "google_compute_backend_service" "foundry" {
     base_ejection_time {
       seconds = 30
     }
-    
+
     consecutive_errors                    = 5
     consecutive_gateway_failure           = 0
     enforcing_consecutive_errors          = 100
     enforcing_consecutive_gateway_failure = 0
     enforcing_success_rate                = 100
-    
+
     interval {
       seconds = 10
     }
-    
+
     max_ejection_percent           = 50
     min_request_volume             = 50
     split_external_local_originated_traffic = false
@@ -267,7 +267,7 @@ resource "google_compute_backend_service" "foundry_with_armor" {
   name                = "${var.project_name}-foundry-backend-armor"
   protocol            = "HTTP"
   security_policy     = google_compute_security_policy.foundry.id
-  
+
   backend {
     group = var.instance_group_id
   }
