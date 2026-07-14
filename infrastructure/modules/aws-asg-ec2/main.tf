@@ -12,7 +12,7 @@ resource "aws_launch_template" "foundry" {
   name_prefix   = "${var.environment}-foundry-"
   image_id      = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
-  
+
   # IAM instance profile for S3, CloudWatch, Secrets Manager access
   iam_instance_profile {
     arn = var.instance_profile_arn
