@@ -66,7 +66,12 @@ function fromFoundry(a) {
     hitPoints: { current: s.attributes?.hp?.value ?? 0, max: s.attributes?.hp?.max ?? 1, temporary: s.attributes?.hp?.temp ?? 0 },
     armorClass: s.attributes?.ac?.flat ?? s.attributes?.ac?.value,
     speed: s.attributes?.movement?.walk,
-    currency: s.currency,
+    currency: {
+      pp: s.currency?.pp ?? 0,
+      gp: s.currency?.gp ?? 0,
+      sp: s.currency?.sp ?? 0,
+      cp: s.currency?.cp ?? 0
+    }
     inventory: (a.items ?? []).filter(i => i.type !== "class").map(i => ({ name: i.name, quantity: i.system?.quantity ?? 1, equipped: !!i.system?.equipped })),
     notes: s.details?.biography?.value || undefined
   };
