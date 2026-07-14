@@ -15,24 +15,33 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
         with:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v5.0.0
         with:
           python-version: "3.12"
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@b9cd54a3c349d322d5737b80520c45f5bbd82800 # v3.1.2
 
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v4
+        uses: terraform-linters/setup-tflint@1c85301824403cdb6279e8ebdc5fca1c67426189 # v4.0.0
 
-      - name: Install TruffleHog
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@e1523de7587f080470d07d174c89656133be4cb9 # v3.8.1
+        with:
+          cosign-release: "v2.4.1"
+
+      - name: Install TruffleHog (Verified)
         run: |
-          curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin
+          # Download the script first, verify signature with Cosign, then execute
+          curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/8feb77ba7f4749fb254c728d844e116cc695e1c0/scripts/install.sh -o install.sh
+          chmod +x install.sh
+          ./install.sh -v -b /usr/local/bin
+          rm install.sh
           trufflehog --version
 
       - name: Install hook runtime tools
