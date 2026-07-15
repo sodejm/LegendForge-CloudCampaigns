@@ -24,12 +24,12 @@ write_files:
     content: |
       #!/bin/bash
       set -e
-      
+
       echo "[$(date)] Starting LegendForge initialization..."
-      
+
       # Wait for metadata service
       sleep 5
-      
+
       # Install required packages
       apt-get update
       apt-get install -y \
@@ -39,66 +39,66 @@ write_files:
         jq \
         cloud-guest-tools \
         google-cloud-sdk
-      
+
       # Start Docker
       systemctl start docker
       systemctl enable docker
-      
+
       # Add google service account to docker group
       getent group docker || groupadd docker
-      
+
       echo "[$(date)] Docker installation complete"
-      
+
       # Format and mount persistent data disk
       if ! grep -q "/opt/foundry/data" /etc/fstab; then
         echo "[$(date)] Formatting persistent data disk..."
-        
+
         # Find the data disk (usually /dev/sdb)
         DATA_DISK=$(lsblk -d -n -p -o NAME | grep -v "^/dev/sda" | head -1)
-        
+
         if [ -z "$DATA_DISK" ]; then
           echo "[$(date)] ERROR: Could not find persistent data disk"
           exit 1
         fi
-        
+
         # Format only if not already formatted
         if ! sudo blkid "$DATA_DISK"; then
           echo "[$(date)] Creating ext4 filesystem on $DATA_DISK..."
           mkfs.ext4 -F -L FOUNDRY_DATA "$DATA_DISK"
         fi
-        
+
         # Create mount point
         mkdir -p /opt/foundry/data
-        
+
         # Mount the disk
         mount -L FOUNDRY_DATA /opt/foundry/data
-        
+
         # Add to fstab for persistent mounting
         echo "LABEL=FOUNDRY_DATA /opt/foundry/data ext4 defaults,nofail 0 2" >> /etc/fstab
       fi
-      
+
       # Set permissions
       chmod 755 /opt/foundry/data
       chown nobody:nogroup /opt/foundry/data
-      
+
       echo "[$(date)] Data disk mounted at /opt/foundry/data"
-      
+
       # Retrieve secrets from GCP Secret Manager
       echo "[$(date)] Retrieving secrets from Secret Manager..."
-      
+
       export FOUNDRY_LICENSE_KEY=$(gcloud secrets versions access latest --secret="${project_name}-foundry-license-key" 2>/dev/null || echo "")
       export FOUNDRY_ADMIN_KEY=$(gcloud secrets versions access latest --secret="${project_name}-foundry-admin-key" 2>/dev/null || echo "")
       export FOUNDRY_USERNAME=$(gcloud secrets versions access latest --secret="${project_name}-foundry-username" 2>/dev/null || echo "")
       export FOUNDRY_PASSWORD=$(gcloud secrets versions access latest --secret="${project_name}-foundry-password" 2>/dev/null || echo "")
       export CLOUDFLARE_TUNNEL_TOKEN=$(gcloud secrets versions access latest --secret="${project_name}-cloudflare-tunnel-token" 2>/dev/null || echo "")
       export DB_PASSWORD=$(gcloud secrets versions access latest --secret="${project_name}-db-password" 2>/dev/null || echo "")
-      
+
       echo "[$(date)] Secrets retrieved"
-      
+
       # Create docker-compose.yml
       cat > /opt/foundry/docker-compose.yml << 'DOCKER_EOF'
       version: '3.8'
-      
+
       services:
         # LegendForge Application
         foundry:
@@ -136,7 +136,7 @@ write_files:
             options:
               max-size: "10m"
               max-file: "3"
-      
+
         # Cloudflare Tunnel (replaces Foundry's built-in tunnel)
         cloudflared:
           image: cloudflare/cloudflared:latest
@@ -152,7 +152,7 @@ write_files:
             options:
               max-size: "10m"
               max-file: "3"
-      
+
         # Optional: Cloud SQL Proxy for secure DB connection
         cloud-sql-proxy:
           image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.x
@@ -169,12 +169,12 @@ write_files:
             options:
               max-size: "10m"
               max-file: "3"
-      
+
       networks:
         foundry:
           driver: bridge
       DOCKER_EOF
-      
+
       # Create LegendForge config.json
       cat > /opt/foundry/config.json << 'CONFIG_EOF'
       {
@@ -207,17 +207,17 @@ write_files:
         }
       }
       CONFIG_EOF
-      
+
       # Set proper permissions
       chmod 644 /opt/foundry/docker-compose.yml
       chmod 644 /opt/foundry/config.json
       chown -R nobody:nogroup /opt/foundry
-      
+
       # Start LegendForge with Docker Compose
       echo "[$(date)] Starting LegendForge application container..."
       cd /opt/foundry
       docker-compose up -d
-      
+
       # Wait for LegendForge to be ready
       for i in {1..30}; do
         if curl -f http://localhost:30030 > /dev/null 2>&1; then
@@ -227,12 +227,12 @@ write_files:
         echo "[$(date)] Waiting for LegendForge to be ready... ($i/30)"
         sleep 10
       done
-      
+
       # Setup monitoring agent (optional)
       echo "[$(date)] Setting up Google Cloud Monitoring agent..."
       curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
       sudo bash add-google-cloud-ops-agent-repo.sh --also-install
-      
+
       echo "[$(date)] Foundry VTT startup complete!"
 
   - path: /opt/foundry/backup-script.sh
@@ -241,27 +241,27 @@ write_files:
     content: |
       #!/bin/bash
       # Daily backup script for LegendForge platform data to Cloud Storage
-      
+
       BACKUP_DIR="/opt/foundry/backups"
       BUCKET="${foundry_backups_bucket}"
       DATE=$(date +%Y%m%d_%H%M%S)
-      
+
       mkdir -p $BACKUP_DIR
-      
+
       # Backup LegendForge platform data
       tar -czf "$BACKUP_DIR/foundry-backup-$DATE.tar.gz" /opt/foundry/data/
-      
+
       # Upload to Cloud Storage
       gsutil -m cp "$BACKUP_DIR/foundry-backup-$DATE.tar.gz" "gs://$BUCKET/"
-      
+
       # Clean old local backups (keep 3 days)
       find $BACKUP_DIR -type f -mtime +3 -delete
-      
+
       echo "[$(date)] Backup completed: foundry-backup-$DATE.tar.gz"
 
 runcmd:
   - /opt/foundry/scripts/startup.sh
-  
+
   # Schedule daily backups (add to crontab)
   - echo "0 2 * * * /opt/foundry/backup-script.sh >> /var/log/foundry-backup.log 2>&1" | crontab -
 
