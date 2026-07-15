@@ -22,6 +22,14 @@ function toFoundry(c) {
   const abilities = {};
   for (const a of ABIL) abilities[ABBR[a]] = { value: c.attributes?.[a] ?? 10 };
   const cur = c.currency ?? {};
+  const classItems = (c.classes?.length
+    ? c.classes
+    : [{ name: c.characterClass, level: c.level ?? 1 }]
+  ).map(cls => ({
+    name: cls.name ?? c.characterClass ?? "Adventurer",
+    type: "class",
+    system: { levels: cls.level ?? 1 }
+  }));
   return {
     name: c.characterName,
     type: "character",
@@ -43,7 +51,7 @@ function toFoundry(c) {
       currency: { pp: cur.pp ?? 0, gp: cur.gp ?? 0, sp: cur.sp ?? 0, cp: cur.cp ?? 0 }
     },
     items: [
-      { name: c.characterClass, type: "class", system: { levels: c.level ?? 1 } },
+      ...classItems,
       ...(c.inventory ?? []).map(i => ({
         name: i.name, type: INVENTORY_ITEM_TYPE,
         flags: { legendforge: { source: i } },
@@ -55,7 +63,12 @@ function toFoundry(c) {
 
 function fromFoundry(a) {
   const s = a.system ?? {};
-  const cls = (a.items ?? []).find(i => i.type === "class");
+  const classItems = (a.items ?? []).filter(i => i.type === "class");
+  const cls = classItems[0];
+  const classes = classItems.map(i => ({
+    name: i.name,
+    level: i.system?.levels ?? 1
+  }));
   const attributes = {};
   for (const full of ABIL) attributes[full] = s.abilities?.[ABBR[full]]?.value ?? 10;
   const preserved = a.flags?.legendforge?.source ?? {};
@@ -76,7 +89,8 @@ function fromFoundry(a) {
     characterClass: cls?.name ?? "Adventurer",
     ancestry: restoreOptionalString(s.details?.race, preserved.ancestry),
     background: restoreOptionalString(s.details?.background, preserved.background),
-    level: cls?.system?.levels ?? 1,
+    level: classes.reduce((total, klass) => total + klass.level, 0) || 1,
+    ...(classes.length > 1 ? { classes } : {}),
     experiencePoints: s.details?.xp?.value ?? 0,
     alignment: restoreOptionalString(s.details?.alignment, preserved.alignment),
     attributes,

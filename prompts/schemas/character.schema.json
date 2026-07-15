@@ -38,6 +38,20 @@
       "type": "string",
       "description": "Primary class or profession (e.g., Mage, Rogue, Paladin)."
     },
+    "classes": {
+      "type": "array",
+      "description": "Class breakdown for multiclass characters.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "level": { "type": "integer", "minimum": 1, "maximum": 20 }
+        },
+        "required": ["name", "level"],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
     "ancestry": {
       "type": "string",
       "description": "Species / race / lineage."
