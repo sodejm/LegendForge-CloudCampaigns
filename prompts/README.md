@@ -34,8 +34,8 @@ either direction and use Foundry's **Import Data** — see
 
 ## 🎲 How it fits the ecosystem
 
-- **System-agnostic:** schemas cover the common ground (5e by default) but use
-  optional fields so other systems can reuse them.
+- **D&D-oriented:** schemas target 5e-style character data and may need
+  ruleset-specific extensions for broader reuse.
 - **Storable & updatable:** every record carries an `id`, `schemaVersion`, and
   `updatedAt` so it can live in a campaign store, be diffed, and be patched.
 - **Portable:** plain JSON + Markdown, no engine lock-in.
