@@ -56,6 +56,6 @@
     },
     "notes": { "type": "string" }
   },
-  "required": ["schemaVersion", "id", "displayName"],
+  "required": ["schemaVersion", "id", "updatedAt", "displayName"],
   "additionalProperties": false
 }
