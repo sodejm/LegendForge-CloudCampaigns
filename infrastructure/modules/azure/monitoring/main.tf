@@ -131,8 +131,8 @@ resource "azurerm_monitor_action_group" "main" {
   short_name          = "LegendForge"
 
   email_receiver {
-    name           = "Send to admin"
-    email_address  = var.metric_alert_email
+    name                    = "Send to admin"
+    email_address           = var.metric_alert_email
     use_common_alert_schema = true
   }
 
@@ -249,15 +249,15 @@ resource "azurerm_portal_dashboard" "main" {
         parts = {
           "0" = {
             position = {
-              x = 0
-              y = 0
+              x       = 0
+              y       = 0
               colSpan = 6
               rowSpan = 4
             }
             metadata = {
               inputs = [
                 {
-                  name = "resourceGroup"
+                  name  = "resourceGroup"
                   value = var.resource_group_name
                 }
               ]
@@ -266,15 +266,15 @@ resource "azurerm_portal_dashboard" "main" {
           }
           "1" = {
             position = {
-              x = 6
-              y = 0
+              x       = 6
+              y       = 0
               colSpan = 6
               rowSpan = 4
             }
             metadata = {
               inputs = [
                 {
-                  name = "resourceId"
+                  name  = "resourceId"
                   value = var.scale_set_id
                 }
               ]
