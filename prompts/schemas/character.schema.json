@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://legendforge.dev/schemas/character.schema.json",
   "title": "CharacterInformation",
-  "description": "Storable, updatable player character profile. 5e-by-default but reusable across Foundry-compatible systems.",
+  "description": "Storable, updatable D&D 5e player character profile for Foundry dnd5e campaigns.",
   "type": "object",
   "properties": {
     "schemaVersion": {
