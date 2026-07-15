@@ -11,6 +11,7 @@ import { readFileSync } from "node:fs";
 
 const ABIL = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
 const ABBR = { strength: "str", dexterity: "dex", constitution: "con", intelligence: "int", wisdom: "wis", charisma: "cha" };
+const INVENTORY_ITEM_TYPES = new Set(["loot"]);
 
 function toFoundry(c) {
   const abilities = {};
@@ -72,7 +73,7 @@ function fromFoundry(a) {
       sp: s.currency?.sp ?? 0,
       cp: s.currency?.cp ?? 0
     },
-    inventory: (a.items ?? []).filter(i => i.type !== "class").map(i => ({ name: i.name, quantity: i.system?.quantity ?? 1, equipped: !!i.system?.equipped })),
+    inventory: (a.items ?? []).filter(i => INVENTORY_ITEM_TYPES.has(i.type)).map(i => ({ name: i.name, quantity: i.system?.quantity ?? 1, equipped: !!i.system?.equipped })),
     notes: s.details?.biography?.value || undefined
   };
 }
