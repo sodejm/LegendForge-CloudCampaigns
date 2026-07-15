@@ -45,10 +45,10 @@ either direction and use Foundry's **Import Data** — see
 Any draft-07 validator works. Example with `ajv`:
 
 ```bash
-npx ajv-cli validate -s prompts/schemas/character.schema.json \
-  -d prompts/examples/character.example.json
-npx ajv-cli validate -s prompts/schemas/player.schema.json \
-  -d prompts/examples/player.example.json
+npx --yes --package=ajv-cli --package=ajv-formats ajv validate \
+  -c ajv-formats -s prompts/schemas/character.schema.json -d prompts/examples/character.example.json
+npx --yes --package=ajv-cli --package=ajv-formats ajv validate \
+  -c ajv-formats -s prompts/schemas/player.schema.json -d prompts/examples/player.example.json
 ```
 
 ## ➕ Adding prompts
