@@ -19,8 +19,6 @@ resource "google_compute_subnetwork" "foundry" {
   network       = google_compute_network.foundry.id
 
   project = var.project_id
-
-  labels = local.common_labels
 }
 
 # ===== Cloud Router (for Cloud NAT) =====
@@ -33,8 +31,6 @@ resource "google_compute_router" "foundry" {
   bgp {
     asn = 64514
   }
-
-  labels = local.common_labels
 }
 
 # ===== Cloud NAT =====
