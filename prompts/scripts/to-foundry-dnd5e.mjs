@@ -89,7 +89,7 @@ function fromFoundry(a) {
     ancestry: restoreOptionalString(s.details?.race, preserved.ancestry),
     background: restoreOptionalString(s.details?.background, preserved.background),
     level: classes.reduce((total, klass) => total + klass.level, 0) || 1,
-    ...(classes.length ? { classes } : {}),
+    classes: classes.length ? classes : undefined,
     experiencePoints: s.details?.xp?.value ?? 0,
     alignment: restoreOptionalString(s.details?.alignment, preserved.alignment),
     attributes,
