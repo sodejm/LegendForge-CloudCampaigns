@@ -17,10 +17,17 @@ function toFoundry(c) {
   const abilities = {};
   for (const a of ABIL) abilities[ABBR[a]] = { value: c.attributes?.[a] ?? 10 };
   const cur = c.currency ?? {};
+  const unmapped = {
+    updatedAt: c.updatedAt,
+    ownerPlayerId: c.ownerPlayerId,
+    proficiencyBonus: c.proficiencyBonus,
+    conditions: c.conditions,
+    spellSlots: c.spellSlots
+  };
   return {
     name: c.characterName,
     type: "character",
-    flags: { legendforge: { id: c.id, schemaVersion: c.schemaVersion, source: c } },
+    flags: { legendforge: { id: c.id, schemaVersion: c.schemaVersion, unmapped } },
     system: {
       abilities,
       attributes: {
@@ -52,7 +59,7 @@ function fromFoundry(a) {
   const cls = (a.items ?? []).find(i => i.type === "class");
   const attributes = {};
   for (const full of ABIL) attributes[full] = s.abilities?.[ABBR[full]]?.value ?? 10;
-  const preserved = a.flags?.legendforge?.source ?? {};
+  const preserved = a.flags?.legendforge?.unmapped ?? {};
   return {
     ...preserved,
     schemaVersion: a.flags?.legendforge?.schemaVersion ?? "1.0.0",
