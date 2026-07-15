@@ -36,7 +36,7 @@
     },
     "characterClass": {
       "type": "string",
-      "description": "Primary class or profession (e.g., Mage, Rogue, Paladin). When `classes` is present, this must match `classes[0].name`."
+      "description": "Primary class or profession (e.g., Mage, Rogue, Paladin). For single-class characters, this field alone defines the class. When `classes` is present, this must match `classes[0].name`."
     },
     "classes": {
       "type": "array",

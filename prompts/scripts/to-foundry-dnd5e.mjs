@@ -25,7 +25,7 @@ function validateClasses(c) {
   const totalLevel = c.classes.reduce((sum, cls) => sum + (cls.level ?? 1), 0);
 
   if (c.characterClass !== primaryClass) {
-    throw new Error("characterClass must match classes[0].name when classes is provided.");
+    throw new Error("Primary class (characterClass) must match classes[0].name when classes is provided.");
   }
 
   if (c.level !== totalLevel) {
