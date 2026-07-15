@@ -8,6 +8,7 @@
  *   node to-foundry-dnd5e.mjs from actor.json               > character.json
  */
 import { readFileSync } from "node:fs";
+import { isDeepStrictEqual } from "node:util";
 
 const ABIL = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
 const ABBR = { strength: "str", dexterity: "dex", constitution: "con", intelligence: "int", wisdom: "wis", charisma: "cha" };
@@ -33,6 +34,28 @@ function validateClasses(c) {
   }
 }
 
+function stripUndefined(value) {
+  if (Array.isArray(value)) return value.map(stripUndefined);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([, entry]) => entry !== undefined)
+        .map(([key, entry]) => [key, stripUndefined(entry)])
+    );
+  }
+  return value;
+}
+
+function comparableRecord(record) {
+  const comparable = stripUndefined({ ...record });
+  delete comparable.updatedAt;
+  if (comparable.classes?.length === 1
+    && comparable.classes[0]?.name === comparable.characterClass
+    && comparable.classes[0]?.level === comparable.level) {
+    delete comparable.classes;
+  }
+  return comparable;
+}
 function toFoundry(c) {
   validateClasses(c);
   const abilities = {};
@@ -94,9 +117,8 @@ function fromFoundry(a) {
     equipped: !!i.system?.equipped,
     notes: restoreOptionalString(i.system?.description?.value, i.flags?.legendforge?.source?.notes)
   }));
-  return {
+  const reconstructed = {
     ...preserved,
-    updatedAt: preserved.updatedAt ?? new Date().toISOString(),
     schemaVersion: a.flags?.legendforge?.schemaVersion ?? "1.0.0",
     id: a.flags?.legendforge?.id ?? a.name?.toLowerCase().replace(/\s+/g, "_"),
     system: "dnd5e",
@@ -121,6 +143,11 @@ function fromFoundry(a) {
     inventory,
     notes: restoreOptionalString(s.details?.biography?.value, preserved.notes)
   };
+  const now = new Date().toISOString();
+  const updatedAt = isDeepStrictEqual(comparableRecord(reconstructed), comparableRecord(preserved))
+    ? preserved.updatedAt ?? now
+    : now;
+  return { ...reconstructed, updatedAt };
 }
 
 const [dir, file] = process.argv.slice(2);
