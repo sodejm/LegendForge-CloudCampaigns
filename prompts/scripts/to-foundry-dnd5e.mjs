@@ -22,14 +22,13 @@ function toFoundry(c) {
   const abilities = {};
   for (const a of ABIL) abilities[ABBR[a]] = { value: c.attributes?.[a] ?? 10 };
   const cur = c.currency ?? {};
-  const classItems = (c.classes?.length
-    ? c.classes
-    : [{ name: c.characterClass, level: c.level ?? 1 }]
-  ).map(cls => ({
-    name: cls.name ?? c.characterClass ?? "Adventurer",
-    type: "class",
-    system: { levels: cls.level ?? 1 }
-  }));
+  const classItems = c.classes?.length
+    ? c.classes.map(cls => ({
+      name: cls.name,
+      type: "class",
+      system: { levels: cls.level ?? 1 }
+    }))
+    : [{ name: c.characterClass ?? "Adventurer", type: "class", system: { levels: c.level ?? 1 } }];
   return {
     name: c.characterName,
     type: "character",
@@ -90,7 +89,7 @@ function fromFoundry(a) {
     ancestry: restoreOptionalString(s.details?.race, preserved.ancestry),
     background: restoreOptionalString(s.details?.background, preserved.background),
     level: classes.reduce((total, klass) => total + klass.level, 0) || 1,
-    ...(classes.length > 1 ? { classes } : {}),
+    ...(classes.length ? { classes } : {}),
     experiencePoints: s.details?.xp?.value ?? 0,
     alignment: restoreOptionalString(s.details?.alignment, preserved.alignment),
     attributes,
