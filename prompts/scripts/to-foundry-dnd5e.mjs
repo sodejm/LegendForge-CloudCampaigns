@@ -19,7 +19,7 @@ function restoreOptionalString(value, preservedValue) {
 }
 
 function validateClasses(c) {
-  if (!c.classes?.length) return;
+  if ((c.classes?.length ?? 0) === 0) return;
 
   const primaryClass = c.classes[0]?.name;
   const totalLevel = c.classes.reduce((sum, cls) => sum + (cls.level ?? 1), 0);
