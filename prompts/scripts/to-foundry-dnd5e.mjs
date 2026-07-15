@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 const ABIL = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
 const ABBR = { strength: "str", dexterity: "dex", constitution: "con", intelligence: "int", wisdom: "wis", charisma: "cha" };
 const INVENTORY_ITEM_TYPE = "loot";
+const SUPPORTED_FOUNDRY_INVENTORY_ITEM_TYPES = new Set([INVENTORY_ITEM_TYPE, "weapon", "equipment", "consumable", "tool", "backpack"]);
 
 function restoreOptionalString(value, preservedValue) {
   return value === "" && preservedValue === undefined ? undefined : (value ?? preservedValue);
@@ -58,7 +59,7 @@ function fromFoundry(a) {
   const attributes = {};
   for (const full of ABIL) attributes[full] = s.abilities?.[ABBR[full]]?.value ?? 10;
   const preserved = a.flags?.legendforge?.source ?? {};
-  const inventory = (a.items ?? []).filter(i => i.type === INVENTORY_ITEM_TYPE).map(i => ({
+  const inventory = (a.items ?? []).filter(i => SUPPORTED_FOUNDRY_INVENTORY_ITEM_TYPES.has(i.type)).map(i => ({
     ...(i.flags?.legendforge?.source ?? {}),
     name: i.name,
     quantity: i.system?.quantity ?? 1,
