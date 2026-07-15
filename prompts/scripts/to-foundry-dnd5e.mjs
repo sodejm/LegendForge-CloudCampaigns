@@ -41,6 +41,7 @@ function toFoundry(c) {
       { name: c.characterClass, type: "class", system: { levels: c.level ?? 1 } },
       ...(c.inventory ?? []).map(i => ({
         name: i.name, type: "loot",
+        flags: { legendforge: { source: i } },
         system: { quantity: i.quantity ?? 1, equipped: !!i.equipped, description: { value: i.notes ?? "" } }
       }))
     ]
@@ -53,9 +54,8 @@ function fromFoundry(a) {
   const attributes = {};
   for (const full of ABIL) attributes[full] = s.abilities?.[ABBR[full]]?.value ?? 10;
   const preserved = a.flags?.legendforge?.source ?? {};
-  const preservedInventory = Array.isArray(preserved.inventory) ? preserved.inventory : [];
-  const inventory = (a.items ?? []).filter(i => i.type === INVENTORY_ITEM_TYPE).map((i, index) => ({
-    ...preservedInventory[index],
+  const inventory = (a.items ?? []).filter(i => i.type === INVENTORY_ITEM_TYPE).map(i => ({
+    ...(i.flags?.legendforge?.source ?? {}),
     name: i.name,
     quantity: i.system?.quantity ?? 1,
     equipped: !!i.system?.equipped,
@@ -63,9 +63,9 @@ function fromFoundry(a) {
   }));
   return {
     ...preserved,
+    updatedAt: new Date().toISOString(),
     schemaVersion: a.flags?.legendforge?.schemaVersion ?? "1.0.0",
     id: a.flags?.legendforge?.id ?? a.name?.toLowerCase().replace(/\s+/g, "_"),
-    updatedAt: preserved.updatedAt ?? new Date().toISOString(),
     system: "dnd5e",
     characterName: a.name,
     characterClass: cls?.name ?? "Adventurer",
