@@ -45,7 +45,7 @@ function toFoundry(c) {
     items: [
       { name: c.characterClass, type: "class", system: { levels: c.level ?? 1 } },
       ...(c.inventory ?? []).map(i => ({
-        name: i.name, type: "loot",
+        name: i.name, type: INVENTORY_ITEM_TYPE,
         flags: { legendforge: { source: i } },
         system: { quantity: i.quantity ?? 1, equipped: !!i.equipped, description: { value: i.notes ?? "" } }
       }))
