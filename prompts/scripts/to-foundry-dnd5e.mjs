@@ -18,7 +18,23 @@ function restoreOptionalString(value, preservedValue) {
   return value === "" && preservedValue === undefined ? undefined : (value ?? preservedValue);
 }
 
+function validateClasses(c) {
+  if (!c.classes?.length) return;
+
+  const primaryClass = c.classes[0]?.name;
+  const totalLevel = c.classes.reduce((sum, cls) => sum + (cls.level ?? 1), 0);
+
+  if (c.characterClass !== primaryClass) {
+    throw new Error("characterClass must match classes[0].name when classes is provided.");
+  }
+
+  if (c.level !== totalLevel) {
+    throw new Error("level must equal the sum of classes[].level when classes is provided.");
+  }
+}
+
 function toFoundry(c) {
+  validateClasses(c);
   const abilities = {};
   for (const a of ABIL) abilities[ABBR[a]] = { value: c.attributes?.[a] ?? 10 };
   const cur = c.currency ?? {};
