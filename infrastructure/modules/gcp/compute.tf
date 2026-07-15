@@ -69,8 +69,6 @@ resource "google_compute_instance" "foundry" {
     scopes = ["cloud-platform"]
   }
 
-  labels = local.common_labels
-
   tags = ["foundry-app"]
 
   depends_on = [
