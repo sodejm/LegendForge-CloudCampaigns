@@ -10,12 +10,6 @@ variable "environment" {
   type        = string
 }
 
-variable "cloudfront_distribution_id" {
-  description = "Provider resource ID used by LegendForge infrastructure for cloudfront distribution id."
-  type        = string
-  default     = ""
-}
-
 variable "tags" {
   description = "Metadata tags applied to LegendForge universal tabletop infrastructure resources."
   type        = map(string)

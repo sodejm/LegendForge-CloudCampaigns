@@ -19,8 +19,6 @@ resource "google_compute_subnetwork" "foundry" {
   network       = google_compute_network.foundry.id
 
   project = var.project_id
-
-  labels = local.common_labels
 }
 
 # ===== Cloud Router (for Cloud NAT) =====
@@ -33,8 +31,6 @@ resource "google_compute_router" "foundry" {
   bgp {
     asn = 64514
   }
-
-  labels = local.common_labels
 }
 
 # ===== Cloud NAT =====
@@ -64,7 +60,7 @@ resource "google_compute_firewall" "egress_https" {
     ports    = ["443"]
   }
 
-  direction = "EGRESS"
+  direction          = "EGRESS"
   destination_ranges = ["0.0.0.0/0"]
 
   target_tags = ["foundry-app"]
@@ -81,7 +77,7 @@ resource "google_compute_firewall" "egress_dns" {
     ports    = ["53"]
   }
 
-  direction = "EGRESS"
+  direction          = "EGRESS"
   destination_ranges = ["0.0.0.0/0"]
 
   target_tags = ["foundry-app"]
@@ -105,8 +101,8 @@ resource "google_compute_firewall" "deny_ingress" {
     protocol = "icmp"
   }
 
-  priority = 65534
-  direction = "INGRESS"
+  priority      = 65534
+  direction     = "INGRESS"
   source_ranges = ["0.0.0.0/0"]
 
   target_tags = ["foundry-app"]

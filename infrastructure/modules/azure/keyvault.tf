@@ -4,7 +4,7 @@
 
 # ===== Key Vault =====
 resource "azurerm_key_vault" "foundry" {
-  name                = "${replace(local.name_prefix, "-", "")}kv"  # No hyphens allowed
+  name                = "${replace(local.name_prefix, "-", "")}kv" # No hyphens allowed
   location            = var.azure_region
   resource_group_name = var.resource_group_name
   tenant_id           = data.azurerm_client_config.current.tenant_id
@@ -37,7 +37,7 @@ resource "azurerm_key_vault_secret" "foundry_license_key" {
   value           = var.foundry_license_key
   key_vault_id    = azurerm_key_vault.foundry.id
   content_type    = "password"
-  expiration_date = timeadd(timestamp(), "8760h")  # 1 year from now
+  expiration_date = timeadd(timestamp(), "8760h") # 1 year from now
 
   tags = local.common_tags
 }
@@ -82,21 +82,21 @@ resource "azurerm_key_vault_secret" "foundry_password" {
 }
 
 resource "azurerm_key_vault_secret" "foundry_release_url" {
-  count        = var.foundry_release_url != "" ? 1 : 0
-  name         = "foundry-release-url"
-  value        = var.foundry_release_url
-  key_vault_id = azurerm_key_vault.foundry.id
-  content_type = "password"
-  expiration_date = timeadd(timestamp(), "24h")  # Timed URLs expire quickly
+  count           = var.foundry_release_url != "" ? 1 : 0
+  name            = "foundry-release-url"
+  value           = var.foundry_release_url
+  key_vault_id    = azurerm_key_vault.foundry.id
+  content_type    = "password"
+  expiration_date = timeadd(timestamp(), "24h") # Timed URLs expire quickly
 
   tags = local.common_tags
 }
 
 # ===== RBAC: Managed Identity Access to Key Vault =====
 resource "azurerm_role_assignment" "vm_keyvault_secrets_read" {
-  scope              = azurerm_key_vault.foundry.id
+  scope                = azurerm_key_vault.foundry.id
   role_definition_name = "Key Vault Secrets User"
-  principal_id       = azurerm_user_assigned_identity.vm[0].principal_id
+  principal_id         = azurerm_user_assigned_identity.vm[0].principal_id
 
   depends_on = [azurerm_user_assigned_identity.vm]
 }

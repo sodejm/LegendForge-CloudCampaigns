@@ -259,9 +259,9 @@ resource "google_monitoring_uptime_check_config" "foundry" {
   period       = "60s"
 
   http_check {
-    port         = 443
-    use_ssl      = true
-    path         = "/"
+    port           = 443
+    use_ssl        = true
+    path           = "/"
     request_method = "GET"
   }
 

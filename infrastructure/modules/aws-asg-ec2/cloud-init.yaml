@@ -92,11 +92,11 @@ write_files:
     content: |
       #!/bin/bash
       set -e
-      
+
       DEVICE="/dev/nvme1n1"
       MOUNT_PATH="/opt/foundry/data"
       LABEL="FOUNDRY_DATA"
-      
+
       # Wait for device to be available
       for i in {1..30}; do
         if [ -b "$DEVICE" ]; then
@@ -106,12 +106,12 @@ write_files:
         echo "Waiting for $DEVICE... (attempt $i/30)"
         sleep 1
       done
-      
+
       if ! [ -b "$DEVICE" ]; then
         echo "ERROR: Device $DEVICE not found"
         exit 1
       fi
-      
+
       # Check if already formatted
       if sudo blkid "$DEVICE" | grep -q "$LABEL"; then
         echo "Volume already formatted, skipping format"
@@ -119,7 +119,7 @@ write_files:
         echo "Formatting $DEVICE..."
         sudo mkfs.ext4 -L "$LABEL" "$DEVICE"
       fi
-      
+
       # Mount if not already mounted
       if ! mountpoint -q "$MOUNT_PATH"; then
         echo "Mounting $DEVICE to $MOUNT_PATH..."
@@ -127,7 +127,7 @@ write_files:
         sudo mount -L "$LABEL" "$MOUNT_PATH"
         sudo chown -R 1000:1000 "$MOUNT_PATH"
       fi
-      
+
       # Add to fstab for persistence
       if ! grep -q "$LABEL" /etc/fstab; then
         echo "Adding to fstab..."
