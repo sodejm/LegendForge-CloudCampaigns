@@ -230,24 +230,15 @@ resource "aws_s3_bucket_policy" "cloudfront_assets" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      merge(
-        {
-          Sid    = "AllowCloudFrontOAC"
-          Effect = "Allow"
-          Principal = {
-            Service = "cloudfront.amazonaws.com"
-          }
-          Action   = "s3:GetObject"
-          Resource = "${aws_s3_bucket.cloudfront_assets.arn}/*"
-        },
-        var.cloudfront_distribution_id != "" ? {
-          Condition = {
-            StringEquals = {
-              "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${var.cloudfront_distribution_id}"
-            }
-          }
-        } : {}
-      ),
+      {
+        Sid    = "AllowCloudFrontOAC"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.cloudfront_assets.arn}/*"
+      },
       {
         Sid       = "DenyUnencryptedTransport"
         Effect    = "Deny"
