@@ -142,6 +142,6 @@
     },
     "notes": { "type": "string" }
   },
-  "required": ["schemaVersion", "id", "characterName", "characterClass", "level", "attributes", "hitPoints"],
+  "required": ["schemaVersion", "id", "updatedAt", "characterName", "characterClass", "level", "attributes", "hitPoints"],
   "additionalProperties": false
 }
