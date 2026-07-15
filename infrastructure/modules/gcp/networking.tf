@@ -64,7 +64,7 @@ resource "google_compute_firewall" "egress_https" {
     ports    = ["443"]
   }
 
-  direction = "EGRESS"
+  direction          = "EGRESS"
   destination_ranges = ["0.0.0.0/0"]
 
   target_tags = ["foundry-app"]
@@ -81,7 +81,7 @@ resource "google_compute_firewall" "egress_dns" {
     ports    = ["53"]
   }
 
-  direction = "EGRESS"
+  direction          = "EGRESS"
   destination_ranges = ["0.0.0.0/0"]
 
   target_tags = ["foundry-app"]
@@ -105,8 +105,8 @@ resource "google_compute_firewall" "deny_ingress" {
     protocol = "icmp"
   }
 
-  priority = 65534
-  direction = "INGRESS"
+  priority      = 65534
+  direction     = "INGRESS"
   source_ranges = ["0.0.0.0/0"]
 
   target_tags = ["foundry-app"]
