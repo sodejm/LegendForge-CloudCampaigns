@@ -68,7 +68,7 @@ function fromFoundry(a) {
   }));
   return {
     ...preserved,
-    updatedAt: new Date().toISOString(),
+    updatedAt: preserved.updatedAt ?? new Date().toISOString(),
     schemaVersion: a.flags?.legendforge?.schemaVersion ?? "1.0.0",
     id: a.flags?.legendforge?.id ?? a.name?.toLowerCase().replace(/\s+/g, "_"),
     system: "dnd5e",
