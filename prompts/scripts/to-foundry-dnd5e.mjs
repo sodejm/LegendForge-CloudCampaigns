@@ -13,6 +13,10 @@ const ABIL = ["strength", "dexterity", "constitution", "intelligence", "wisdom",
 const ABBR = { strength: "str", dexterity: "dex", constitution: "con", intelligence: "int", wisdom: "wis", charisma: "cha" };
 const INVENTORY_ITEM_TYPE = "loot";
 
+function restoreOptionalString(value, preservedValue) {
+  return value === "" && preservedValue === undefined ? undefined : (value ?? preservedValue);
+}
+
 function toFoundry(c) {
   const abilities = {};
   for (const a of ABIL) abilities[ABBR[a]] = { value: c.attributes?.[a] ?? 10 };
@@ -59,7 +63,7 @@ function fromFoundry(a) {
     name: i.name,
     quantity: i.system?.quantity ?? 1,
     equipped: !!i.system?.equipped,
-    notes: i.system?.description?.value || undefined
+    notes: restoreOptionalString(i.system?.description?.value, i.flags?.legendforge?.source?.notes)
   }));
   return {
     ...preserved,
@@ -69,11 +73,11 @@ function fromFoundry(a) {
     system: "dnd5e",
     characterName: a.name,
     characterClass: cls?.name ?? "Adventurer",
-    ancestry: s.details?.race || undefined,
-    background: s.details?.background || undefined,
+    ancestry: restoreOptionalString(s.details?.race, preserved.ancestry),
+    background: restoreOptionalString(s.details?.background, preserved.background),
     level: cls?.system?.levels ?? 1,
     experiencePoints: s.details?.xp?.value ?? 0,
-    alignment: s.details?.alignment || undefined,
+    alignment: restoreOptionalString(s.details?.alignment, preserved.alignment),
     attributes,
     hitPoints: { current: s.attributes?.hp?.value ?? 0, max: s.attributes?.hp?.max ?? 1, temporary: s.attributes?.hp?.temp ?? 0 },
     armorClass: s.attributes?.ac?.flat ?? s.attributes?.ac?.value,
@@ -85,7 +89,7 @@ function fromFoundry(a) {
       cp: s.currency?.cp ?? 0
     },
     inventory,
-    notes: s.details?.biography?.value || undefined
+    notes: restoreOptionalString(s.details?.biography?.value, preserved.notes)
   };
 }
 
