@@ -17,17 +17,10 @@ function toFoundry(c) {
   const abilities = {};
   for (const a of ABIL) abilities[ABBR[a]] = { value: c.attributes?.[a] ?? 10 };
   const cur = c.currency ?? {};
-  const unmapped = {
-    updatedAt: c.updatedAt,
-    ownerPlayerId: c.ownerPlayerId,
-    proficiencyBonus: c.proficiencyBonus,
-    conditions: c.conditions,
-    spellSlots: c.spellSlots
-  };
   return {
     name: c.characterName,
     type: "character",
-    flags: { legendforge: { id: c.id, schemaVersion: c.schemaVersion, unmapped } },
+    flags: { legendforge: { id: c.id, schemaVersion: c.schemaVersion, source: c } },
     system: {
       abilities,
       attributes: {
@@ -59,7 +52,15 @@ function fromFoundry(a) {
   const cls = (a.items ?? []).find(i => i.type === "class");
   const attributes = {};
   for (const full of ABIL) attributes[full] = s.abilities?.[ABBR[full]]?.value ?? 10;
-  const preserved = a.flags?.legendforge?.unmapped ?? {};
+  const preserved = a.flags?.legendforge?.source ?? {};
+  const preservedInventory = Array.isArray(preserved.inventory) ? preserved.inventory : [];
+  const inventory = (a.items ?? []).filter(i => i.type === INVENTORY_ITEM_TYPE).map((i, index) => ({
+    ...preservedInventory[index],
+    name: i.name,
+    quantity: i.system?.quantity ?? 1,
+    equipped: !!i.system?.equipped,
+    notes: i.system?.description?.value || undefined
+  }));
   return {
     ...preserved,
     schemaVersion: a.flags?.legendforge?.schemaVersion ?? "1.0.0",
@@ -83,7 +84,7 @@ function fromFoundry(a) {
       sp: s.currency?.sp ?? 0,
       cp: s.currency?.cp ?? 0
     },
-    inventory: (a.items ?? []).filter(i => i.type === INVENTORY_ITEM_TYPE).map(i => ({ name: i.name, quantity: i.system?.quantity ?? 1, equipped: !!i.system?.equipped, notes: i.system?.description?.value || undefined })),
+    inventory,
     notes: s.details?.biography?.value || undefined
   };
 }
