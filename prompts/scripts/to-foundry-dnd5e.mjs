@@ -71,7 +71,7 @@ function fromFoundry(a) {
       gp: s.currency?.gp ?? 0,
       sp: s.currency?.sp ?? 0,
       cp: s.currency?.cp ?? 0
-    }
+    },
     inventory: (a.items ?? []).filter(i => i.type !== "class").map(i => ({ name: i.name, quantity: i.system?.quantity ?? 1, equipped: !!i.system?.equipped })),
     notes: s.details?.biography?.value || undefined
   };
