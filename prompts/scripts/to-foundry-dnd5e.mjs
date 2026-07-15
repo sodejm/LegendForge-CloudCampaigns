@@ -8,18 +8,70 @@
  *   node to-foundry-dnd5e.mjs from actor.json               > character.json
  */
 import { readFileSync } from "node:fs";
+import { isDeepStrictEqual } from "node:util";
 
 const ABIL = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
 const ABBR = { strength: "str", dexterity: "dex", constitution: "con", intelligence: "int", wisdom: "wis", charisma: "cha" };
+const INVENTORY_ITEM_TYPE = "loot";
+const SUPPORTED_FOUNDRY_INVENTORY_ITEM_TYPES = new Set([INVENTORY_ITEM_TYPE, "weapon", "equipment", "consumable", "tool", "container"]);
 
+function restoreOptionalString(value, preservedValue) {
+  return value === "" && preservedValue === undefined ? undefined : (value ?? preservedValue);
+}
+
+function validateClasses(c) {
+  if ((c.classes?.length ?? 0) === 0) return;
+
+  const primaryClass = c.classes[0]?.name;
+  const totalLevel = c.classes.reduce((sum, cls) => sum + (cls.level ?? 1), 0);
+
+  if (c.characterClass !== primaryClass) {
+    throw new Error("Primary class (characterClass) must match classes[0].name when classes is provided.");
+  }
+
+  if (c.level !== totalLevel) {
+    throw new Error("level must equal the sum of classes[].level when classes is provided.");
+  }
+}
+
+function stripUndefined(value) {
+  if (Array.isArray(value)) return value.map(stripUndefined);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([, entry]) => entry !== undefined)
+        .map(([key, entry]) => [key, stripUndefined(entry)])
+    );
+  }
+  return value;
+}
+
+function comparableRecord(record) {
+  const comparable = stripUndefined({ ...record });
+  delete comparable.updatedAt;
+  if (comparable.classes?.length === 1
+    && comparable.classes[0]?.name === comparable.characterClass
+    && comparable.classes[0]?.level === comparable.level) {
+    delete comparable.classes;
+  }
+  return comparable;
+}
 function toFoundry(c) {
+  validateClasses(c);
   const abilities = {};
   for (const a of ABIL) abilities[ABBR[a]] = { value: c.attributes?.[a] ?? 10 };
   const cur = c.currency ?? {};
+  const classItems = c.classes?.length
+    ? c.classes.map(cls => ({
+      name: cls.name,
+      type: "class",
+      system: { levels: cls.level ?? 1 }
+    }))
+    : [{ name: c.characterClass ?? "Adventurer", type: "class", system: { levels: c.level ?? 1 } }];
   return {
     name: c.characterName,
     type: "character",
-    flags: { legendforge: { id: c.id, schemaVersion: c.schemaVersion } },
+    flags: { legendforge: { id: c.id, schemaVersion: c.schemaVersion, source: c } },
     system: {
       abilities,
       attributes: {
@@ -37,9 +89,10 @@ function toFoundry(c) {
       currency: { pp: cur.pp ?? 0, gp: cur.gp ?? 0, sp: cur.sp ?? 0, cp: cur.cp ?? 0 }
     },
     items: [
-      { name: c.characterClass, type: "class", system: { levels: c.level ?? 1 } },
+      ...classItems,
       ...(c.inventory ?? []).map(i => ({
-        name: i.name, type: "loot",
+        name: i.name, type: INVENTORY_ITEM_TYPE,
+        flags: { legendforge: { source: i } },
         system: { quantity: i.quantity ?? 1, equipped: !!i.equipped, description: { value: i.notes ?? "" } }
       }))
     ]
@@ -48,20 +101,35 @@ function toFoundry(c) {
 
 function fromFoundry(a) {
   const s = a.system ?? {};
-  const cls = (a.items ?? []).find(i => i.type === "class");
+  const classItems = (a.items ?? []).filter(i => i.type === "class");
+  const cls = classItems[0];
+  const classes = classItems.map(i => ({
+    name: i.name,
+    level: i.system?.levels ?? 1
+  }));
   const attributes = {};
   for (const full of ABIL) attributes[full] = s.abilities?.[ABBR[full]]?.value ?? 10;
-  return {
+  const preserved = a.flags?.legendforge?.source ?? {};
+  const inventory = (a.items ?? []).filter(i => SUPPORTED_FOUNDRY_INVENTORY_ITEM_TYPES.has(i.type)).map(i => ({
+    ...(i.flags?.legendforge?.source ?? {}),
+    name: i.name,
+    quantity: i.system?.quantity ?? 1,
+    equipped: !!i.system?.equipped,
+    notes: restoreOptionalString(i.system?.description?.value, i.flags?.legendforge?.source?.notes)
+  }));
+  const reconstructed = {
+    ...preserved,
     schemaVersion: a.flags?.legendforge?.schemaVersion ?? "1.0.0",
     id: a.flags?.legendforge?.id ?? a.name?.toLowerCase().replace(/\s+/g, "_"),
     system: "dnd5e",
     characterName: a.name,
     characterClass: cls?.name ?? "Adventurer",
-    ancestry: s.details?.race || undefined,
-    background: s.details?.background || undefined,
-    level: cls?.system?.levels ?? 1,
+    ancestry: restoreOptionalString(s.details?.race, preserved.ancestry),
+    background: restoreOptionalString(s.details?.background, preserved.background),
+    level: classes.reduce((total, klass) => total + klass.level, 0) || 1,
+    classes: classes.length ? classes : undefined,
     experiencePoints: s.details?.xp?.value ?? 0,
-    alignment: s.details?.alignment || undefined,
+    alignment: restoreOptionalString(s.details?.alignment, preserved.alignment),
     attributes,
     hitPoints: { current: s.attributes?.hp?.value ?? 0, max: s.attributes?.hp?.max ?? 1, temporary: s.attributes?.hp?.temp ?? 0 },
     armorClass: s.attributes?.ac?.flat ?? s.attributes?.ac?.value,
@@ -72,9 +140,14 @@ function fromFoundry(a) {
       sp: s.currency?.sp ?? 0,
       cp: s.currency?.cp ?? 0
     },
-    inventory: (a.items ?? []).filter(i => i.type !== "class").map(i => ({ name: i.name, quantity: i.system?.quantity ?? 1, equipped: !!i.system?.equipped })),
-    notes: s.details?.biography?.value || undefined
+    inventory,
+    notes: restoreOptionalString(s.details?.biography?.value, preserved.notes)
   };
+  const now = new Date().toISOString();
+  const updatedAt = isDeepStrictEqual(comparableRecord(reconstructed), comparableRecord(preserved))
+    ? preserved.updatedAt ?? now
+    : now;
+  return { ...reconstructed, updatedAt };
 }
 
 const [dir, file] = process.argv.slice(2);

@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://legendforge.dev/schemas/character.schema.json",
   "title": "CharacterInformation",
-  "description": "Storable, updatable player character profile. 5e-by-default but reusable across Foundry-compatible systems.",
+  "description": "Storable, updatable D&D 5e player character profile for Foundry dnd5e campaigns.",
   "type": "object",
   "properties": {
     "schemaVersion": {
@@ -36,7 +36,21 @@
     },
     "characterClass": {
       "type": "string",
-      "description": "Primary class or profession (e.g., Mage, Rogue, Paladin)."
+      "description": "Primary class or profession (e.g., Mage, Rogue, Paladin). For single-class characters, this field alone defines the class. When `classes` is present, this must match `classes[0].name`."
+    },
+    "classes": {
+      "type": "array",
+      "description": "Ordered class breakdown for multiclass characters, with the primary class first. When present, `classes[0].name` must match `characterClass` and the class levels must sum to `level`.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "level": { "type": "integer", "minimum": 1, "maximum": 20 }
+        },
+        "required": ["name", "level"],
+        "additionalProperties": false
+      },
+      "minItems": 1
     },
     "ancestry": {
       "type": "string",
@@ -50,7 +64,7 @@
       "type": "integer",
       "minimum": 1,
       "maximum": 20,
-      "description": "Current character level."
+      "description": "Current character level. When `classes` is present, this must equal the sum of all `classes[].level` values."
     },
     "experiencePoints": {
       "type": "integer",
@@ -142,6 +156,6 @@
     },
     "notes": { "type": "string" }
   },
-  "required": ["schemaVersion", "id", "characterName", "characterClass", "level", "attributes", "hitPoints"],
+  "required": ["schemaVersion", "id", "updatedAt", "characterName", "characterClass", "level", "attributes", "hitPoints"],
   "additionalProperties": false
 }
