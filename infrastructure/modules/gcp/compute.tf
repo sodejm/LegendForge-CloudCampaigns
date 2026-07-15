@@ -24,11 +24,11 @@ resource "google_project_iam_member" "foundry_monitoring" {
 
 # ===== Compute Instance =====
 resource "google_compute_instance" "foundry" {
-  count           = var.compute_enabled ? 1 : 0
-  name            = "${local.name_prefix}-instance"
-  machine_type    = local.machine_type
-  zone            = var.zone != "" ? var.zone : "${var.region}-a"
-  project         = var.project_id
+  count            = var.compute_enabled ? 1 : 0
+  name             = "${local.name_prefix}-instance"
+  machine_type     = local.machine_type
+  zone             = var.zone != "" ? var.zone : "${var.region}-a"
+  project          = var.project_id
   min_cpu_platform = "Automatic"
 
   boot_disk {
@@ -59,18 +59,14 @@ resource "google_compute_instance" "foundry" {
 
   # User data / Cloud Init
   metadata = {
-    user-data = base64encode(module.foundry_app.user_data)
+    user-data      = base64encode(module.foundry_app.user_data)
+    enable-oslogin = "TRUE",
   }
 
   # Service account
   service_account {
     email  = google_service_account.foundry.email
     scopes = ["cloud-platform"]
-  }
-
-  # Enable OS Login (security best practice)
-  metadata = {
-    enable-oslogin = "TRUE"
   }
 
   labels = local.common_labels
@@ -107,7 +103,7 @@ resource "google_compute_resource_policy" "daily_snapshot" {
     schedule {
       daily_schedule {
         days_in_cycle = 1
-        start_time    = "02:00"  # 2 AM UTC
+        start_time    = "02:00" # 2 AM UTC
       }
     }
 
@@ -123,25 +119,25 @@ resource "google_compute_resource_policy" "daily_snapshot" {
 
 # ===== Attach snapshot schedule to disk =====
 resource "google_compute_disk_resource_policy_attachment" "foundry_data_snapshots" {
-  count             = var.compute_enabled ? 1 : 0
-  name              = google_compute_resource_policy.daily_snapshot[0].name
-  disk              = google_compute_disk.foundry_data[0].name
-  zone              = google_compute_disk.foundry_data[0].zone
-  project           = var.project_id
+  count   = var.compute_enabled ? 1 : 0
+  name    = google_compute_resource_policy.daily_snapshot[0].name
+  disk    = google_compute_disk.foundry_data[0].name
+  zone    = google_compute_disk.foundry_data[0].zone
+  project = var.project_id
 }
 
 # ===== Foundry App Module (Provider-agnostic cloud-init) =====
 module "foundry_app" {
   source = "../../modules/foundry-app"
 
-  foundry_hostname         = var.foundry_hostname
-  data_device              = "/dev/disk/by-id/google-foundry-data"
-  data_mount_path          = "/opt/foundry/data"
-  data_volume_fs_label     = "FOUNDRY_DATA"
-  foundry_image            = var.foundry_image
-  cloudflared_image        = var.cloudflared_image
-  timezone                 = "America/New_York"
-  foundry_license_key      = var.foundry_license_key
-  foundry_admin_key        = var.foundry_admin_key
-  cloudflare_tunnel_token  = var.cloudflare_tunnel_token
+  foundry_hostname        = var.foundry_hostname
+  data_device             = "/dev/disk/by-id/google-foundry-data"
+  data_mount_path         = "/opt/foundry/data"
+  data_volume_fs_label    = "FOUNDRY_DATA"
+  foundry_image           = var.foundry_image
+  cloudflared_image       = var.cloudflared_image
+  timezone                = "America/New_York"
+  foundry_license_key     = var.foundry_license_key
+  foundry_admin_key       = var.foundry_admin_key
+  cloudflare_tunnel_token = var.cloudflare_tunnel_token
 }

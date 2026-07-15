@@ -46,11 +46,11 @@ This guide provides step-by-step instructions to deploy a production-ready Legen
    ```bash
    gcloud iam service-accounts create terraform \
      --display-name="Terraform Service Account"
-   
+
    gcloud projects add-iam-policy-binding legendforge \
      --member="serviceAccount:terraform@legendforge.iam.gserviceaccount.com" \
      --role="roles/editor"
-   
+
    gcloud iam service-accounts keys create ~/terraform-key.json \
      --iam-account=terraform@legendforge.iam.gserviceaccount.com
    ```
