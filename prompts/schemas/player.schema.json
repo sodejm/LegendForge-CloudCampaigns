@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://legendforge.dev/schemas/player.schema.json",
+  "title": "PlayerInformation",
+  "description": "Storable, updatable record for a real-world player (the seat at the table), independent of their characters.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable unique identifier for storage and updates."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name shown at the table."
+    },
+    "pronouns": { "type": "string" },
+    "contact": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "discord": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "role": {
+      "type": "string",
+      "enum": ["player", "dm", "spectator"],
+      "default": "player"
+    },
+    "characterIds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "ids of characters this player controls (see character.schema.json)."
+    },
+    "activeCharacterId": {
+      "type": "string",
+      "description": "The character currently in play, if any."
+    },
+    "preferences": {
+      "type": "object",
+      "properties": {
+        "contentWarnings": { "type": "array", "items": { "type": "string" } },
+        "preferredSystems": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["schemaVersion", "id", "updatedAt", "displayName"],
+  "additionalProperties": false
+}

@@ -185,5 +185,3 @@ resource "aws_cloudfront_function" "security_headers" {
     }
   EOT
 }
-
-# Associate security headers function with distribution via cache behaviors above

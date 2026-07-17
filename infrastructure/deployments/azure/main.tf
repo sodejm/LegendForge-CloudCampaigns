@@ -75,14 +75,14 @@ module "security" {
 module "storage" {
   source = "../../modules/azure/storage"
 
-  environment         = var.environment
-  location            = var.location
-  resource_group_name = module.networking.resource_group_name
-  project_name        = var.project_name
-  storage_subnet_id   = module.networking.storage_subnet_id
-  vnet_id             = module.networking.vnet_id
-  app_subnet_id       = module.networking.app_subnet_id
-  enable_cdn          = var.enable_cdn
+  environment                   = var.environment
+  location                      = var.location
+  resource_group_name           = module.networking.resource_group_name
+  project_name                  = var.project_name
+  vnet_id                       = module.networking.vnet_id
+  app_subnet_id                 = module.networking.app_subnet_id
+  managed_identity_principal_id = module.compute.managed_identity_principal_id
+  enable_cdn                    = var.enable_cdn
 
   tags = merge(var.common_tags, {
     Module = "storage"
@@ -137,7 +137,6 @@ module "compute" {
   storage_account_name   = module.storage.storage_account_name
   storage_account_key    = module.storage.storage_account_primary_access_key
   key_vault_uri          = module.security.key_vault_uri
-  enable_monitoring      = var.enable_monitoring
 
   tags = merge(var.common_tags, {
     Module = "compute"

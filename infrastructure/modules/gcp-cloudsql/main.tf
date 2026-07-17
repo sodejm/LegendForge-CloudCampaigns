@@ -11,8 +11,9 @@ resource "google_sql_database_instance" "foundry_primary" {
   region           = var.primary_region
 
   settings {
-    tier              = var.machine_type
-    availability_type = "REGIONAL" # High Availability with failover replica
+    tier                = var.machine_type
+    availability_type   = "REGIONAL" # High Availability with failover replica
+    deletion_protection = var.deletion_protection
 
     # Backup configuration
     backup_configuration {
@@ -45,10 +46,12 @@ resource "google_sql_database_instance" "foundry_primary" {
 
     # IP configuration
     ip_configuration {
-      require_ssl        = true
-      ipv4_enabled       = var.enable_public_ip
-      private_network    = var.vpc_network_id
-      allocated_ip_range = null
+      require_ssl         = true
+      enable_private_path = false
+      ipv4_enabled        = var.enable_public_ip
+      private_network     = var.vpc_network_id
+      enable_private_ip   = true
+      allocated_ip_range  = null
 
       authorized_networks {
         name  = "gcp-internal"
@@ -58,6 +61,7 @@ resource "google_sql_database_instance" "foundry_primary" {
 
     # Maintenance window
     maintenance_window {
+      kind         = "MYSQL"
       day          = 0 # Sunday
       hour         = 3
       update_track = "stable"

@@ -74,6 +74,7 @@ resource "hcloud_server" "foundry" {
   image       = data.hcloud_image.ubuntu.id
   server_type = var.server_type
   datacenter  = var.datacenter
+  automount   = false
   public_net {
     ipv4_enabled = true
     ipv6_enabled = true
