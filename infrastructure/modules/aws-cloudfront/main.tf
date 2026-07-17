@@ -72,7 +72,7 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   # Cache behavior for static assets
-  cache_behavior {
+  ordered_cache_behavior {
     path_pattern     = "/assets/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
@@ -95,7 +95,7 @@ resource "aws_cloudfront_distribution" "main" {
   }
 
   # Cache behavior for maps and modules
-  cache_behavior {
+  ordered_cache_behavior {
     path_pattern     = "/maps/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
@@ -179,24 +179,4 @@ resource "aws_cloudfront_function" "security_headers" {
       return response;
     }
   EOT
-}
-
-# Associate security headers function with distribution
-resource "aws_cloudfront_distribution_function_association" "security_headers" {
-  distribution_id = aws_cloudfront_distribution.main.id
-  event_type      = "viewer-response"
-  function_arn    = aws_cloudfront_function.security_headers.arn
-}
-
-# =============================================================================
-# CloudFront Invalidation (optional - managed externally)
-# =============================================================================
-resource "aws_cloudfront_invalidation" "main" {
-  count           = var.create_invalidation ? 1 : 0
-  distribution_id = aws_cloudfront_distribution.main.id
-  paths           = ["/*"]
-
-  triggers = {
-    deployment = var.invalidation_trigger
-  }
 }

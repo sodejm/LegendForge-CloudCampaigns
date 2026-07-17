@@ -65,12 +65,12 @@ resource "hcloud_firewall" "foundry" {
 
 # ===== Server =====
 resource "hcloud_server" "foundry" {
-  count          = var.compute_enabled ? 1 : 0
-  name           = "${var.project_name}-${var.environment}-server"
-  image          = data.hcloud_image.ubuntu.id
-  server_type    = var.server_type
-  datacenter     = var.datacenter
-  automount      = false
+  count       = var.compute_enabled ? 1 : 0
+  name        = "${var.project_name}-${var.environment}-server"
+  image       = data.hcloud_image.ubuntu.id
+  server_type = var.server_type
+  datacenter  = var.datacenter
+  automount   = false
   public_net {
     ipv4_enabled = true
     ipv6_enabled = true
@@ -104,10 +104,10 @@ resource "hcloud_volume" "foundry_data" {
 
 # ===== Server Attachment to Network =====
 resource "hcloud_server_network" "foundry" {
-  count       = var.compute_enabled ? 1 : 0
-  server_id   = hcloud_server.foundry[0].id
-  network_id  = hcloud_network.foundry.id
-  ip          = "10.0.0.2"
+  count      = var.compute_enabled ? 1 : 0
+  server_id  = hcloud_server.foundry[0].id
+  network_id = hcloud_network.foundry.id
+  ip         = "10.0.0.2"
 }
 
 # ===== Firewall Attachment =====
@@ -120,17 +120,17 @@ resource "hcloud_firewall_attachment" "foundry" {
 module "foundry_app" {
   source = "../../foundry-app"
 
-  foundry_hostname         = var.foundry_hostname
-  data_device              = var.compute_enabled ? "/dev/disk/by-id/scsi-0HC_Volume_${hcloud_volume.foundry_data[0].id}" : "/dev/null"
-  data_mount_path          = var.data_mount_path
-  data_volume_fs_label     = var.data_volume_fs_label
-  foundry_image            = var.foundry_image
-  cloudflared_image        = var.cloudflared_image
-  timezone                 = var.timezone
-  foundry_username         = var.foundry_username
-  foundry_password         = var.foundry_password
-  foundry_release_url      = var.foundry_release_url
-  foundry_license_key      = var.foundry_license_key
-  foundry_admin_key        = var.foundry_admin_key
-  cloudflare_tunnel_token  = var.cloudflare_tunnel_token
+  foundry_hostname        = var.foundry_hostname
+  data_device             = var.compute_enabled ? "/dev/disk/by-id/scsi-0HC_Volume_${hcloud_volume.foundry_data[0].id}" : "/dev/null"
+  data_mount_path         = var.data_mount_path
+  data_volume_fs_label    = var.data_volume_fs_label
+  foundry_image           = var.foundry_image
+  cloudflared_image       = var.cloudflared_image
+  timezone                = var.timezone
+  foundry_username        = var.foundry_username
+  foundry_password        = var.foundry_password
+  foundry_release_url     = var.foundry_release_url
+  foundry_license_key     = var.foundry_license_key
+  foundry_admin_key       = var.foundry_admin_key
+  cloudflare_tunnel_token = var.cloudflare_tunnel_token
 }
