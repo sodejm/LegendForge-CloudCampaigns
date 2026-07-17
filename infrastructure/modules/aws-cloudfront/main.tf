@@ -92,6 +92,11 @@ resource "aws_cloudfront_distribution" "main" {
     default_ttl            = 86400
     max_ttl                = 31536000
     compress               = true
+
+    function_association {
+      event_type   = "viewer-response"
+      function_arn = aws_cloudfront_function.security_headers.arn
+    }
   }
 
   # Cache behavior for maps and modules

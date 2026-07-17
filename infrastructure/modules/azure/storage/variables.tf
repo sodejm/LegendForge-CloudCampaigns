@@ -36,6 +36,11 @@ variable "app_subnet_id" {
   type        = string
 }
 
+variable "storage_subnet_id" {
+  description = "Subnet identifier used by LegendForge infrastructure for storage private endpoints."
+  type        = string
+}
+
 variable "account_tier" {
   description = "Storage account tier for LegendForge's universal tabletop infrastructure."
   type        = string
@@ -75,6 +80,7 @@ variable "cdn_sku" {
 variable "managed_identity_principal_id" {
   description = "Provider resource ID used by LegendForge infrastructure for managed identity principal id."
   type        = string
+  default     = ""
 }
 
 variable "tags" {
