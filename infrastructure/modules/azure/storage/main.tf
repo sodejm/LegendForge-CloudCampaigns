@@ -13,14 +13,14 @@ resource "random_string" "storage_suffix" {
 
 # Storage Account
 resource "azurerm_storage_account" "main" {
-  name                     = "stg${replace(var.project_name, "-", "")}${random_string.storage_suffix.result}"
-  location                 = var.location
-  resource_group_name      = var.resource_group_name
-  account_tier             = var.account_tier
-  account_replication_type = var.account_replication_type
+  name                       = "stg${replace(var.project_name, "-", "")}${random_string.storage_suffix.result}"
+  location                   = var.location
+  resource_group_name        = var.resource_group_name
+  account_tier               = var.account_tier
+  account_replication_type   = var.account_replication_type
   https_traffic_only_enabled = var.https_traffic_only_enabled
-  min_tls_version          = var.min_tls_version
-  shared_access_key_enabled = true
+  min_tls_version            = var.min_tls_version
+  shared_access_key_enabled  = true
 
   network_rules {
     default_action             = "Deny"
@@ -136,14 +136,14 @@ resource "azurerm_cdn_endpoint" "media" {
 
 # Storage Account Access Policy - Grant managed identity access
 resource "azurerm_role_assignment" "storage_blob_data_contributor" {
-  scope              = azurerm_storage_account.main.id
+  scope                = azurerm_storage_account.main.id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id       = var.managed_identity_principal_id
+  principal_id         = var.managed_identity_principal_id
 }
 
 # Storage Account Access Policy - Grant managed identity read access
 resource "azurerm_role_assignment" "storage_blob_data_reader" {
-  scope              = azurerm_storage_account.main.id
+  scope                = azurerm_storage_account.main.id
   role_definition_name = "Storage Blob Data Reader"
-  principal_id       = var.managed_identity_principal_id
+  principal_id         = var.managed_identity_principal_id
 }
