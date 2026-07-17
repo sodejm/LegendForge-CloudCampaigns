@@ -34,11 +34,11 @@ resource "aws_backup_plan" "foundry_daily" {
   name  = "${local.name_prefix}-daily-snapshot-plan"
 
   rule {
-    rule_name         = "daily-snapshot"
+    rule_name                = "daily-snapshot"
     target_backup_vault_name = aws_backup_vault.foundry[0].name
-    schedule          = "cron(0 2 ? * * *)"  # 2 AM UTC daily
-    start_window      = 60
-    completion_window = 120
+    schedule                 = "cron(0 2 ? * * *)" # 2 AM UTC daily
+    start_window             = 60
+    completion_window        = 120
     lifecycle {
       cold_storage_after = 30
       delete_after       = 365
@@ -55,13 +55,13 @@ resource "aws_backup_plan" "foundry_daily" {
 
 # ===== Backup Resource Assignment =====
 resource "aws_backup_resource_assignment" "foundry_volume" {
-  count              = var.enable_volume_snapshots && var.compute_enabled ? 1 : 0
-  name               = "${local.name_prefix}-volume-backup-assignment"
-  backup_plan_id     = aws_backup_plan.foundry_daily[0].id
-  iam_role_arn       = aws_iam_role.backup[0].arn
-  resources          = [aws_ebs_volume.foundry_data[0].arn]
-  selection_tag_key  = "Backup"
-  selection_tag_type = "STRINGEQUALS"
+  count               = var.enable_volume_snapshots && var.compute_enabled ? 1 : 0
+  name                = "${local.name_prefix}-volume-backup-assignment"
+  backup_plan_id      = aws_backup_plan.foundry_daily[0].id
+  iam_role_arn        = aws_iam_role.backup[0].arn
+  resources           = [aws_ebs_volume.foundry_data[0].arn]
+  selection_tag_key   = "Backup"
+  selection_tag_type  = "STRINGEQUALS"
   selection_tag_value = "true"
 
   depends_on = [aws_iam_role_policy.backup]
@@ -114,9 +114,9 @@ resource "aws_iam_role_policy" "backup" {
 
 # ===== EBS Snapshot Resource (manual snapshot capability) =====
 resource "aws_ebs_snapshot" "foundry_manual" {
-  count             = var.compute_enabled ? 1 : 0
-  volume_id         = aws_ebs_volume.foundry_data[0].id
-  description       = "Manual snapshot of Foundry data volume"
+  count                 = var.compute_enabled ? 1 : 0
+  volume_id             = aws_ebs_volume.foundry_data[0].id
+  description           = "Manual snapshot of Foundry data volume"
   copy_on_region_change = true
 
   tags = merge(local.common_tags, {

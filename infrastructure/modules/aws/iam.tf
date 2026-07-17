@@ -4,7 +4,7 @@
 
 # ===== IAM Role for EC2 Instance =====
 resource "aws_iam_role" "ec2_instance_role" {
-  name               = "${local.name_prefix}-ec2-instance-role"
+  name = "${local.name_prefix}-ec2-instance-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -29,8 +29,8 @@ resource "aws_iam_instance_profile" "ec2" {
 
 # ===== IAM Policy: Secrets Manager Read-Only Access =====
 resource "aws_iam_role_policy" "secrets_manager_read" {
-  name   = "${local.name_prefix}-secrets-manager-read-policy"
-  role   = aws_iam_role.ec2_instance_role.id
+  name = "${local.name_prefix}-secrets-manager-read-policy"
+  role = aws_iam_role.ec2_instance_role.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -66,8 +66,8 @@ resource "aws_iam_role_policy" "secrets_manager_read" {
 
 # ===== IAM Policy: CloudWatch Logs Write Access =====
 resource "aws_iam_role_policy" "cloudwatch_logs_write" {
-  name   = "${local.name_prefix}-cloudwatch-logs-write-policy"
-  role   = aws_iam_role.ec2_instance_role.id
+  name = "${local.name_prefix}-cloudwatch-logs-write-policy"
+  role = aws_iam_role.ec2_instance_role.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -95,8 +95,8 @@ resource "aws_iam_role_policy_attachment" "ssm_session_manager" {
 
 # ===== IAM Policy: ECS-relevant permissions (for future Container Insights) =====
 resource "aws_iam_role_policy" "cloudwatch_container_insights" {
-  name   = "${local.name_prefix}-container-insights-policy"
-  role   = aws_iam_role.ec2_instance_role.id
+  name = "${local.name_prefix}-container-insights-policy"
+  role = aws_iam_role.ec2_instance_role.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
