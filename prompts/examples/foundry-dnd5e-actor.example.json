@@ -1,0 +1,218 @@
+{
+  "name": "Thorne Blackwood",
+  "type": "character",
+  "flags": {
+    "legendforge": {
+      "id": "char_thorne_blackwood",
+      "schemaVersion": "1.0.0",
+      "source": {
+        "schemaVersion": "1.0.0",
+        "id": "char_thorne_blackwood",
+        "updatedAt": "2026-06-28T20:00:00Z",
+        "ownerPlayerId": "player_alex",
+        "system": "dnd5e",
+        "characterName": "Thorne Blackwood",
+        "characterClass": "Paladin",
+        "ancestry": "Half-Elf",
+        "background": "Soldier",
+        "level": 3,
+        "experiencePoints": 900,
+        "proficiencyBonus": 2,
+        "alignment": "Lawful Good",
+        "attributes": {
+          "strength": 16,
+          "dexterity": 10,
+          "constitution": 14,
+          "intelligence": 8,
+          "wisdom": 12,
+          "charisma": 15
+        },
+        "hitPoints": {
+          "current": 22,
+          "max": 28,
+          "temporary": 0
+        },
+        "armorClass": 18,
+        "speed": 30,
+        "conditions": [],
+        "currency": {
+          "pp": 0,
+          "gp": 45,
+          "sp": 8,
+          "cp": 12
+        },
+        "inventory": [
+          {
+            "name": "Longsword",
+            "quantity": 1,
+            "equipped": true
+          },
+          {
+            "name": "Shield",
+            "quantity": 1,
+            "equipped": true
+          },
+          {
+            "name": "Chain Mail",
+            "quantity": 1,
+            "equipped": true
+          },
+          {
+            "name": "Potion of Healing",
+            "quantity": 2,
+            "equipped": false
+          }
+        ],
+        "spellSlots": {
+          "1": {
+            "current": 2,
+            "max": 3
+          }
+        },
+        "notes": "Sworn to protect the village of Ravenshollow."
+      }
+    }
+  },
+  "system": {
+    "abilities": {
+      "str": {
+        "value": 16
+      },
+      "dex": {
+        "value": 10
+      },
+      "con": {
+        "value": 14
+      },
+      "int": {
+        "value": 8
+      },
+      "wis": {
+        "value": 12
+      },
+      "cha": {
+        "value": 15
+      }
+    },
+    "attributes": {
+      "hp": {
+        "value": 22,
+        "max": 28,
+        "temp": 0
+      },
+      "ac": {
+        "calc": "flat",
+        "flat": 18
+      },
+      "movement": {
+        "walk": 30
+      }
+    },
+    "details": {
+      "race": "Half-Elf",
+      "background": "Soldier",
+      "alignment": "Lawful Good",
+      "xp": {
+        "value": 900
+      },
+      "biography": {
+        "value": "Sworn to protect the village of Ravenshollow."
+      }
+    },
+    "currency": {
+      "pp": 0,
+      "gp": 45,
+      "sp": 8,
+      "cp": 12
+    }
+  },
+  "items": [
+    {
+      "name": "Paladin",
+      "type": "class",
+      "system": {
+        "levels": 3
+      }
+    },
+    {
+      "name": "Longsword",
+      "type": "loot",
+      "flags": {
+        "legendforge": {
+          "source": {
+            "name": "Longsword",
+            "quantity": 1,
+            "equipped": true
+          }
+        }
+      },
+      "system": {
+        "quantity": 1,
+        "equipped": true,
+        "description": {
+          "value": ""
+        }
+      }
+    },
+    {
+      "name": "Shield",
+      "type": "loot",
+      "flags": {
+        "legendforge": {
+          "source": {
+            "name": "Shield",
+            "quantity": 1,
+            "equipped": true
+          }
+        }
+      },
+      "system": {
+        "quantity": 1,
+        "equipped": true,
+        "description": {
+          "value": ""
+        }
+      }
+    },
+    {
+      "name": "Chain Mail",
+      "type": "loot",
+      "flags": {
+        "legendforge": {
+          "source": {
+            "name": "Chain Mail",
+            "quantity": 1,
+            "equipped": true
+          }
+        }
+      },
+      "system": {
+        "quantity": 1,
+        "equipped": true,
+        "description": {
+          "value": ""
+        }
+      }
+    },
+    {
+      "name": "Potion of Healing",
+      "type": "loot",
+      "flags": {
+        "legendforge": {
+          "source": {
+            "name": "Potion of Healing",
+            "quantity": 2,
+            "equipped": false
+          }
+        }
+      },
+      "system": {
+        "quantity": 2,
+        "equipped": false,
+        "description": {
+          "value": ""
+        }
+      }
+    }
+  ]
+}

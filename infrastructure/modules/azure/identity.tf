@@ -17,30 +17,30 @@ resource "azurerm_user_assigned_identity" "vm" {
 
 # ===== RBAC Role Assignment: VM → Key Vault Certificate Officer (future) =====
 resource "azurerm_role_assignment" "vm_keyvault_certs" {
-  count              = var.compute_enabled ? 1 : 0
-  scope              = azurerm_key_vault.foundry.id
+  count                = var.compute_enabled ? 1 : 0
+  scope                = azurerm_key_vault.foundry.id
   role_definition_name = "Key Vault Certificate Officer"
-  principal_id       = azurerm_user_assigned_identity.vm[0].principal_id
+  principal_id         = azurerm_user_assigned_identity.vm[0].principal_id
 
   depends_on = [azurerm_user_assigned_identity.vm, azurerm_key_vault.foundry]
 }
 
 # ===== RBAC Role Assignment: VM → Monitoring Metrics Publisher =====
 resource "azurerm_role_assignment" "vm_monitor_metrics" {
-  count              = var.compute_enabled && var.enable_monitoring ? 1 : 0
-  scope              = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+  count                = var.compute_enabled && var.enable_monitoring ? 1 : 0
+  scope                = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
   role_definition_name = "Monitoring Metrics Publisher"
-  principal_id       = azurerm_user_assigned_identity.vm[0].principal_id
+  principal_id         = azurerm_user_assigned_identity.vm[0].principal_id
 
   depends_on = [azurerm_user_assigned_identity.vm]
 }
 
 # ===== RBAC Role Assignment: VM → Log Analytics Contributor =====
 resource "azurerm_role_assignment" "vm_log_analytics" {
-  count              = var.compute_enabled && var.enable_monitoring ? 1 : 0
-  scope              = azurerm_log_analytics_workspace.main[0].id
+  count                = var.compute_enabled && var.enable_monitoring ? 1 : 0
+  scope                = azurerm_log_analytics_workspace.main[0].id
   role_definition_name = "Log Analytics Contributor"
-  principal_id       = azurerm_user_assigned_identity.vm[0].principal_id
+  principal_id         = azurerm_user_assigned_identity.vm[0].principal_id
 
   depends_on = [azurerm_user_assigned_identity.vm, azurerm_log_analytics_workspace.main]
 }

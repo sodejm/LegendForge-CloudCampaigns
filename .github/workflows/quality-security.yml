@@ -15,25 +15,48 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
         with:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
 
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v4
+        uses: terraform-linters/setup-tflint@19a52fbac37dacb22a09518e4ef6ee234f2d4987 # v4.0.0
 
-      - name: Install TruffleHog
+      - name: Install TruffleHog (pinned, checksum-verified artifact only)
+        shell: bash
+        env:
+          TRUFFLEHOG_VERSION: "3.90.5"
         run: |
-          curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin
-          trufflehog --version
+          set -euo pipefail
+
+          OS="linux"
+          ARCH="amd64"
+          BASE_URL="https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}"
+          TARBALL="trufflehog_${TRUFFLEHOG_VERSION}_${OS}_${ARCH}.tar.gz"
+          CHECKSUMS="trufflehog_${TRUFFLEHOG_VERSION}_checksums.txt"
+
+          # Download pinned release artifact + checksum manifest
+          curl -fsSLo "${TARBALL}" "${BASE_URL}/${TARBALL}"
+          curl -fsSLo "${CHECKSUMS}" "${BASE_URL}/${CHECKSUMS}"
+
+          # Verify downloaded artifact matches published checksum
+          grep " ${TARBALL}$" "${CHECKSUMS}" > checksums.filtered.txt
+          sha256sum -c checksums.filtered.txt
+
+          # Install only the verified binary
+          tar -xzf "${TARBALL}" trufflehog
+          install -m 0755 trufflehog /usr/local/bin/trufflehog
+
+          # Verify installed version
+          trufflehog --version | grep -F "${TRUFFLEHOG_VERSION}"
 
       - name: Install hook runtime tools
         run: |
