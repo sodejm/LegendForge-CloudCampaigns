@@ -406,4 +406,3 @@ After deployment, you should have:
 **Status**: Production-Ready ✅
 
 For deployment instructions, see: **deployments/gcp/DEPLOYMENT_GUIDE.md**
-
