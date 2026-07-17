@@ -23,6 +23,11 @@ This index is the navigation hub for LegendForge documentation. It highlights th
   - Documents principles around portability, security, and operator clarity
   - Best for understanding the mission and long-term direction
 
+- **[prompts/README.md](prompts/README.md)** - AI Prompt Library
+  - Curated, reusable game-master and player prompts
+  - Versioned JSON schemas to store and update player/character information
+  - System-agnostic by default, validatable, no engine lock-in
+
 ### Attribution and Community Files
 - **[ATTRIBUTION.md](ATTRIBUTION.md)** - Comprehensive technical attribution
   - Dependency lists and license notes

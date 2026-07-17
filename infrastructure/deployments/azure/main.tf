@@ -79,7 +79,6 @@ module "storage" {
   location                      = var.location
   resource_group_name           = module.networking.resource_group_name
   project_name                  = var.project_name
-  storage_subnet_id             = module.networking.storage_subnet_id
   vnet_id                       = module.networking.vnet_id
   app_subnet_id                 = module.networking.app_subnet_id
   managed_identity_principal_id = module.compute.managed_identity_principal_id
@@ -121,27 +120,25 @@ module "database" {
 module "compute" {
   source = "../../modules/azure/compute"
 
-  environment                = var.environment
-  location                   = var.location
-  resource_group_name        = module.networking.resource_group_name
-  project_name               = var.project_name
-  app_subnet_id              = module.networking.app_subnet_id
-  app_nsg_id                 = module.networking.app_nsg_id
-  vm_size                    = var.vm_size
-  scale_set_capacity         = var.scale_set_capacity
-  scale_set_min_capacity     = var.scale_set_min_capacity
-  scale_set_max_capacity     = var.scale_set_max_capacity
-  admin_username             = var.vm_admin_username
-  ssh_public_key             = var.vm_ssh_public_key
-  foundry_version            = var.foundry_version
-  foundry_license_key        = var.foundry_license_key
-  database_host              = module.database.mysql_server_fqdn
-  database_name              = var.project_name
-  storage_account_name       = module.storage.storage_account_name
-  storage_account_key        = module.storage.storage_account_primary_access_key
-  key_vault_uri              = module.security.key_vault_uri
-  enable_monitoring          = var.enable_monitoring
-  log_analytics_workspace_id = var.enable_monitoring ? module.monitoring[0].log_analytics_workspace_id : ""
+  environment            = var.environment
+  location               = var.location
+  resource_group_name    = module.networking.resource_group_name
+  project_name           = var.project_name
+  app_subnet_id          = module.networking.app_subnet_id
+  app_nsg_id             = module.networking.app_nsg_id
+  vm_size                = var.vm_size
+  scale_set_capacity     = var.scale_set_capacity
+  scale_set_min_capacity = var.scale_set_min_capacity
+  scale_set_max_capacity = var.scale_set_max_capacity
+  admin_username         = var.vm_admin_username
+  ssh_public_key         = var.vm_ssh_public_key
+  foundry_version        = var.foundry_version
+  foundry_license_key    = var.foundry_license_key
+  database_host          = module.database.mysql_server_fqdn
+  database_name          = var.project_name
+  storage_account_name   = module.storage.storage_account_name
+  storage_account_key    = module.storage.storage_account_primary_access_key
+  key_vault_uri          = module.security.key_vault_uri
 
   tags = merge(var.common_tags, {
     Module = "compute"

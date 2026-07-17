@@ -69,6 +69,57 @@ data "aws_availability_zones" "available" {
 }
 
 # =============================================================================
+# ACM Certificate for ALB HTTPS
+# =============================================================================
+resource "aws_acm_certificate" "foundry" {
+  count             = var.create_certificate ? 1 : 0
+  domain_name       = var.foundry_hostname
+  validation_method = "DNS"
+
+  tags = merge(
+    local.common_tags,
+    {
+      Name = "${var.environment}-foundry-cert"
+    }
+  )
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "cert_validation" {
+  for_each = {
+    for dvo in try(aws_acm_certificate.foundry[0].domain_validation_options, []) :
+    dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = var.route53_zone_id
+}
+
+resource "aws_acm_certificate_validation" "foundry" {
+  count           = var.create_certificate ? 1 : 0
+  certificate_arn = aws_acm_certificate.foundry[0].arn
+
+  validation_record_fqdns = [
+    for record in aws_route53_record.cert_validation : record.fqdn
+  ]
+
+  timeouts {
+    create = "5m"
+  }
+}
+
+# =============================================================================
 # Module: VPC for LegendForge multi-system operations.
 # =============================================================================
 module "vpc" {
@@ -123,9 +174,8 @@ module "rds" {
 module "s3" {
   source = "../../modules/aws-s3"
 
-  environment                = var.environment
-  cloudfront_distribution_id = try(module.cloudfront.distribution_id, "")
-  tags                       = local.common_tags
+  environment = var.environment
+  tags        = local.common_tags
 
   depends_on = [module.vpc]
 }
@@ -153,7 +203,7 @@ module "alb" {
   vpc_id                = module.vpc.vpc_id
   public_subnet_ids     = module.vpc.public_subnet_ids
   alb_security_group_id = module.security_groups.alb_security_group_id
-  certificate_arn       = module.route53.certificate_arn
+  certificate_arn       = var.create_certificate ? aws_acm_certificate_validation.foundry[0].certificate_arn : var.existing_certificate_arn
   tags                  = local.common_tags
 
   depends_on = [module.vpc, module.security_groups]
@@ -236,7 +286,7 @@ module "route53" {
   alb_dns_name        = module.alb.alb_dns_name
   alb_zone_id         = module.alb.alb_zone_id
   create_health_check = var.create_health_check
-  create_certificate  = var.create_certificate
+  create_certificate  = false
   tags                = local.common_tags
 
   depends_on = [module.alb]
