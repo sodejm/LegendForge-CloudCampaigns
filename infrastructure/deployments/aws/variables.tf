@@ -213,6 +213,12 @@ variable "create_certificate" {
   default     = true
 }
 
+variable "existing_certificate_arn" {
+  description = "Existing ACM certificate ARN to use when Terraform certificate creation is disabled."
+  type        = string
+  default     = ""
+}
+
 # =============================================================================
 # CloudWatch Configuration
 # =============================================================================
@@ -220,13 +226,4 @@ variable "cloudwatch_log_retention_days" {
   description = "Observability setting for LegendForge infrastructure operations."
   type        = number
   default     = 30
-}
-
-# =============================================================================
-# Compute Lifecycle Configuration
-# =============================================================================
-variable "compute_enabled" {
-  description = "Whether LegendForge application compute should be created or suspended while preserving shared data."
-  type        = bool
-  default     = true
 }

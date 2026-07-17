@@ -85,12 +85,12 @@ output "instance_connect_command" {
 output "foundry_instance_summary" {
   description = "Summary of Foundry instance details"
   value = var.compute_enabled ? {
-    instance_id      = aws_instance.foundry[0].id
-    public_ip        = aws_instance.foundry[0].public_ip
-    region           = local.region
+    instance_id       = aws_instance.foundry[0].id
+    public_ip         = aws_instance.foundry[0].public_ip
+    region            = local.region
     availability_zone = aws_instance.foundry[0].availability_zone
-    vpc_id           = aws_vpc.main.id
-    security_group   = aws_security_group.compute.name
-    data_volume      = aws_ebs_volume.foundry_data[0].id
+    vpc_id            = aws_vpc.main.id
+    security_group    = aws_security_group.compute.name
+    data_volume       = aws_ebs_volume.foundry_data[0].id
   } : null
 }

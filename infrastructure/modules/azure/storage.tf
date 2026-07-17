@@ -43,14 +43,14 @@ resource "azurerm_backup_policy_vm" "daily" {
   }
 
   retention_weekly {
-    count           = 12
-    weekdays        = ["Sunday"]
+    count    = 12
+    weekdays = ["Sunday"]
   }
 
   retention_monthly {
-    count           = 12
-    weekdays        = ["Sunday"]
-    week            = "First"
+    count    = 12
+    weekdays = ["Sunday"]
+    week     = "First"
   }
 
   depends_on = [azurerm_recovery_services_vault.foundry]
@@ -82,13 +82,13 @@ resource "azurerm_backup_protected_vm" "foundry" {
 
 # ===== Managed Disk Snapshot (Manual) =====
 resource "azurerm_snapshot" "foundry_data_manual" {
-  count                        = var.compute_enabled ? 1 : 0
-  name                         = "${local.name_prefix}-data-disk-snapshot"
-  location                     = var.azure_region
-  resource_group_name          = var.resource_group_name
-  create_option                = "Copy"
-  source_resource_id           = azurerm_managed_disk.foundry_data[0].id
-  storage_account_type         = "Premium_LRS"
+  count                = var.compute_enabled ? 1 : 0
+  name                 = "${local.name_prefix}-data-disk-snapshot"
+  location             = var.azure_region
+  resource_group_name  = var.resource_group_name
+  create_option        = "Copy"
+  source_resource_id   = azurerm_managed_disk.foundry_data[0].id
+  storage_account_type = "Premium_LRS"
 
   tags = merge(local.common_tags, {
     SnapshotType = "Manual"

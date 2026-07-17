@@ -22,9 +22,9 @@ resource "azurerm_linux_virtual_machine" "foundry" {
 
   # OS Disk Configuration
   os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Premium_LRS"
-    disk_size_gb         = local.os_disk_size_gb
+    caching                = "ReadWrite"
+    storage_account_type   = "Premium_LRS"
+    disk_size_gb           = local.os_disk_size_gb
     disk_encryption_set_id = var.enable_monitoring ? azurerm_disk_encryption_set.vm[0].id : null
   }
 
@@ -72,19 +72,19 @@ resource "azurerm_linux_virtual_machine" "foundry" {
 module "foundry_app" {
   source = "../../modules/foundry-app"
 
-  foundry_hostname         = var.foundry_hostname
-  data_device              = "/dev/disk/by-id/scsi-*-lun-0"  # Azure managed disk pattern
-  data_mount_path          = var.data_mount_path
-  data_volume_fs_label     = var.data_volume_fs_label
-  foundry_image            = var.foundry_image
-  cloudflared_image        = var.cloudflared_image
-  timezone                 = var.timezone
-  foundry_username         = var.foundry_username
-  foundry_password         = var.foundry_password
-  foundry_release_url      = var.foundry_release_url
-  foundry_license_key      = var.foundry_license_key
-  foundry_admin_key        = var.foundry_admin_key
-  cloudflare_tunnel_token  = var.cloudflare_tunnel_token
+  foundry_hostname        = var.foundry_hostname
+  data_device             = "/dev/disk/by-id/scsi-*-lun-0" # Azure managed disk pattern
+  data_mount_path         = var.data_mount_path
+  data_volume_fs_label    = var.data_volume_fs_label
+  foundry_image           = var.foundry_image
+  cloudflared_image       = var.cloudflared_image
+  timezone                = var.timezone
+  foundry_username        = var.foundry_username
+  foundry_password        = var.foundry_password
+  foundry_release_url     = var.foundry_release_url
+  foundry_license_key     = var.foundry_license_key
+  foundry_admin_key       = var.foundry_admin_key
+  cloudflare_tunnel_token = var.cloudflare_tunnel_token
 }
 
 # ===== Disk Encryption Set (for CMK encryption) =====
@@ -124,10 +124,10 @@ resource "azurerm_key_vault_key" "vm" {
 
 # ===== Grant Disk Encryption Set access to Key Vault =====
 resource "azurerm_key_vault_access_policy" "disk_encryption" {
-  count           = var.enable_monitoring ? 1 : 0
-  key_vault_id    = azurerm_key_vault.foundry.id
-  tenant_id       = azurerm_disk_encryption_set.vm[0].identity[0].tenant_id
-  object_id       = azurerm_disk_encryption_set.vm[0].identity[0].principal_id
+  count        = var.enable_monitoring ? 1 : 0
+  key_vault_id = azurerm_key_vault.foundry.id
+  tenant_id    = azurerm_disk_encryption_set.vm[0].identity[0].tenant_id
+  object_id    = azurerm_disk_encryption_set.vm[0].identity[0].principal_id
 
   key_permissions = [
     "Get",
@@ -140,9 +140,9 @@ resource "azurerm_key_vault_access_policy" "disk_encryption" {
 
 # ===== Diagnostic Settings for VM =====
 resource "azurerm_monitor_diagnostic_setting" "vm" {
-  count              = var.enable_monitoring ? 1 : 0
-  name               = "${local.name_prefix}-diag"
-  target_resource_id = azurerm_linux_virtual_machine.foundry[0].id
+  count                      = var.enable_monitoring ? 1 : 0
+  name                       = "${local.name_prefix}-diag"
+  target_resource_id         = azurerm_linux_virtual_machine.foundry[0].id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.main[0].id
 
   enabled_log {
@@ -179,7 +179,7 @@ resource "azurerm_monitor_metric_alert" "vm_cpu_high" {
     metric_namespace = "Microsoft.Compute/virtualMachines"
   }
 
-  window_size         = "PT5M"
-  frequency           = "PT1M"
-  auto_mitigate       = true
+  window_size   = "PT5M"
+  frequency     = "PT1M"
+  auto_mitigate = true
 }

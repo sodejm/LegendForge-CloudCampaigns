@@ -25,7 +25,7 @@ locals {
   private_subnet_cidrs = var.private_subnet_cidrs
 
   # Compute defaults
-  instance_type = var.instance_type
+  instance_type    = var.instance_type
   root_volume_size = 30
   root_volume_type = "gp3"
 }
