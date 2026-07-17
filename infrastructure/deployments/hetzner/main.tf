@@ -48,8 +48,8 @@ provider "hcloud" {
 module "foundry_hetzner" {
   source = "../../modules/providers/hetzner"
 
-  project_name  = var.project_name
-  environment   = var.environment
+  project_name = var.project_name
+  environment  = var.environment
 
   # Networking
   network_zone = var.network_zone
@@ -69,12 +69,12 @@ module "foundry_hetzner" {
   admin_ssh_cidr = var.admin_ssh_cidr
 
   # LegendForge configuration
-  foundry_hostname        = var.foundry_hostname
-  data_mount_path         = var.data_mount_path
-  data_volume_fs_label    = var.data_volume_fs_label
-  foundry_image           = var.foundry_image
-  cloudflared_image       = var.cloudflared_image
-  timezone                = var.timezone
+  foundry_hostname     = var.foundry_hostname
+  data_mount_path      = var.data_mount_path
+  data_volume_fs_label = var.data_volume_fs_label
+  foundry_image        = var.foundry_image
+  cloudflared_image    = var.cloudflared_image
+  timezone             = var.timezone
 
   # Secrets
   foundry_username        = var.foundry_username

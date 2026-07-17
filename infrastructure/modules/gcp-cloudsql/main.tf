@@ -11,8 +11,8 @@ resource "google_sql_database_instance" "foundry_primary" {
   region           = var.primary_region
 
   settings {
-    tier              = var.machine_type
-    availability_type = "REGIONAL" # High Availability with failover replica
+    tier                = var.machine_type
+    availability_type   = "REGIONAL" # High Availability with failover replica
     deletion_protection = var.deletion_protection
 
     # Backup configuration
@@ -23,7 +23,7 @@ resource "google_sql_database_instance" "foundry_primary" {
         retained_backups = 30
         retention_unit   = "COUNT"
       }
-      start_time                = "02:00"
+      start_time                     = "02:00"
       transaction_log_retention_days = 7
     }
 
@@ -45,13 +45,13 @@ resource "google_sql_database_instance" "foundry_primary" {
 
     # IP configuration
     ip_configuration {
-      require_ssl            = true
-      enable_private_path    = false
-      ipv4_enabled           = var.enable_public_ip
-      private_network        = var.vpc_network_id
-      enable_private_ip      = true
-      allocated_ip_range     = null
-      
+      require_ssl         = true
+      enable_private_path = false
+      ipv4_enabled        = var.enable_public_ip
+      private_network     = var.vpc_network_id
+      enable_private_ip   = true
+      allocated_ip_range  = null
+
       authorized_networks {
         name  = "gcp-internal"
         value = var.primary_subnet_cidr
@@ -60,10 +60,10 @@ resource "google_sql_database_instance" "foundry_primary" {
 
     # Maintenance window
     maintenance_window {
-      kind            = "MYSQL"
-      day             = 0 # Sunday
-      hour            = 3
-      update_track    = "stable"
+      kind         = "MYSQL"
+      day          = 0 # Sunday
+      hour         = 3
+      update_track = "stable"
     }
 
     # Insights configuration (for performance monitoring)
@@ -101,10 +101,10 @@ resource "random_password" "db_user_password" {
 }
 
 resource "google_sql_user" "foundry_app" {
-  name       = var.foundry_db_user
-  instance   = google_sql_database_instance.foundry_primary.name
-  password   = random_password.db_user_password.result
-  type       = "BUILT_IN"
+  name     = var.foundry_db_user
+  instance = google_sql_database_instance.foundry_primary.name
+  password = random_password.db_user_password.result
+  type     = "BUILT_IN"
 }
 
 # --- Database user for backups and monitoring ---
@@ -114,10 +114,10 @@ resource "random_password" "db_backup_user_password" {
 }
 
 resource "google_sql_user" "foundry_backup" {
-  name       = var.foundry_backup_user
-  instance   = google_sql_database_instance.foundry_primary.name
-  password   = random_password.db_backup_user_password.result
-  type       = "BUILT_IN"
+  name     = var.foundry_backup_user
+  instance = google_sql_database_instance.foundry_primary.name
+  password = random_password.db_backup_user_password.result
+  type     = "BUILT_IN"
 }
 
 # --- Read replica for disaster recovery (optional) ---
@@ -138,8 +138,8 @@ resource "google_sql_database_instance" "foundry_replica" {
     availability_type = "ZONAL"
 
     ip_configuration {
-      require_ssl    = true
-      ipv4_enabled   = false
+      require_ssl     = true
+      ipv4_enabled    = false
       private_network = var.vpc_network_id
     }
 
