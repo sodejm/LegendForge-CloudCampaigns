@@ -29,7 +29,7 @@ resource "azurerm_subnet" "compute" {
 # ===== Bastion Subnet (if Bastion is enabled) =====
 resource "azurerm_subnet" "bastion" {
   count                = var.enable_bastion ? 1 : 0
-  name                 = "AzureBastionSubnet"  # Must be exactly this name
+  name                 = "AzureBastionSubnet" # Must be exactly this name
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = [local.bastion_subnet_cidr]
@@ -245,9 +245,9 @@ resource "azurerm_network_watcher_flow_log" "main" {
   enabled                   = true
 
   traffic_analytics {
-    enabled = true
-    workspace_id = azurerm_log_analytics_workspace.main[0].workspace_id
-    workspace_region = var.azure_region
+    enabled               = true
+    workspace_id          = azurerm_log_analytics_workspace.main[0].workspace_id
+    workspace_region      = var.azure_region
     workspace_resource_id = azurerm_log_analytics_workspace.main[0].id
   }
 
@@ -260,7 +260,7 @@ resource "azurerm_network_watcher_flow_log" "main" {
 # ===== Storage Account for Flow Logs =====
 resource "azurerm_storage_account" "flowlogs" {
   count                    = var.enable_monitoring ? 1 : 0
-  name                     = "${replace(local.name_prefix, "-", "")}flowlogs"  # No hyphens
+  name                     = "${replace(local.name_prefix, "-", "")}flowlogs" # No hyphens
   location                 = var.azure_region
   resource_group_name      = var.resource_group_name
   account_tier             = "Standard"

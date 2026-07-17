@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "player_alex",
+  "updatedAt": "2026-06-28T20:00:00Z",
+  "displayName": "Alex",
+  "pronouns": "they/them",
+  "contact": { "discord": "alex#1234" },
+  "role": "player",
+  "characterIds": ["char_thorne_blackwood"],
+  "activeCharacterId": "char_thorne_blackwood",
+  "preferences": {
+    "contentWarnings": ["spiders"],
+    "preferredSystems": ["dnd5e", "pf2e"]
+  },
+  "notes": "Prefers tactical combat and roleplay-heavy sessions."
+}
