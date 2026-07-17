@@ -48,7 +48,7 @@ resource "azurerm_linux_virtual_machine" "foundry" {
   }
 
   # User Data: Cloud-Init script
-  custom_data = base64encode(module.foundry_app.user_data)
+  custom_data = module.foundry_app.user_data
 
   # OS Profile: Linux-specific settings
   os_profile_linux_config {

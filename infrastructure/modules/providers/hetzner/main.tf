@@ -85,7 +85,7 @@ resource "hcloud_server" "foundry" {
     env     = var.environment
   }
 
-  user_data = base64encode(module.foundry_app.user_data)
+  user_data = module.foundry_app.user_data
 
   depends_on = [hcloud_network_subnet.foundry]
 }
