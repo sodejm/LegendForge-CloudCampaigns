@@ -171,11 +171,10 @@ resource "google_compute_security_policy" "foundry" {
   description = "Cloud Armor policy for LegendForge (DDoS, rate limiting, WAF) with multi-system support."
 
   # Default rule (allow)
-  rules {
+  rule {
     action   = "allow"
     priority = "65535"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "true"
       }
@@ -184,11 +183,10 @@ resource "google_compute_security_policy" "foundry" {
   }
 
   # Rate limiting: Max 100 requests per minute per IP
-  rules {
+  rule {
     action   = "rate_based_ban"
     priority = "1000"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "true"
       }
@@ -214,7 +212,6 @@ resource "google_compute_security_policy" "foundry" {
   #   action   = "deny(403)"
   #   priority = "2000"
   #   match {
-  #     versioned_expr = "EXPR_V1"
   #     expr {
   #       expression = "origin.region_code == 'CN' || origin.region_code == 'RU'"
   #     }
@@ -223,11 +220,10 @@ resource "google_compute_security_policy" "foundry" {
   # }
 
   # SQL injection detection
-  rules {
+  rule {
     action   = "deny(403)"
     priority = "3000"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "evaluatePreconfiguredExpr('sqli-v33-stable')"
       }
@@ -236,11 +232,10 @@ resource "google_compute_security_policy" "foundry" {
   }
 
   # XSS detection
-  rules {
+  rule {
     action   = "deny(403)"
     priority = "3100"
     match {
-      versioned_expr = "EXPR_V1"
       expr {
         expression = "evaluatePreconfiguredExpr('xss-v33-stable')"
       }
