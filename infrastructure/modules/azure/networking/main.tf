@@ -31,7 +31,7 @@ resource "azurerm_virtual_network" "main" {
 }
 
 # DDoS Protection Plan (Standard)
-resource "azurerm_ddos_protection_plan" "main" {
+resource "azurerm_network_ddos_protection_plan" "main" {
   count               = var.enable_ddos_protection ? 1 : 0
   name                = "ddos-${var.project_name}-${var.environment}"
   location            = var.location
@@ -117,7 +117,7 @@ resource "azurerm_subnet" "storage" {
 }
 
 # Associate NAT Gateway with App Subnet
-resource "azurerm_nat_gateway_subnet_association" "app" {
+resource "azurerm_subnet_nat_gateway_association" "app" {
   count          = var.enable_nat_gateway ? 1 : 0
   subnet_id      = azurerm_subnet.app.id
   nat_gateway_id = azurerm_nat_gateway.main[0].id
