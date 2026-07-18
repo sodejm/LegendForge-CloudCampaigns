@@ -97,7 +97,7 @@ LegendForge-CloudCampaigns/
 
 ### Prerequisites
 
-1. **Terraform** (>= 1.0)
+1. **Terraform** (>= 1.5)
 
    ```bash
    # macOS

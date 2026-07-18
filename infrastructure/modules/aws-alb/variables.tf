@@ -28,6 +28,7 @@ variable "alb_security_group_id" {
 variable "certificate_arn" {
   description = "AWS ARN used by LegendForge infrastructure for certificate arn."
   type        = string
+  default     = ""
 }
 
 variable "tags" {

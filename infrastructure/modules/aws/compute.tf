@@ -33,7 +33,7 @@ resource "aws_instance" "foundry" {
   key_name = var.admin_ssh_cidr != null && var.admin_ssh_public_key != "" ? aws_key_pair.admin[0].key_name : null
 
   # User data: Pass to foundry-app module to generate cloud-init script
-  user_data = base64encode(module.foundry_app.user_data)
+  user_data = module.foundry_app.user_data
 
   # CloudWatch monitoring
   monitoring = var.enable_monitoring
