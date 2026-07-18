@@ -71,7 +71,7 @@ resource "azurerm_private_endpoint" "blob" {
   name                = "pe-blob-${var.environment}"
   location            = var.location
   resource_group_name = var.resource_group_name
-  subnet_id           = var.app_subnet_id
+  subnet_id           = var.storage_subnet_id
 
   private_service_connection {
     name                           = "psc-blob"

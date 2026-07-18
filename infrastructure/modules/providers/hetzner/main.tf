@@ -20,7 +20,8 @@ data "hcloud_image" "ubuntu" {
 
 # ===== Network =====
 resource "hcloud_network" "foundry" {
-  name = "${var.project_name}-${var.environment}-network"
+  name     = "${var.project_name}-${var.environment}-network"
+  ip_range = var.network_cidr
 }
 
 resource "hcloud_network_subnet" "foundry" {
@@ -38,23 +39,26 @@ resource "hcloud_firewall" "foundry" {
   dynamic "rule" {
     for_each = var.admin_ssh_cidr != null ? [1] : []
     content {
-      direction = "in"
-      port      = "22"
-      protocol  = "tcp"
-      source {
-        cidr = var.admin_ssh_cidr
-      }
+      direction  = "in"
+      port       = "22"
+      protocol   = "tcp"
+      source_ips = [var.admin_ssh_cidr]
     }
   }
 
-  # Egress: Allow all (implicit in Hetzner)
+  # Egress: Allow all outbound TCP/UDP
   rule {
-    direction = "out"
-    port      = "any"
-    protocol  = "esp"
-    destination {
-      cidr = "0.0.0.0/0"
-    }
+    direction       = "out"
+    port            = "1-65535"
+    protocol        = "tcp"
+    destination_ips = ["0.0.0.0/0", "::/0"]
+  }
+
+  rule {
+    direction       = "out"
+    port            = "1-65535"
+    protocol        = "udp"
+    destination_ips = ["0.0.0.0/0", "::/0"]
   }
 
   labels = {
@@ -81,25 +85,32 @@ resource "hcloud_server" "foundry" {
     env     = var.environment
   }
 
-  user_data = base64encode(module.foundry_app.user_data)
+  user_data = module.foundry_app.user_data
 
   depends_on = [hcloud_network_subnet.foundry]
 }
 
 # ===== Volume (Persistent Data) =====
 resource "hcloud_volume" "foundry_data" {
-  count             = var.compute_enabled ? 1 : 0
-  name              = "${var.project_name}-${var.environment}-data-volume"
-  size              = var.data_volume_size_gb
-  server_id         = hcloud_server.foundry[0].id
-  automount         = false
-  format            = "ext4"
-  linux_device_name = "/dev/disk/by-id/scsi-0HC_Volume_${hcloud_volume.foundry_data[0].id}"
+  count     = var.compute_enabled ? 1 : 0
+  name      = "${var.project_name}-${var.environment}-data-volume"
+  size      = var.data_volume_size_gb
+  location  = var.datacenter
+  automount = false
+  format    = "ext4"
 
   labels = {
     project = var.project_name
     env     = var.environment
   }
+}
+
+# ===== Volume Attachment (after server and volume are both created) =====
+resource "hcloud_volume_attachment" "foundry_data" {
+  count     = var.compute_enabled ? 1 : 0
+  volume_id = hcloud_volume.foundry_data[0].id
+  server_id = hcloud_server.foundry[0].id
+  automount = false
 }
 
 # ===== Server Attachment to Network =====
