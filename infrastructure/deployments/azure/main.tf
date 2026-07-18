@@ -20,7 +20,7 @@ terraform {
 provider "azurerm" {
   features {
     virtual_machine {
-      delete_os_disk_on_delete = true
+      delete_os_disk_on_deletion = true
     }
     key_vault {
       purge_soft_delete_on_destroy = false
@@ -87,8 +87,6 @@ module "storage" {
   tags = merge(var.common_tags, {
     Module = "storage"
   })
-
-  depends_on = [module.compute]
 }
 
 # Database Module for LegendForge multi-system operations.
