@@ -58,10 +58,6 @@ resource "azurerm_key_vault_secret" "secrets" {
   value        = each.value
   key_vault_id = azurerm_key_vault.main.id
 
-  name         = replace(each.key, "_", "-")
-  value        = each.value
-  key_vault_id = azurerm_key_vault.main.id
-
   depends_on = [azurerm_key_vault_access_policy.main]
 }
 
