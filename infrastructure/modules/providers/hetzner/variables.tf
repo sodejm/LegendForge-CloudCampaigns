@@ -23,6 +23,12 @@ variable "network_zone" {
   default     = "eu-central"
 }
 
+variable "network_cidr" {
+  description = "IP range for the Hetzner private network hosting LegendForge infrastructure."
+  type        = string
+  default     = "10.0.0.0/8"
+}
+
 variable "subnet_cidr" {
   description = "Network CIDR range used by LegendForge's multi-system infrastructure for subnet cidr."
   type        = string

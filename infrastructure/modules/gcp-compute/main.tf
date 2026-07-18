@@ -74,7 +74,7 @@ resource "google_compute_instance_template" "foundry" {
   labels = var.labels
 
   # Shielded VM security
-  shielded_vm_config {
+  shielded_instance_config {
     enable_secure_boot          = true
     enable_vtpm                 = true
     enable_integrity_monitoring = true
@@ -94,17 +94,21 @@ resource "google_compute_region_instance_group_manager" "foundry" {
   region = var.primary_region
 
   base_instance_name = "${var.project_name}-foundry"
-  instance_template  = google_compute_instance_template.foundry.id
+
+  # Instance template version
+  version {
+    instance_template = google_compute_instance_template.foundry.id
+  }
 
   # Initial target size (can be overridden by autoscaler)
   target_size = var.min_instances
 
   # Rolling update strategy
   update_policy {
-    max_surge       = 1
-    max_unavailable = 0
-    type            = "PROACTIVE"
-    minimal_action  = "RESTART"
+    max_surge_fixed       = 1
+    max_unavailable_fixed = 0
+    type                  = "PROACTIVE"
+    minimal_action        = "RESTART"
   }
 
   # Auto-healing with health checks
@@ -193,21 +197,4 @@ resource "google_compute_firewall" "foundry_lb" {
 
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["foundry-compute"]
-}
-
-# --- Output instance group information ---
-output "instance_group_name" {
-  value = google_compute_region_instance_group_manager.foundry.name
-}
-
-output "instance_group_id" {
-  value = google_compute_region_instance_group_manager.foundry.id
-}
-
-output "instance_group_manager_id" {
-  value = google_compute_region_instance_group_manager.foundry.id
-}
-
-output "health_check_id" {
-  value = google_compute_health_check.foundry_http.id
 }
