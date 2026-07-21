@@ -70,8 +70,8 @@ cp config/foundry.auto.tfvars.example config/foundry.auto.tfvars
 ```bash
 cd deployments/hetzner
 terraform init
-terraform plan -var-file="../../config/foundry.auto.tfvars"
-terraform apply -var-file="../../config/foundry.auto.tfvars"
+terraform plan -var-file="../../../config/foundry.auto.tfvars"
+terraform apply -var-file="../../../config/foundry.auto.tfvars"
 ```
 
 ### Step 4: Access
@@ -112,13 +112,13 @@ Increase volume size by updating variable and applying.
 ### Spin Down
 ```bash
 terraform apply -var="compute_enabled=false" \
-  -var-file="../../config/foundry.auto.tfvars"
+  -var-file="../../../config/foundry.auto.tfvars"
 ```
 
 ### Destroy
 ```bash
 terraform destroy \
-  -var-file="../../config/foundry.auto.tfvars"
+  -var-file="../../../config/foundry.auto.tfvars"
 ```
 
 ## 🔗 Resources
