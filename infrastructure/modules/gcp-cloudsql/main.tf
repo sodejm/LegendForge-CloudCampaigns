@@ -22,9 +22,9 @@ resource "google_sql_database_instance" "foundry_primary" {
         retained_backups = 30
         retention_unit   = "COUNT"
       }
-        location                       = var.backup_location
-        start_time                     = "02:00"
-        transaction_log_retention_days = 7
+      location                       = var.backup_location
+      start_time                     = "02:00"
+      transaction_log_retention_days = 7
     }
 
     # Database flags
@@ -45,7 +45,7 @@ resource "google_sql_database_instance" "foundry_primary" {
 
     # IP configuration
     ip_configuration {
-      require_ssl        = true
+      ssl_mode           = "ENCRYPTED_ONLY"
       ipv4_enabled       = var.enable_public_ip
       private_network    = var.vpc_network_id
       allocated_ip_range = null
@@ -129,7 +129,7 @@ resource "google_sql_database_instance" "foundry_replica" {
     availability_type = "ZONAL"
 
     ip_configuration {
-      require_ssl     = true
+      ssl_mode        = "ENCRYPTED_ONLY"
       ipv4_enabled    = false
       private_network = var.vpc_network_id
     }

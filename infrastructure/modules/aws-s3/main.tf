@@ -243,6 +243,11 @@ resource "aws_s3_bucket_policy" "cloudfront_assets" {
         }
         Action   = "s3:GetObject"
         Resource = "${aws_s3_bucket.cloudfront_assets.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${var.cloudfront_distribution_id}"
+          }
+        }
       },
       {
         Sid       = "DenyUnencryptedTransport"

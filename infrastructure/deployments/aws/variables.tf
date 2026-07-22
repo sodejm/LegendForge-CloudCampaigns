@@ -219,8 +219,8 @@ variable "existing_certificate_arn" {
   default     = ""
 
   validation {
-    condition     = var.create_certificate || var.certificate_arn != ""
-    error_message = "certificate_arn must be set when create_certificate is false."
+    condition     = var.create_certificate || var.existing_certificate_arn != ""
+    error_message = "existing_certificate_arn must be set when create_certificate is false."
   }
 }
 

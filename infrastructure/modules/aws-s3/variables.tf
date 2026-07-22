@@ -15,3 +15,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "cloudfront_distribution_id" {
+  description = "Optional CloudFront distribution ID allowed to read the assets bucket. Leave empty when the policy is managed by the deployment layer."
+  type        = string
+  default     = ""
+}

@@ -70,7 +70,7 @@ resource "google_compute_instance" "foundry" {
   }
 
   labels = local.common_labels
-  tags = ["foundry-app"]
+  tags   = ["foundry-app"]
 
   depends_on = [
     google_compute_disk.foundry_data,
