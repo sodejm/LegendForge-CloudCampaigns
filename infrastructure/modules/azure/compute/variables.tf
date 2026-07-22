@@ -112,17 +112,20 @@ variable "database_name" {
 variable "storage_account_name" {
   description = "Resource name used by LegendForge infrastructure for storage account name."
   type        = string
+  default     = ""
 }
 
 variable "storage_account_key" {
   description = "Storage setting for LegendForge persistent worlds, assets, backups, or shared multi-system data."
   type        = string
+  default     = ""
   sensitive   = true
 }
 
 variable "key_vault_uri" {
   description = "Key Vault URI for LegendForge's universal tabletop infrastructure."
   type        = string
+  default     = ""
 }
 
 variable "enable_monitoring" {

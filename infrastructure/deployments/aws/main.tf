@@ -225,6 +225,47 @@ module "cloudfront" {
   depends_on = [module.alb, module.s3]
 }
 
+# Manage the assets-bucket policy at the deployment layer so the S3 and
+# CloudFront modules can be created without a dependency cycle.
+resource "aws_s3_bucket_policy" "cloudfront_assets" {
+  bucket = module.s3.cloudfront_assets_bucket_name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontOAC"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${module.s3.cloudfront_assets_bucket_arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = module.cloudfront.distribution_arn
+          }
+        }
+      },
+      {
+        Sid       = "DenyUnencryptedTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          module.s3.cloudfront_assets_bucket_arn,
+          "${module.s3.cloudfront_assets_bucket_arn}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      }
+    ]
+  })
+}
+
 # =============================================================================
 # Module: Auto Scaling Group & EC2 for LegendForge multi-system operations.
 # =============================================================================
