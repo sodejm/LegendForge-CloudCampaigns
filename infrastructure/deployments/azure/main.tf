@@ -15,18 +15,26 @@
 # =============================================================================
 
 terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.80"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.9"
+    }
+  }
 }
 
 provider "azurerm" {
   features {
-    virtual_machine {
-      delete_os_disk_on_deletion = true
-    }
     key_vault {
       purge_soft_delete_on_destroy = false
     }
   }
-  skip_provider_registration = false
 }
 
 provider "random" {}
@@ -79,6 +87,7 @@ module "storage" {
   location                      = var.location
   resource_group_name           = module.networking.resource_group_name
   project_name                  = var.project_name
+  storage_subnet_id             = module.networking.storage_subnet_id
   vnet_id                       = module.networking.vnet_id
   app_subnet_id                 = module.networking.app_subnet_id
   managed_identity_principal_id = module.compute.managed_identity_principal_id
@@ -87,6 +96,8 @@ module "storage" {
   tags = merge(var.common_tags, {
     Module = "storage"
   })
+
+  depends_on = [module.compute]
 }
 
 # Database Module for LegendForge multi-system operations.
@@ -134,15 +145,13 @@ module "compute" {
   foundry_license_key    = var.foundry_license_key
   database_host          = module.database.mysql_server_fqdn
   database_name          = var.project_name
-  storage_account_name   = module.storage.storage_account_name
-  storage_account_key    = module.storage.storage_account_primary_access_key
-  key_vault_uri          = module.security.key_vault_uri
+  enable_monitoring      = var.enable_monitoring
 
   tags = merge(var.common_tags, {
     Module = "compute"
   })
 
-  depends_on = [module.database, module.storage]
+  depends_on = [module.database]
 }
 
 # Monitoring Module for LegendForge multi-system operations.

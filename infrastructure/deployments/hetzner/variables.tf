@@ -29,6 +29,12 @@ variable "subnet_cidr" {
   default     = "10.0.0.0/24"
 }
 
+variable "network_cidr" {
+  description = "Parent network CIDR range for Hetzner private networking."
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
 # ===== Compute =====
 variable "server_type" {
   description = "Hetzner server type used for LegendForge application nodes."

@@ -59,7 +59,7 @@ resource "google_compute_instance" "foundry" {
 
   # User data / Cloud Init + OS Login (security best practice)
   metadata = {
-    user-data      = base64encode(module.foundry_app.user_data)
+    user-data      = module.foundry_app.user_data_raw
     enable-oslogin = "TRUE"
   }
 
@@ -69,7 +69,8 @@ resource "google_compute_instance" "foundry" {
     scopes = ["cloud-platform"]
   }
 
-  tags = ["foundry-app"]
+  labels = local.common_labels
+  tags   = ["foundry-app"]
 
   depends_on = [
     google_compute_disk.foundry_data,

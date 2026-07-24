@@ -74,7 +74,6 @@ resource "hcloud_server" "foundry" {
   image       = data.hcloud_image.ubuntu.id
   server_type = var.server_type
   datacenter  = var.datacenter
-  automount   = false
   public_net {
     ipv4_enabled = true
     ipv6_enabled = true
@@ -132,7 +131,7 @@ module "foundry_app" {
   source = "../../foundry-app"
 
   foundry_hostname        = var.foundry_hostname
-  data_device             = var.compute_enabled ? "/dev/disk/by-id/scsi-0HC_Volume_${hcloud_volume.foundry_data[0].id}" : "/dev/null"
+  data_device             = var.compute_enabled ? "/dev/disk/by-id/scsi-0HC_Volume_*" : "/dev/null"
   data_mount_path         = var.data_mount_path
   data_volume_fs_label    = var.data_volume_fs_label
   foundry_image           = var.foundry_image

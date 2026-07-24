@@ -24,14 +24,27 @@ resource "google_compute_backend_service" "foundry" {
   enable_cdn = var.enable_cdn
 
   cdn_policy {
-    cache_mode                      = "CACHE_ALL_STATIC"
-    client_ttl                      = 3600
-    default_ttl                     = 3600
-    max_ttl                         = 86400
-    negative_caching                = true
-    negative_caching_ttl            = 120
-    serve_while_stale               = 86400
-    bypass_cache_on_request_headers = ["Authorization"]
+    cache_mode        = "CACHE_ALL_STATIC"
+    client_ttl        = 3600
+    default_ttl       = 3600
+    max_ttl           = 86400
+    negative_caching  = true
+    serve_while_stale = 86400
+
+    cache_key_policy {
+      include_host         = true
+      include_protocol     = true
+      include_query_string = true
+    }
+
+    negative_caching_policy {
+      code = 404
+      ttl  = 120
+    }
+
+    bypass_cache_on_request_headers {
+      header_name = "Authorization"
+    }
   }
 
   # Connection draining timeout
@@ -67,12 +80,10 @@ resource "google_compute_backend_service" "foundry" {
       seconds = 10
     }
 
-    max_ejection_percent                    = 50
-    min_request_volume                      = 50
-    split_external_local_originated_traffic = false
-    success_rate_minimum_hosts              = 5
-    success_rate_request_volume             = 100
-    success_rate_stdev_factor               = 1900
+    max_ejection_percent        = 50
+    success_rate_minimum_hosts  = 5
+    success_rate_request_volume = 100
+    success_rate_stdev_factor   = 1900
   }
 
   depends_on = [var.health_check_id]

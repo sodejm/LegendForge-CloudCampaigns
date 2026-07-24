@@ -217,6 +217,11 @@ variable "existing_certificate_arn" {
   description = "Existing ACM certificate ARN to use when Terraform certificate creation is disabled."
   type        = string
   default     = ""
+
+  validation {
+    condition     = var.create_certificate || var.existing_certificate_arn != ""
+    error_message = "existing_certificate_arn must be set when create_certificate is false."
+  }
 }
 
 # =============================================================================

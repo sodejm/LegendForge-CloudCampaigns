@@ -26,6 +26,10 @@ resource "azurerm_key_vault" "main" {
   network_acls {
     default_action = "Deny"
     bypass         = "AzureServices"
+    ip_rules       = []
+    virtual_network_subnet_ids = [
+      var.storage_subnet_id,
+    ]
   }
 
   tags = var.tags
@@ -52,10 +56,10 @@ resource "azurerm_key_vault_access_policy" "main" {
 
 # Store secrets
 resource "azurerm_key_vault_secret" "secrets" {
-  for_each = nonsensitive(var.secrets)
+  for_each = nonsensitive(toset(keys(var.secrets)))
 
   name         = replace(each.key, "_", "-")
-  value        = each.value
+  value        = var.secrets[each.key]
   key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [azurerm_key_vault_access_policy.main]
@@ -102,5 +106,4 @@ resource "azurerm_private_dns_a_record" "keyvault" {
   ttl                 = 300
   records             = [azurerm_private_endpoint.keyvault.private_service_connection[0].private_ip_address]
 }
-
 # Network rules are configured via network_acls block in azurerm_key_vault above

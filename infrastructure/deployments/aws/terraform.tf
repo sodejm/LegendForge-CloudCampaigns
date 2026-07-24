@@ -14,6 +14,7 @@ terraform {
 
   # For now, use local state. Migrate to S3 backend after initial setup.
   # To migrate: run 'terraform init' after uncommenting the backend block above.
+
 }
 
 # ===== S3 Bucket for Terraform State (Optional: create outside Terraform first) =====
