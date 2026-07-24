@@ -53,6 +53,7 @@ module "foundry_hetzner" {
 
   # Networking
   network_zone = var.network_zone
+  network_cidr = var.network_cidr
   subnet_cidr  = var.subnet_cidr
 
   # Compute

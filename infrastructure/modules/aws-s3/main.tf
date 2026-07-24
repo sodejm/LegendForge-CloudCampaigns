@@ -224,7 +224,12 @@ resource "aws_s3_bucket_policy" "foundry_data" {
   })
 }
 
+# When cloudfront_distribution_id is supplied directly, manage the bucket
+# policy inside this module. When the deployment layer provisions CloudFront
+# and S3 together, leave cloudfront_distribution_id empty here and let the
+# deployment create the policy separately to avoid a dependency cycle.
 resource "aws_s3_bucket_policy" "cloudfront_assets" {
+  count  = var.cloudfront_distribution_id != "" ? 1 : 0
   bucket = aws_s3_bucket.cloudfront_assets.id
 
   policy = jsonencode({
@@ -238,6 +243,11 @@ resource "aws_s3_bucket_policy" "cloudfront_assets" {
         }
         Action   = "s3:GetObject"
         Resource = "${aws_s3_bucket.cloudfront_assets.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${var.cloudfront_distribution_id}"
+          }
+        }
       },
       {
         Sid       = "DenyUnencryptedTransport"
