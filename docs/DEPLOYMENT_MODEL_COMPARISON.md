@@ -86,10 +86,10 @@ before production use.
 
 The Hetzner deployment defaults to the \`eu-central\` network zone, \`fsn1-dc14\`,
 a single \`cx21\` server, and a 20 GB volume mounted at \`/opt/foundry/data\`.
-\`compute_enabled\` allows Terraform to omit application compute while retaining
-the shared data resources. The module uses a private network and optional
-break-glass SSH CIDR; the application is designed to use a Cloudflare Tunnel
-for outward-facing access.
+\`compute_enabled=false\` deletes both the server and its managed data volume;
+it is not a data-preserving compute switch. The module uses a private network
+and optional break-glass SSH CIDR; the application is designed to use a
+Cloudflare Tunnel for outward-facing access.
 
 Choose this model for a simple, cost-sensitive service where a single host is
 an acceptable availability boundary. It has no configured replicated database,
@@ -121,11 +121,11 @@ taxes, and service availability change by date, account, and region.
 | Observability | Logs, metrics, dashboards, alerts | Retain enough telemetry for incident investigation and chargeback | Reduced diagnosis and audit history |
 
 For a low-cost experiment, Hetzner is the only deployment whose Terraform
-profile is explicitly single-server and offers \`compute_enabled\` as an
-application-compute switch. That lowers steady-state compute scope, but it is
-not a substitute for recovery design. AWS, Azure, and GCP defaults should be
-treated as production-oriented managed-service profiles; reducing their counts
-or protections requires a fresh plan review and an explicit availability/RPO
+profile is explicitly single-server. Its current \`compute_enabled\` behavior
+removes the managed data volume along with the server, so it must not be used
+for a cost-saving pause. AWS, Azure, and GCP defaults should be treated as
+production-oriented managed-service profiles; reducing their counts or
+protections requires a fresh plan review and an explicit availability/RPO
 decision.
 
 ## Selection guide
@@ -147,7 +147,7 @@ Choose based on the operational outcome, not a single unit-price comparison:
 | Database availability | Multi-AZ RDS default | DB HA enabled by default | Managed Cloud SQL; multi-region is disabled by default | No managed database in this deployment |
 | Secret handling | Sensitive Terraform inputs and IAM integration; review state handling | Key Vault security module and managed identity wiring | Secrets module and service-account IAM wiring | Sensitive variables; protect tfvars/state and host access |
 | Network exposure | Private app/database tiers, security groups, ALB/CDN | NSGs, private endpoints, Key Vault/storage private DNS | Cloud SQL public IP disabled; firewall design requires restricted admin CIDRs | Tunnel-oriented ingress plus optional SSH CIDR; host remains the trust boundary |
-| Recovery posture | RDS retention plus S3/backup components | DB backups and Recovery Services/managed storage components | Disk snapshot policy and managed DB/storage components | Operator must maintain and test independent backups |
+| Recovery posture | RDS automated-backup retention and versioned S3 buckets; no scheduled application-volume snapshot in the active deployment | DB backup controls plus Recovery Services VM backup and managed storage components | Cloud SQL automated backups and versioned Cloud Storage buckets; no attached disk snapshot policy in the active deployment | Operator must maintain and test independent off-server archives; Hetzner Server backups exclude the attached Volume |
 
 Terraform state can contain sensitive values or resource metadata even when
 variables are marked sensitive. Use a protected remote backend, least-privilege

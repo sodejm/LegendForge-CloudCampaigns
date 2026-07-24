@@ -44,6 +44,9 @@ This index is the navigation hub for LegendForge documentation. It highlights th
   - Contains Azure deployment guidance
   - Complements the LegendForge core docs with provider-specific details
 
+- **[Deployment model comparison](docs/DEPLOYMENT_MODEL_COMPARISON.md)** - Terraform-grounded provider profiles, cost drivers, and operational trade-offs
+- **[Hetzner deployment guide](infrastructure/deployments/hetzner/README.md)** - Single-server topology, security, tested off-server archive workflow, recovery, and destructive lifecycle limits
+
 ### GitHub Wiki Source Pages
 - **[wiki/Home.md](wiki/Home.md)** - Wiki landing page and overview
 - **[wiki/Quickstart.md](wiki/Quickstart.md)** - Shortest path to a first deployment
@@ -65,7 +68,7 @@ This index is the navigation hub for LegendForge documentation. It highlights th
 
 ### For Deployment Operators
 1. Start with **[README.md](README.md)**
-2. Use the relevant provider guide in `deployments/*/README.md`
+2. Use the relevant provider guide in `infrastructure/deployments/*/README.md`
 3. Review **[ATTRIBUTION.md](ATTRIBUTION.md)** for dependency and license context
 
 ### For Contributors and Reviewers
@@ -114,10 +117,11 @@ This index is the navigation hub for LegendForge documentation. It highlights th
 - `CREDITS.md`
 
 ### Provider-Specific Guidance
-- `deployments/aws/README.md`
-- `deployments/azure/README.md`
-- `deployments/gcp/README.md`
-- `deployments/hetzner/README.md`
+- `infrastructure/deployments/aws/README.md`
+- `infrastructure/deployments/azure/README.md`
+- `infrastructure/deployments/gcp/README.md`
+- `infrastructure/deployments/hetzner/README.md`
+- `docs/DEPLOYMENT_MODEL_COMPARISON.md`
 - `README_AZURE.md`
 
 ### GitHub Wiki Pages
@@ -135,7 +139,7 @@ This index is the navigation hub for LegendForge documentation. It highlights th
 ## 📝 Attribution in Infrastructure
 
 ### Deployment Entry Points
-The deployment entry points under `deployments/*/main.tf` should continue to reflect upstream dependencies and provider assumptions where appropriate.
+The deployment entry points under `infrastructure/deployments/*/main.tf` should continue to reflect upstream dependencies and provider assumptions where appropriate.
 
 ### Shared App Layer
 The `modules/foundry-app/` area is the clearest expression of the project's system-agnostic design. When this layer changes, update the core docs first.
@@ -152,7 +156,7 @@ The `modules/foundry-app/` area is the clearest expression of the project's syst
 ### If You Are Planning a New Deployment
 - Use **README.md** for setup flow
 - Review **SUPPORTED_SYSTEMS.md** for system-family guidance
-- Follow the provider-specific README in `deployments/`
+- Follow the provider-specific README in `infrastructure/deployments/`
 - Use the pages under **`wiki/`** when you want GitHub wiki-ready navigation
 
 ### If You Are Reviewing Compliance or Upstream Dependencies
@@ -198,6 +202,6 @@ Please open an issue or submit a pull request.
 
 ---
 
-**Last Updated:** June 28, 2026
+**Last Updated:** July 23, 2026
 
 **LegendForge Positioning:** Universal tabletop infrastructure for Foundry-compatible systems

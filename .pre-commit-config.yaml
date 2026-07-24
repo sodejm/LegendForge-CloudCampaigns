@@ -23,6 +23,13 @@ repos:
         language: system
         stages: [pre-commit]
 
+      - id: issue-47-acceptance-tests
+        name: Hetzner backup restore and documentation tests
+        entry: python3 -m unittest discover -s tests -p "test_*.py"
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
       - id: semgrep
         name: semgrep scan
         entry: bash scripts/semgrep-scan.sh
