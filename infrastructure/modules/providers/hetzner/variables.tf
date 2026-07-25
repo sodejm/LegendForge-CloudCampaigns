@@ -57,7 +57,7 @@ variable "data_volume_size_gb" {
 
 # ===== Spin up/down =====
 variable "compute_enabled" {
-  description = "Whether LegendForge application compute should be created or suspended while preserving shared data."
+  description = "Whether to create the Hetzner server and data volume. Setting false deletes the server and managed data volume."
   type        = bool
   default     = true
 }

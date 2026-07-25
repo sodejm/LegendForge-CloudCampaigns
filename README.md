@@ -2,7 +2,7 @@
 
 ![LegendForge Logo](resources/LegendForge_Logo.png)
 
-LegendForge is a universal, production-ready **Terraform infrastructure platform** for deploying Foundry VTT across multiple cloud providers with security-first defaults, automatic backups, and support for many tabletop game systems.
+LegendForge is a universal, production-minded **Terraform infrastructure platform** for deploying Foundry VTT across multiple cloud providers with security-first defaults, provider-specific recovery controls, and support for many tabletop game systems.
 
 ## 📋 Overview
 
@@ -39,7 +39,7 @@ LegendForge is built for campaigns and communities running multiple systems side
 LegendForge treats Foundry as **universal tabletop infrastructure**:
 
 - Infrastructure should be **agnostic to rulesets and genres**
-- Security, backups, and observability should work the same way for every campaign
+- Security, backups, and observability should meet each campaign's requirements even when provider implementations differ
 - Cloud architecture should be **portable across providers**
 - Documentation should help operators run one world or many worlds with confidence
 - The platform should scale from a home game to a multi-campaign community
@@ -53,7 +53,7 @@ LegendForge treats Foundry as **universal tabletop infrastructure**:
 - ✅ **Tunnel-First Security**: Cloudflare Tunnel for ingress (no exposed ports)
 - ✅ **IaC Everything**: Fully declarative, version-controlled infrastructure
 - ✅ **Multi-Cloud**: Deploy to any platform with the same operational model
-- ✅ **High Availability**: Automated backups, monitoring, alerting
+- ✅ **Provider-Specific Resilience**: Documented availability, backup, monitoring, and recovery trade-offs
 - ✅ **Secrets Management**: Cloud-native secret storage (Vault, Key Vault, Secret Manager)
 - ✅ **Cost Optimized**: Right-sized instances, easy spin-down
 - ✅ **Comprehensive Documentation**: Step-by-step guides for each platform and operating model
@@ -296,23 +296,20 @@ gcloud compute disks snapshot disk-name --snapshot-names=backup-$(date +%Y%m%d%H
 
 **Hetzner:**
 
-```bash
-hcloud volume create-backup <volume-id>
-```
+Use the tested application-data archive procedure in the
+[Hetzner deployment guide](infrastructure/deployments/hetzner/README.md#backup-and-recovery).
+The repository does not provision scheduled Hetzner backups, and a provider-side
+copy does not replace an encrypted off-server archive.
 
-### Pause Deployment (Keep Data)
+### Pause or Scale Down a Deployment
 
-All platforms support spin-down via variable:
+Inspect the provider-specific Terraform plan and guide before disabling compute.
+The persistence behavior is not uniform across providers.
 
-```bash
-terraform apply -var="compute_enabled=false"   -var-file="../../../config/foundry.auto.tfvars"   -var-file="../../../config/secrets.auto.tfvars"
-```
-
-### Resume Deployment
-
-```bash
-terraform apply -var="compute_enabled=true"   -var-file="../../../config/foundry.auto.tfvars"   -var-file="../../../config/secrets.auto.tfvars"
-```
+For Hetzner, `compute_enabled=false` deletes both the server and the
+Terraform-managed data volume. It is not a data-preserving pause. Follow the
+[Hetzner lifecycle guidance](infrastructure/deployments/hetzner/README.md#pause-and-resume)
+and verify an off-server backup before any teardown-like action.
 
 ### Destroy Infrastructure
 
@@ -320,7 +317,8 @@ terraform apply -var="compute_enabled=true"   -var-file="../../../config/foundry
 terraform destroy   -var-file="../../../config/foundry.auto.tfvars"   -var-file="../../../config/secrets.auto.tfvars"
 ```
 
-⚠️ **WARNING:** This deletes data volumes. Create snapshots first if needed.
+⚠️ **WARNING:** Destroy can delete data volumes. Verify a tested, independent
+backup before continuing.
 
 ## 🔐 Security Best Practices
 
@@ -445,12 +443,17 @@ docker exec foundry env | grep TUNNEL
 
 ### Regular Backups
 
-All platforms have automated backup schedules:
+Backup automation and recovery ownership vary by provider:
 
-- AWS: Daily snapshots via AWS Backup
-- Azure: Daily snapshots via Backup Vault
-- GCP: Daily snapshots via Disk Resource Policy
-- Hetzner: Manual backups (create via console)
+- AWS: RDS automated-backup retention and versioned S3 data buckets; the active
+  deployment does not schedule application-volume snapshots
+- Azure: database backup-retention/geo-redundancy controls and a VM backup
+  policy through the active Recovery Services Vault module
+- GCP: Cloud SQL automated backups and versioned Cloud Storage data/backup
+  buckets; the active deployment does not attach a disk snapshot policy
+- Hetzner: Operator-managed application archive, off-server transfer, checksum
+  verification, and restore drills; see the
+  [Hetzner deployment guide](infrastructure/deployments/hetzner/README.md#backup-and-recovery)
 
 ### Disk Usage Monitoring
 
@@ -604,12 +607,15 @@ A: See the overview table above. AWS/Azure are roughly $50-75, GCP is roughly $4
 A: Change the `foundry_image` digest in config and re-apply Terraform.
 
 **Q: Can I use this for production?**
-A: Yes. All platforms include backups, monitoring, and security best practices. Follow cloud provider HA guidance for enterprise-style environments.
+A: Yes, after reviewing the selected provider's availability and recovery model.
+AWS, Azure, and GCP include more managed controls; Hetzner is a single-server
+deployment whose backups, restore drills, monitoring, and maintenance are
+operator responsibilities.
 
 **Q: How do I access Foundry if Cloudflare is down?**
 A: Cloudflare Tunnel is the primary ingress path. For break-glass operations, enable an administrative access path such as SSH or Bastion according to your provider model.
 
 ---
 
-**Last Updated:** June 28, 2026
+**Last Updated:** July 23, 2026
 **Project Identity:** LegendForge - universal tabletop infrastructure for Foundry VTT

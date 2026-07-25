@@ -71,15 +71,20 @@ Use provider-specific resource names when inspecting details with `terraform sta
 
 ## How to Spin Down and Bring Back Compute
 
-LegendForge supports a cost-control pattern where compute can be disabled while persistent data remains.
+Persistence behavior differs by provider. Review the generated Terraform plan
+and the provider-specific deployment guide before disabling compute.
 
-Set:
+For Hetzner, setting:
 
 ```hcl
 compute_enabled = false
 ```
 
-Then re-apply Terraform. Re-enable later and apply again to bring the runtime back online.
+deletes the server and managed data volume. It is not a data-preserving pause.
+Use a manual server power action only after reviewing its billing and Terraform
+state consequences, and verify an off-server backup before any teardown-like
+operation. See the
+[Hetzner lifecycle guide](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/hetzner/README.md#pause-and-resume).
 
 ## How to Prepare for Upgrades
 
