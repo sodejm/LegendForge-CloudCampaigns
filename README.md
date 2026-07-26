@@ -320,6 +320,31 @@ terraform destroy   -var-file="../../../config/foundry.auto.tfvars"   -var-file=
 ⚠️ **WARNING:** Destroy can delete data volumes. Verify a tested, independent
 backup before continuing.
 
+### Post-Deployment Reachability Smoke Test
+
+After `terraform apply`, verify the public deployment URL with the
+provider-neutral smoke test:
+
+```bash
+# Read only the foundry_url output from the selected deployment directory.
+scripts/post-deploy-smoke-test.sh infrastructure/deployments/gcp
+
+# An explicit URL takes precedence over Terraform discovery.
+FOUNDRY_URL=https://vtt.example.com scripts/post-deploy-smoke-test.sh
+```
+
+Without an argument, the deployment directory defaults to the current directory.
+`TIMEOUT` controls the curl connection and request timeout in seconds (default
+`10`), and `MAX_LATENCY_MS` sets the response-time budget (default `5000`).
+
+The script validates the URL and hostname, resolves DNS names (while correctly
+skipping DNS for literal IP addresses), requires normal certificate validation
+for HTTPS, and accepts only HTTP 2xx or 3xx responses. DNS, TLS, timeout,
+HTTP 4xx/5xx, and latency failures produce a non-zero exit status.
+
+This is an unauthenticated infrastructure reachability check. It does not log in,
+inspect a Foundry world, or prove that authenticated Foundry workflows succeed.
+
 ## 🔐 Security Best Practices
 
 1. **Secrets Management**
