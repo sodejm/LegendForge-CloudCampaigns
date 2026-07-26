@@ -147,7 +147,14 @@ Choose based on the operational outcome, not a single unit-price comparison:
 | Database availability | Multi-AZ RDS default | DB HA enabled by default | Managed Cloud SQL; multi-region is disabled by default | No managed database in this deployment |
 | Secret handling | Sensitive Terraform inputs and IAM integration; review state handling | Key Vault security module and managed identity wiring | Secrets module and service-account IAM wiring | Sensitive variables; protect tfvars/state and host access |
 | Network exposure | Private app/database tiers, security groups, ALB/CDN | NSGs, private endpoints, Key Vault/storage private DNS | Cloud SQL public IP disabled; firewall design requires restricted admin CIDRs | Tunnel-oriented ingress plus optional SSH CIDR; host remains the trust boundary |
-| Recovery posture | RDS automated-backup retention and versioned S3 buckets; no scheduled application-volume snapshot in the active deployment | DB backup controls plus Recovery Services VM backup and managed storage components | Cloud SQL automated backups and versioned Cloud Storage buckets; no attached disk snapshot policy in the active deployment | Operator must maintain and test independent off-server archives; Hetzner Server backups exclude the attached Volume |
+| Recovery posture | RDS automated-backup retention and versioned S3 buckets; no scheduled application-volume snapshot in the active deployment | 35-day, geo-redundant Flexible Server backups and GZRS object storage by default; no blob versioning/soft delete or Recovery Services VM/disk backup in the active deployment | Cloud SQL automated backups/PITR and versioned Cloud Storage buckets; no snapshot policy is attached to application data disks in the active deployment | Operator must maintain and test independent off-server archives; Hetzner Server backups exclude the attached Volume |
+
+Database backups and object-storage redundancy/versioning do not protect
+application data stored on compute disks. The active Azure deployment wires
+neither Recovery Services VM backup nor disk snapshots. The active GCP
+deployment creates per-instance persistent data disks but attaches no snapshot
+resource policy. Treat these compute-disk recovery gaps as unprotected until
+they are explicitly implemented and restore-tested.
 
 Terraform state can contain sensitive values or resource metadata even when
 variables are marked sensitive. Use a protected remote backend, least-privilege
