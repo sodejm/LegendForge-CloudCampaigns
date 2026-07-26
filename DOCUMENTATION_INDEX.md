@@ -48,6 +48,8 @@ This index is the navigation hub for LegendForge documentation. It highlights th
 - **[Hetzner deployment guide](infrastructure/deployments/hetzner/README.md)** - Single-server topology, security, tested off-server archive workflow, recovery, and destructive lifecycle limits
 
 ### GitHub Wiki Source Pages
+- **[Published GitHub Wiki](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki)** - Rendered operator guides and cross-page navigation
+- **[wiki/README.md](wiki/README.md)** - Source-page index, link conventions, and publication requirement
 - **[wiki/Home.md](wiki/Home.md)** - Wiki landing page and overview
 - **[wiki/Quickstart.md](wiki/Quickstart.md)** - Shortest path to a first deployment
 - **[wiki/Installation.md](wiki/Installation.md)** - Setup prerequisites and configuration inputs
@@ -56,6 +58,11 @@ This index is the navigation hub for LegendForge documentation. It highlights th
 - **[wiki/Prompts.md](wiki/Prompts.md)** - Planning and operational checklist prompts
 - **[wiki/Use-Cases.md](wiki/Use-Cases.md)** - Common deployment and community scenarios
 - **[wiki/Architecture-and-Security.md](wiki/Architecture-and-Security.md)** - Shared architecture and security themes
+
+The `wiki/` files are maintained in this repository, but the rendered GitHub
+Wiki is published separately. Repository readers should use the `.md` source
+links above; page-to-page links in the publishable sources route to the
+published wiki.
 
 ---
 

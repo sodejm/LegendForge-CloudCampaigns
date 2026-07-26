@@ -1,13 +1,13 @@
 ## LegendForge Wiki
 
-- [Home](Home)
-- [Quickstart](Quickstart)
-- [Installation](Installation)
-- [Provider Guide](Provider-Guide)
-- [How-To](How-To)
-- [Prompts](Prompts)
-- [Use Cases](Use-Cases)
-- [Architecture and Security](Architecture-and-Security)
+- [Home](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Home)
+- [Quickstart](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Quickstart)
+- [Installation](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Installation)
+- [Provider Guide](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Provider-Guide)
+- [How-To](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/How-To)
+- [Prompts](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Prompts)
+- [Use Cases](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Use-Cases)
+- [Architecture and Security](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Architecture-and-Security)
 
 ## Repository Docs
 

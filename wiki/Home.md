@@ -8,11 +8,11 @@ It is designed to support **many Foundry-compatible systems** without locking th
 
 If you are new to LegendForge, read these pages in order:
 
-1. [Quickstart](Quickstart)
-2. [Installation](Installation)
-3. [Provider Guide](Provider-Guide)
-4. [How-To](How-To)
-5. [Use Cases](Use-Cases)
+1. [Quickstart](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Quickstart)
+2. [Installation](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Installation)
+3. [Provider Guide](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Provider-Guide)
+4. [How-To](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/How-To)
+5. [Use Cases](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Use-Cases)
 
 ## What LegendForge Covers
 
@@ -44,20 +44,20 @@ If you are new to LegendForge, read these pages in order:
 
 ### New operators
 
-1. [Quickstart](Quickstart)
-2. [Installation](Installation)
-3. [Use Cases](Use-Cases)
+1. [Quickstart](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Quickstart)
+2. [Installation](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Installation)
+3. [Use Cases](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Use-Cases)
 
 ### Deployment operators
 
-1. [Provider Guide](Provider-Guide)
-2. [Architecture and Security](Architecture-and-Security)
-3. [How-To](How-To)
+1. [Provider Guide](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Provider-Guide)
+2. [Architecture and Security](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Architecture-and-Security)
+3. [How-To](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/How-To)
 
 ### Contributors and reviewers
 
-1. [Prompts](Prompts)
-2. [Architecture and Security](Architecture-and-Security)
+1. [Prompts](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Prompts)
+2. [Architecture and Security](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Architecture-and-Security)
 3. Repository docs linked below
 
 ## Key Repository Documents

@@ -495,6 +495,8 @@ When switching or adding systems in Foundry:
 - [ATTRIBUTION.md](ATTRIBUTION.md) - Technical attribution and license references
 - [CREDITS.md](CREDITS.md) - Community recognition and acknowledgments
 - [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) - Documentation map
+- [Published GitHub Wiki](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki) - Rendered operator guides
+- [Wiki source pages](wiki/README.md) - Maintained source and publication notes
 
 ### Official Documentation
 

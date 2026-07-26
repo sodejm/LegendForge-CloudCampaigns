@@ -94,6 +94,6 @@ terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../..
 
 ## Best Next Pages
 
-- [Installation](Installation)
-- [Provider Guide](Provider-Guide)
-- [How-To](How-To)
+- [Installation](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Installation)
+- [Provider Guide](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Provider-Guide)
+- [How-To](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/How-To)
