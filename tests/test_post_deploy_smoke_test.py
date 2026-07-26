@@ -181,6 +181,18 @@ printf '%s' "${FAKE_TERRAFORM_URL}"
                     r'(?m)^\s*value\s*=\s*"https?://',
                 )
 
+    def test_gcp_foundry_url_matches_load_balancer_domain(self) -> None:
+        contents = PROVIDER_OUTPUT_FILES["gcp"].read_text(encoding="utf-8")
+        match = re.search(
+            r'^output "foundry_url" \{\n.*?^\}',
+            contents,
+            flags=re.MULTILINE | re.DOTALL,
+        )
+
+        self.assertIsNotNone(match)
+        self.assertIn('value       = "https://${var.domain_name}"', match.group(0))
+        self.assertNotIn("var.foundry_hostname", match.group(0))
+
     def test_dns_hostname_is_resolved(self) -> None:
         run = self.run_smoke(url="https://foundry.example.com")
 
@@ -232,6 +244,7 @@ printf '%s' "${FAKE_TERRAFORM_URL}"
 
         self.assertEqual(0, run.result.returncode, run.result.stderr)
         curl_arguments = run.curl_calls[0].split()
+        self.assertEqual("-q", curl_arguments[0])
         self.assertNotIn("-k", curl_arguments)
         self.assertNotIn("--insecure", curl_arguments)
         self.assertIn("HTTPS certificate validation passed", run.result.stdout)
