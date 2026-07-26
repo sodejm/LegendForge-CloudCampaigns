@@ -2,6 +2,11 @@
 # Hetzner Deployment Outputs
 # =============================================================================
 
+output "foundry_url" {
+  description = "Public LegendForge URL"
+  value       = "https://${var.foundry_hostname}"
+}
+
 output "server_public_ipv4" {
   description = "Server public IPv4"
   value       = module.foundry_hetzner.server_public_ipv4

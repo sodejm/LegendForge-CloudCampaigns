@@ -228,6 +228,11 @@ data "google_project" "current" {
 # Outputs
 # =============================================================================
 
+output "foundry_url" {
+  description = "Public LegendForge URL"
+  value       = "https://${var.foundry_hostname}"
+}
+
 output "load_balancer_ip" {
   description = "Load balancer static IP address"
   value       = module.loadbalancer.load_balancer_ip

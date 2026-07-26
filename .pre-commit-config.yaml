@@ -23,8 +23,8 @@ repos:
         language: system
         stages: [pre-commit]
 
-      - id: issue-47-acceptance-tests
-        name: Hetzner backup restore and documentation tests
+      - id: acceptance-tests
+        name: Repository acceptance tests
         entry: python3 -m unittest discover -s tests -p "test_*.py"
         language: system
         pass_filenames: false
