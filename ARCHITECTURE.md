@@ -27,8 +27,11 @@ that provider.
   variables, outputs, and lifecycle. Provider deployments do not share
   Terraform state.
 - **Module boundaries:** Deployment roots compose reusable provider modules.
-  The shared `foundry-app` module contains common host bootstrap behavior,
-  while provider modules encapsulate cloud primitives and integrations.
+  In the active compositions, only Hetzner consumes the shared `foundry-app`
+  module. AWS uses the `aws-asg-ec2` cloud-init template, Azure uses the
+  `azure/compute` initialization script, and GCP uses its deployment-local
+  cloud-init template. Bootstrap changes are therefore not automatically shared
+  across providers.
 - **System agnosticism:** Foundry hosts the application and its systems. The
   cloud layer supplies compute, networking, persistence, secrets, and
   operational controls without coupling the infrastructure to a particular
@@ -37,10 +40,11 @@ that provider.
   selected by the provider deployment. Cloudflare Tunnel is used where the
   active configuration enables it; provider load balancers are used where the
   deployment exposes one directly.
-- **Persistent campaign data:** Foundry data is kept on persistent storage,
-  with provider-specific database, object-storage, and backup capabilities.
-  Recovery procedures must be verified for the selected provider rather than
-  assumed to be identical across clouds.
+- **Campaign-data recovery:** Application-data durability is provider-specific
+  and must be verified. Some active roots use persistent volumes, but Azure
+  currently writes Foundry data to VM scale-set local storage without an
+  application-data backup or Blob Storage synchronization. Managed databases
+  and object storage do not automatically protect Foundry's live data directory.
 - **Least privilege and secret isolation:** Network rules, IAM/RBAC, private
   service paths, and cloud-native secret stores are preferred. Secrets,
   Terraform state, plans, and variable files are not source-controlled.
@@ -65,8 +69,8 @@ flowchart LR
     ingress --> foundry["Foundry runtime\nVM, VMSS, MIG, or server + containers"]
 
     secrets["Secret inputs / cloud-native secret store"] --> foundry
-    foundry --> data["Persistent data volume"]
-    foundry --> object["Object storage / backups"]
+    foundry --> data["Application data path\npersistent where configured"]
+    foundry --> object["Object storage / backups\nwhere integrated"]
     foundry --> database["Managed database where enabled"]
     foundry --> observability["Provider monitoring and logs"]
 ```
@@ -75,12 +79,13 @@ At runtime, the typical sequence is:
 
 1. Terraform creates the selected provider's network, identity, data,
    compute, ingress, and monitoring resources.
-2. Host bootstrap installs the runtime dependencies, mounts persistent data,
-   retrieves or receives required secrets, and starts Foundry and any ingress
-   connector.
+2. Host bootstrap installs the runtime dependencies, configures the application
+   data path, mounts persistent storage where implemented, retrieves or receives
+   required secrets, and starts Foundry and any ingress connector.
 3. Users reach Foundry through the configured hostname and ingress path.
-4. Campaign data is written to persistent disk and, where configured, to
-   managed databases or object storage used for backups and supporting data.
+4. Campaign data is written to the provider-specific application data path.
+   Managed databases and object storage protect only the data explicitly
+   integrated with them.
 5. Provider monitoring, logs, and recovery mechanisms support operations.
 
 ## Repository topology
@@ -93,7 +98,7 @@ infrastructure/
 │   ├── gcp/       # GCP Terraform root
 │   └── hetzner/   # Hetzner Terraform root
 └── modules/
-    ├── foundry-app/             # Shared host bootstrap and container setup
+    ├── foundry-app/             # Shared bootstrap used by active Hetzner composition
     ├── aws-*/                   # AWS networking and managed-service modules
     ├── azure/                   # Azure networking, security, data, and compute
     ├── gcp-*/                   # GCP networking, identity, data, and runtime
@@ -112,9 +117,9 @@ resources and host configuration.
 
 | Provider | Terraform root | Active composition | Ingress and recovery characteristics |
 | --- | --- | --- | --- |
-| AWS | [`infrastructure/deployments/aws`](infrastructure/deployments/aws) | VPC, security groups, RDS, S3, IAM, ALB, CloudFront, ASG/EC2, CloudWatch, Route 53, and ACM | The root composes load-balancing and edge services with private application/data components. The EC2 bootstrap supports the Foundry and Cloudflare Tunnel containers. RDS, S3, and persistent host data provide separate recovery surfaces. |
-| Azure | [`infrastructure/deployments/azure`](infrastructure/deployments/azure) | VNet and subnets, NSGs, NAT, DDoS protection, storage, Key Vault, managed database, VM scale set, public Load Balancer, and optional monitoring | The current deployment exposes a public Load Balancer and returns an HTTP endpoint. TLS termination, hostname, and any tunnel path must be verified against the selected Azure module and plan before being treated as enabled. |
-| GCP | [`infrastructure/deployments/gcp`](infrastructure/deployments/gcp) | VPC, IAM, Secret Manager, Cloud SQL, Cloud Storage, compute, load balancer, and optional monitoring/CDN/Cloud Armor | The startup configuration retrieves secrets, starts Foundry and Cloudflare Tunnel, mounts persistent data, and includes a Cloud Storage backup path. Firewall rules distinguish internal, health-check, load-balancer, and administrative traffic. |
+| AWS | [`infrastructure/deployments/aws`](infrastructure/deployments/aws) | VPC, security groups, RDS, S3, IAM, ALB, CloudFront, ASG/EC2, CloudWatch, Route 53, and ACM | The launch template creates a per-instance EBS data volume with deletion on termination disabled. An ASG replacement creates a new volume rather than reattaching the retained one, so application-data recovery requires an operator to identify and reattach the old volume or restore an externally created snapshot or backup. RDS and S3 have separate recovery controls. |
+| Azure | [`infrastructure/deployments/azure`](infrastructure/deployments/azure) | VNet and subnets, NSGs, NAT, DDoS protection, storage, Key Vault, managed database, VM scale set, public Load Balancer, and optional monitoring | The current VM scale-set bootstrap writes `/opt/foundry/data` to its local OS disk and does not synchronize it to Blob Storage. It is not durable across instance replacement, and no application-data backup is configured; managed-database backups are separate. The deployment exposes a public Load Balancer, while TLS, hostname, and tunnel behavior must be verified from the selected plan. |
+| GCP | [`infrastructure/deployments/gcp`](infrastructure/deployments/gcp) | VPC, IAM, Secret Manager, Cloud SQL, Cloud Storage, compute, load balancer, and optional monitoring/CDN/Cloud Armor | The startup configuration retrieves secrets, starts Foundry and Cloudflare Tunnel, mounts persistent data, and includes a Cloud Storage backup path. Terraform creates a Cloud Armor policy and a separate Armor-backed service, but the active URL map routes to the backend without that security policy, so Cloud Armor is not enforced on served traffic. |
 | Hetzner | [`infrastructure/deployments/hetzner`](infrastructure/deployments/hetzner) | Network, subnet, firewall, server, attached volume, server networking, and the shared `foundry-app` module | The intended application path is an outbound Cloudflare Tunnel with no general inbound application exposure. The attached volume is persistent, but off-server archiving is a separate operational responsibility; use the Hetzner archive helper and deployment guidance. |
 
 These topologies are alternatives, not layers that are automatically deployed
@@ -126,22 +131,29 @@ architecture has been designed and separately operated.
 ### Foundry runtime
 
 Foundry runs in containers on provider-managed virtual machines or a scale-set,
-instance-group, or server abstraction. Bootstrap templates install Docker and
-configure the Foundry container, persistent data path, and—where enabled—the
-Cloudflare Tunnel sidecar. Image tags and runtime inputs vary by provider, so
-they must be reviewed in the selected deployment root rather than inferred
-from another cloud.
+instance-group, or server abstraction. Provider-specific bootstrap templates
+install Docker and configure the Foundry container, application data path,
+and—where enabled—the Cloudflare Tunnel sidecar. The active AWS, Azure, and GCP
+roots each have their own bootstrap path; only active Hetzner composition uses
+the shared `foundry-app` module. Image tags, storage behavior, and runtime inputs
+must be reviewed in the selected deployment root rather than inferred from
+another cloud.
 
 ### Persistent data
 
-Foundry campaign artifacts require storage that survives instance replacement.
-The implementation differs by provider:
+Foundry campaign artifacts need storage that survives instance replacement, but
+the current guarantees and recovery procedures differ by provider:
 
-- AWS combines persistent host storage with S3 and a managed relational
-  database in the deployment composition.
-- Azure combines VM/managed storage with private Blob Storage and a managed
-  database; the exact backup and retention behavior is configured per
-  environment.
+- AWS creates one EBS data volume per launched instance and retains that volume
+  after termination. The ASG does not automatically reattach it to a replacement
+  instance, and the active deployment does not schedule application-volume
+  snapshots. Recovery is manual unless an external backup exists; RDS and S3
+  controls do not restore the live Foundry data directory.
+- Azure currently stores `/opt/foundry/data` on the VM scale-set OS disk. The
+  active bootstrap does not synchronize that directory to Blob Storage, and the
+  repository configures no application-data backup, so the directory is
+  ephemeral across instance replacement. Managed-database backup retention and
+  provisioned storage containers are separate capabilities.
 - GCP combines a persistent data disk with Cloud Storage, Cloud SQL, and the
   configured backup workflow.
 - Hetzner uses an attached persistent volume. The module does not make an
@@ -168,6 +180,10 @@ therefore remain security boundaries.
   AWS and GCP also compose provider load-balancing resources. Azure's current
   deployment path is a public Load Balancer and should not be documented as
   tunnel-only without a corresponding active configuration.
+- GCP's active URL map routes to the backend service without a Cloud Armor
+  security policy. The separately declared Armor-backed backend is unattached,
+  so enabling Adaptive Protection does not currently enforce Cloud Armor on
+  served traffic.
 - Databases and storage services are intended to be reachable only through
   the application or private service paths required by the provider design.
 - Administrative access is a break-glass capability and should be narrowed to
