@@ -132,7 +132,7 @@
   - Ubuntu 24.04 LTS
   - 2 vCPU, 8GB RAM (configurable)
   - 100GB boot disk (pd-standard)
-  - 500GB data disk (pd-ssd, persistent, not auto-deleted)
+  - 500GB data disk per instance (pd-ssd, persistent, not auto-deleted)
   - Shielded VM enabled (secure boot, vTPM, integrity monitoring)
   - Service account with minimal permissions
 
@@ -147,6 +147,14 @@
   - Max replicas: 5
   - CPU target: 70%
   - Optional: Memory-based scaling
+
+Each active replica receives its own data disk. The default minimum therefore
+uses at least 2 × 500 GB, or 1 TB, of active \`pd-ssd\` capacity; each additional
+active replica adds another 500 GB, up to 2.5 TB at the default maximum of five.
+Because the disks are not auto-deleted, disks retained after scale-in or
+replacement are separately billable and are not part of that active capacity.
+The active deployment does not configure a snapshot policy for these disks;
+any operator-created snapshots are separate storage costs.
 
 - **Health Checks**:
   - HTTP GET to port 30030, path /
@@ -481,7 +489,8 @@
 
 - **2-5 instances**: 50-250 concurrent players
 - **Database**: 2 vCPU, 7.5GB RAM supports 500+ concurrent users
-- **Storage**: 500GB instance disk, unlimited cloud storage
+- **Storage**: 500GB per active instance (at least 1TB at the default minimum),
+  unlimited cloud storage
 
 ---
 
@@ -494,7 +503,7 @@
 | Compute | n2-standard-2 | n2-standard-4 | n2-standard-8 |
 | Instances | 2-3 | 2-5 | 3-10 |
 | Database | db-custom-2-7680 | db-custom-4-16384 | db-custom-8-32768 |
-| Storage | 500 GB | 2 TB | 5 TB |
+| Data disk per instance | 500 GB | 2 TB | 5 TB |
 | Est. Cost | $350/mo | $700/mo | $1500/mo |
 
 ### Cost Reduction

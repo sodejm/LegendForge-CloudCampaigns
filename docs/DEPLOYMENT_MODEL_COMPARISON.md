@@ -9,7 +9,7 @@ and region.
 ## Scope and method
 
 The comparison is derived from the Terraform defaults and module wiring in this
-repository as of **2026-07-20**. It covers the deployments in
+repository as of **2026-07-25**. It covers the deployments in
 [\`infrastructure/deployments/aws\`](../infrastructure/deployments/aws),
 [\`azure\`](../infrastructure/deployments/azure),
 [\`gcp\`](../infrastructure/deployments/gcp), and
@@ -29,7 +29,7 @@ backup retention, and any applicable support plan.
 | --- | --- | --- | --- |
 | AWS | Two-AZ VPC, two \`t3.medium\` application instances, Multi-AZ \`db.t3.medium\` RDS, ALB, CloudFront, S3, CloudWatch | Production workload where AWS managed HA, backups, and AWS operations are required | Highest service count and several persistent/network charges |
 | Azure | VM scale set at two \`Standard_D4s_v5\` instances, flexible database at \`Standard_B2s\`, private endpoints, Key Vault, storage/CDN, monitoring | Azure-standard identity, networking, and operations estate | High default compute footprint and many managed services |
-| GCP | Two \`n2-standard-2\` application instances, Cloud SQL \`db-custom-2-7680\`, 500 GB data disk, load balancer, CDN, Cloud Armor, monitoring | GCP environment needing private Cloud SQL, Google-managed edge controls, and optional multi-region design | Large default data disk and managed platform components materially affect spend |
+| GCP | Two \`n2-standard-2\` application instances, Cloud SQL \`db-custom-2-7680\`, two 500 GB \`pd-ssd\` data disks (one per instance; at least 1 TB active), load balancer, CDN, Cloud Armor, monitoring | GCP environment needing private Cloud SQL, Google-managed edge controls, and optional multi-region design | Per-instance persistent disks and managed platform components materially affect spend |
 | Hetzner | One \`cx21\` server, 20 GB attached volume, private network, Cloudflare Tunnel | Cost-sensitive single-server campaign with operator-managed recovery | No in-repository HA or managed database; recovery and capacity are operator responsibilities |
 
 The first three are multi-service cloud deployments. Hetzner is deliberately a
@@ -71,16 +71,23 @@ possible footprint.
 The GCP deployment defaults to \`us-central1\` with a \`us-east1\` secondary
 region defined but \`enable_multi_region = false\`. It starts a managed instance
 group at two \`n2-standard-2\` instances (maximum five), uses PostgreSQL 15
-Cloud SQL at \`db-custom-2-7680\`, and provisions a 500 GB data disk. CDN and
+Cloud SQL at \`db-custom-2-7680\`, and provisions one 500 GB \`pd-ssd\` data disk
+for every managed instance group member. The default minimum of two instances
+therefore keeps at least 2 × 500 GB, or 1 TB, of active data disks. CDN and
 Cloud Armor are enabled by default; Cloud SQL public IP is disabled and
 deletion protection is enabled. The root composes VPC, IAM, secrets, Cloud SQL,
 storage, compute, load balancing, and monitoring modules.
 
 Choose this model when private managed database access, Google edge controls,
-and GCP-native monitoring are required. Treat the 500 GB disk and managed
-database as explicit baseline commitments even for a small player population.
-The default \`admin_source_ranges\` includes \`0.0.0.0/0\` and must be narrowed
-before production use.
+and GCP-native monitoring are required. Every additional active group member
+adds another 500 GB \`pd-ssd\` disk, so the default maximum of five instances can
+reach 2.5 TB of active data disks. These disks set \`auto_delete = false\`;
+retained disks from scale-in or replacement remain separately billable and are
+not included in the active-group total. The active deployment configures no
+snapshot policy for these data disks, so any operator-created snapshots are a
+separate storage cost rather than part of the baseline. The default
+\`admin_source_ranges\` includes \`0.0.0.0/0\` and must be narrowed before
+production use.
 
 ### Hetzner
 
@@ -107,7 +114,7 @@ taxes, and service availability change by date, account, and region.
 | --- | --- | --- | --- |
 | AWS | \`us-east-1\`; USD; review date 2026-07-20 | [AWS Pricing Calculator](https://calculator.aws/) | 2 \`t3.medium\` instances at desired capacity (allow 2–4), Multi-AZ \`db.t3.medium\`, 100 GB RDS storage, 3,000 IOPS/125 throughput, ALB, CloudFront, Route53, S3, CloudWatch, NAT/VPC networking, 30-day database/log retention |
 | Azure | \`eastus\`; USD; review date 2026-07-20 | [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/) | 2 \`Standard_D4s_v5\` VMSS instances (allow 2–10), \`Standard_B2s\` flexible database with 100 GB, HA, geo-redundant backups, NAT/public IP/load balancer, Key Vault, private endpoints, storage/CDN, Log Analytics/Application Insights/alerts |
-| GCP | \`us-central1\`; USD; review date 2026-07-20 | [Google Cloud Pricing Calculator](https://cloud.google.com/products/calculator) | 2 \`n2-standard-2\` instances (allow 2–5), 500 GB data disk/snapshots, \`db-custom-2-7680\` Cloud SQL, load balancer, CDN, Cloud Armor, NAT/VPC, storage, Secret Manager, monitoring/logging |
+| GCP | \`us-central1\`; USD; review date 2026-07-25 | [Google Cloud Pricing Calculator](https://cloud.google.com/products/calculator) | 2 \`n2-standard-2\` instances (allow 2–5), at least 2 × 500 GB \`pd-ssd\` data disks (1 TB active at the default minimum; one per group member, up to 2.5 TB active at five), \`db-custom-2-7680\` Cloud SQL, load balancer, CDN, Cloud Armor, NAT/VPC, storage, Secret Manager, monitoring/logging; retained non-auto-delete disks and any operator-created snapshots are separate |
 | Hetzner | \`fsn1-dc14\` / \`eu-central\`; EUR; review date 2026-07-20 | [Hetzner Cloud pricing](https://www.hetzner.com/cloud/) | 1 \`cx21\`, 20 GB volume, network/IP/traffic charges or allowances as applicable, plus external backup storage and Cloudflare services if used |
 
 ### Cost drivers and safe levers
