@@ -80,14 +80,16 @@ storage, compute, load balancing, and monitoring modules.
 
 Choose this model when private managed database access, Google edge controls,
 and GCP-native monitoring are required. Every additional active group member
-adds another 500 GB \`pd-ssd\` disk, so the default maximum of five instances can
-reach 2.5 TB of active data disks. These disks set \`auto_delete = false\`;
-retained disks from scale-in or replacement remain separately billable and are
-not included in the active-group total. The active deployment configures no
-snapshot policy for these data disks, so any operator-created snapshots are a
-separate storage cost rather than part of the baseline. The default
-\`admin_source_ranges\` includes \`0.0.0.0/0\` and must be narrowed before
-production use.
+adds another 500 GB \`pd-ssd\` disk, so the default maximum of five instances
+uses 2.5 TB of active data disks at steady state. The proactive rolling-update
+policy allows one surge instance, which can temporarily raise that total to six
+disks, or 3 TB. These disks set \`auto_delete = false\`; retained disks from
+scale-in, replacement, or a completed surge remain separately billable until
+an operator removes them and are not included in the active-group total. The
+active deployment configures no snapshot policy for these data disks, so any
+operator-created snapshots are a separate storage cost rather than part of the
+baseline. The default \`admin_source_ranges\` includes \`0.0.0.0/0\` and must be
+narrowed before production use.
 
 ### Hetzner
 
@@ -114,7 +116,7 @@ taxes, and service availability change by date, account, and region.
 | --- | --- | --- | --- |
 | AWS | \`us-east-1\`; USD; review date 2026-07-20 | [AWS Pricing Calculator](https://calculator.aws/) | 2 \`t3.medium\` instances at desired capacity (allow 2–4), Multi-AZ \`db.t3.medium\`, 100 GB RDS storage, 3,000 IOPS/125 throughput, ALB, CloudFront, Route53, S3, CloudWatch, NAT/VPC networking, 30-day database/log retention |
 | Azure | \`eastus\`; USD; review date 2026-07-20 | [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/) | 2 \`Standard_D4s_v5\` VMSS instances (allow 2–10), \`Standard_B2s\` flexible database with 100 GB, HA, geo-redundant backups, NAT/public IP/load balancer, Key Vault, private endpoints, storage/CDN, Log Analytics/Application Insights/alerts |
-| GCP | \`us-central1\`; USD; review date 2026-07-25 | [Google Cloud Pricing Calculator](https://cloud.google.com/products/calculator) | 2 \`n2-standard-2\` instances (allow 2–5), at least 2 × 500 GB \`pd-ssd\` data disks (1 TB active at the default minimum; one per group member, up to 2.5 TB active at five), \`db-custom-2-7680\` Cloud SQL, load balancer, CDN, Cloud Armor, NAT/VPC, storage, Secret Manager, monitoring/logging; retained non-auto-delete disks and any operator-created snapshots are separate |
+| GCP | \`us-central1\`; USD; review date 2026-07-25 | [Google Cloud Pricing Calculator](https://cloud.google.com/products/calculator) | 2 \`n2-standard-2\` instances (allow 2–5), at least 2 × 500 GB \`pd-ssd\` data disks (1 TB active at the default minimum; one per group member, up to 2.5 TB steady-state at five), plus one possible 500 GB rolling-update surge disk; \`db-custom-2-7680\` Cloud SQL, load balancer, CDN, Cloud Armor, NAT/VPC, storage, Secret Manager, monitoring/logging; retained non-auto-delete disks, including a completed surge disk, and any operator-created snapshots remain separate charges |
 | Hetzner | \`fsn1-dc14\` / \`eu-central\`; EUR; review date 2026-07-20 | [Hetzner Cloud pricing](https://www.hetzner.com/cloud/) | 1 \`cx21\`, 20 GB volume, network/IP/traffic charges or allowances as applicable, plus external backup storage and Cloudflare services if used |
 
 ### Cost drivers and safe levers
@@ -154,14 +156,17 @@ Choose based on the operational outcome, not a single unit-price comparison:
 | Database availability | Multi-AZ RDS default | DB HA enabled by default | Managed Cloud SQL; multi-region is disabled by default | No managed database in this deployment |
 | Secret handling | Sensitive Terraform inputs and IAM integration; review state handling | Key Vault security module and managed identity wiring | Secrets module and service-account IAM wiring | Sensitive variables; protect tfvars/state and host access |
 | Network exposure | Private app/database tiers, security groups, ALB/CDN | NSGs, private endpoints, Key Vault/storage private DNS | Cloud SQL public IP disabled; firewall design requires restricted admin CIDRs | Tunnel-oriented ingress plus optional SSH CIDR; host remains the trust boundary |
-| Recovery posture | RDS automated-backup retention and versioned S3 buckets; no scheduled application-volume snapshot in the active deployment | 35-day, geo-redundant Flexible Server backups and GZRS object storage by default; no blob versioning/soft delete or Recovery Services VM/disk backup in the active deployment | Cloud SQL automated backups/PITR and versioned Cloud Storage buckets; no snapshot policy is attached to application data disks in the active deployment | Operator must maintain and test independent off-server archives; Hetzner Server backups exclude the attached Volume |
+| Recovery posture | RDS automated-backup retention and versioned S3 buckets; no scheduled application-volume snapshot in the active deployment | 35-day, geo-redundant Flexible Server backups and GZRS object storage by default; no blob versioning/soft delete or Recovery Services VM/disk backup in the active deployment | Cloud SQL automated backups/PITR and versioned Cloud Storage buckets; a daily cron archives \`/opt/foundry/data\` to the backups bucket, but it is a live file-level archive rather than an application-consistent disk snapshot, and no snapshot policy is attached | Operator must maintain and test independent off-server archives; Hetzner Server backups exclude the attached Volume |
 
 Database backups and object-storage redundancy/versioning do not protect
-application data stored on compute disks. The active Azure deployment wires
-neither Recovery Services VM backup nor disk snapshots. The active GCP
-deployment creates per-instance persistent data disks but attaches no snapshot
-resource policy. Treat these compute-disk recovery gaps as unprotected until
-they are explicitly implemented and restore-tested.
+application data stored on compute disks by themselves. The active Azure
+deployment wires neither Recovery Services VM backup nor disk snapshots. The
+active GCP deployment does provide a scheduled 02:00 archive of
+\`/opt/foundry/data\` from each instance to the versioned backups bucket, but the
+script does not quiesce the application, create a disk snapshot, verify the
+upload, or exercise a restore. Treat Azure compute data as unprotected and the
+GCP archive as a limited recovery path until each is explicitly implemented or
+restore-tested to the required recovery objective.
 
 Terraform state can contain sensitive values or resource metadata even when
 variables are marked sensitive. Use a protected remote backend, least-privilege

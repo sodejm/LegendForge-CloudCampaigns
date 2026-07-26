@@ -240,7 +240,7 @@ check_http() {
   local latency_limit_us
 
   if curl_result="$(
-    curl --silent --show-error \
+    curl -q --silent --show-error \
       --output /dev/null \
       --write-out '%{http_code} %{time_total}' \
       --connect-timeout "${TIMEOUT}" \

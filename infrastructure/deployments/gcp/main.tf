@@ -230,7 +230,7 @@ data "google_project" "current" {
 
 output "foundry_url" {
   description = "Public LegendForge URL"
-  value       = "https://${var.foundry_hostname}"
+  value       = "https://${var.domain_name}"
 }
 
 output "load_balancer_ip" {

@@ -10,6 +10,7 @@ GCP_DEPLOYMENT = REPOSITORY_ROOT / "infrastructure" / "deployments" / "gcp"
 GCP_COMPUTE_MODULE = REPOSITORY_ROOT / "infrastructure" / "modules" / "gcp-compute"
 COMPARISON_GUIDE = REPOSITORY_ROOT / "docs" / "DEPLOYMENT_MODEL_COMPARISON.md"
 ARCHITECTURE_GUIDE = GCP_DEPLOYMENT / "ARCHITECTURE.md"
+GCP_README = GCP_DEPLOYMENT / "README.md"
 
 
 def numeric_variable_default(source: str, variable_name: str) -> int:
@@ -42,8 +43,10 @@ class GcpStorageBillOfMaterialsTests(unittest.TestCase):
         cls.compute_main = (GCP_COMPUTE_MODULE / "main.tf").read_text(encoding="utf-8")
         cls.comparison = COMPARISON_GUIDE.read_text(encoding="utf-8")
         cls.architecture = ARCHITECTURE_GUIDE.read_text(encoding="utf-8")
+        cls.gcp_readme = GCP_README.read_text(encoding="utf-8")
         cls.comparison_flat = " ".join(cls.comparison.split())
         cls.architecture_flat = " ".join(cls.architecture.split())
+        cls.gcp_readme_flat = " ".join(cls.gcp_readme.split())
 
     def test_active_deployment_defaults_require_two_500_gb_disks(self) -> None:
         self.assertEqual(
@@ -101,7 +104,10 @@ class GcpStorageBillOfMaterialsTests(unittest.TestCase):
             "1 TB",
             "one 500 GB \\`pd-ssd\\` data disk",
             "Every additional active group member adds another 500 GB",
-            "retained disks from scale-in or replacement remain separately billable",
+            "2.5 TB steady-state at five",
+            "one possible 500 GB rolling-update surge disk",
+            "retained disks from scale-in, replacement, or a completed surge",
+            "remain separately billable until an operator removes them",
             "configures no snapshot policy",
             "operator-created snapshots are a separate storage cost",
         )
@@ -116,13 +122,39 @@ class GcpStorageBillOfMaterialsTests(unittest.TestCase):
             "500GB data disk per instance",
             "at least 2 × 500 GB",
             "each additional active replica adds another 500 GB",
-            "disks retained after scale-in or",
+            "default steady-state maximum of five",
+            "sixth 500 GB disk",
+            "raise active capacity to 3 TB",
+            "disks retained after scale-in, replacement, or a completed surge",
             "does not configure a snapshot policy",
             "Data disk per instance",
         )
         for phrase in required_language:
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, self.architecture_flat)
+
+    def test_gcp_sizing_guides_use_capacity_inputs_instead_of_stale_prices(
+        self,
+    ) -> None:
+        for guide in (self.architecture_flat, self.gcp_readme_flat):
+            with self.subTest(guide=guide[:80]):
+                self.assertIn("Steady-state active data disks", guide)
+                self.assertIn("1-1.5 TB", guide)
+                self.assertIn("4-10 TB", guide)
+                self.assertIn("15-50 TB", guide)
+                self.assertIn("One rolling-update surge disk", guide)
+                self.assertIn("Google Cloud Pricing Calculator", guide)
+
+        for stale_price in (
+            "$20-30",
+            "$350/mo",
+            "$700/mo",
+            "$1500/mo",
+            "$350-400/month",
+        ):
+            with self.subTest(stale_price=stale_price):
+                self.assertNotIn(stale_price, self.architecture)
+                self.assertNotIn(stale_price, self.gcp_readme)
 
 
 if __name__ == "__main__":
