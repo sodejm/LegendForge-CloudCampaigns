@@ -94,6 +94,6 @@ Do not commit this file.
 
 ## Related Pages
 
-- [Quickstart](Quickstart)
-- [Architecture and Security](Architecture-and-Security)
-- [Provider Guide](Provider-Guide)
+- [Quickstart](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Quickstart)
+- [Architecture and Security](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Architecture-and-Security)
+- [Provider Guide](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Provider-Guide)
