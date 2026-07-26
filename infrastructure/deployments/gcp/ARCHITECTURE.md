@@ -150,11 +150,14 @@
 
 Each active replica receives its own data disk. The default minimum therefore
 uses at least 2 × 500 GB, or 1 TB, of active \`pd-ssd\` capacity; each additional
-active replica adds another 500 GB, up to 2.5 TB at the default maximum of five.
-Because the disks are not auto-deleted, disks retained after scale-in or
-replacement are separately billable and are not part of that active capacity.
-The active deployment does not configure a snapshot policy for these disks;
-any operator-created snapshots are separate storage costs.
+active replica adds another 500 GB, up to 2.5 TB at the default steady-state
+maximum of five. The rolling-update policy permits one surge replica, so an
+update can temporarily allocate a sixth 500 GB disk and raise active capacity
+to 3 TB. Because the disks are not auto-deleted, disks retained after scale-in,
+replacement, or a completed surge are separately billable until explicitly
+removed and are not part of steady-state active capacity. The active deployment
+does not configure a snapshot policy for these disks; any operator-created
+snapshots are separate storage costs.
 
 - **Health Checks**:
   - HTTP GET to port 30030, path /
@@ -446,7 +449,8 @@ any operator-created snapshots are separate storage costs.
 **Option 1: Single-Region HA (Current)**
 - Recovery Time Objective (RTO): < 5 minutes
 - Recovery Point Objective (RPO): < 1 hour
-- Cost: $350-400/month
+- Cost inputs: Current single-region resources, active per-instance disks, one
+  possible rollout surge disk, and any retained disks
 - Suitable for: Most campaigns
 
 **Option 2: Multi-Region (Optional)**
@@ -455,7 +459,8 @@ any operator-created snapshots are separate storage costs.
 - Cross-region load balancing (requires extra setup)
 - Recovery Time Objective (RTO): < 1 minute
 - Recovery Point Objective (RPO): Near zero
-- Cost: 1.5x single region
+- Cost inputs: Price every added secondary-region resource and cross-region
+  transfer in the current calculator; no fixed multiplier is assumed
 - Suitable for: Critical campaigns, international play
 
 **Option 3: Manual Backup & Restore**
@@ -464,7 +469,7 @@ any operator-created snapshots are separate storage costs.
 - Can restore to new GCP region or on-premises
 - RTO: 30+ minutes
 - RPO: Last backup
-- Cost: Storage only
+- Cost inputs: Backup storage, retrieval, transfer, and restore resources
 - Suitable for: Long-term archival
 
 ---
@@ -504,7 +509,15 @@ any operator-created snapshots are separate storage costs.
 | Instances | 2-3 | 2-5 | 3-10 |
 | Database | db-custom-2-7680 | db-custom-4-16384 | db-custom-8-32768 |
 | Data disk per instance | 500 GB | 2 TB | 5 TB |
-| Est. Cost | $350/mo | $700/mo | $1500/mo |
+| Steady-state active data disks | 1-1.5 TB | 4-10 TB | 15-50 TB |
+| One rolling-update surge disk | 500 GB | 2 TB | 5 TB |
+
+Use the [Google Cloud Pricing Calculator](https://cloud.google.com/products/calculator)
+with the intended region and current prices. Multiply the per-instance data
+disk by every active instance, include one additional disk for the configured
+rolling-update surge, and add any retained non-auto-delete disks until they are
+explicitly removed. Database, load-balancing, network, object-storage,
+monitoring, logging, and discount assumptions must also be priced separately.
 
 ### Cost Reduction
 

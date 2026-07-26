@@ -58,24 +58,28 @@
 - Auto-scaling to prevent over-provisioning
 - Cloud Storage lifecycle policies (archive old backups)
 - Committed Use Discounts support
-- Detailed cost breakdowns
+- Configuration-derived cost inputs
 
 ---
 
 ## 📊 Cost Estimation
 
-**Monthly costs (approximate, based on us-central1):**
+Use the [Google Cloud Pricing Calculator](https://cloud.google.com/products/calculator)
+with the intended region, current prices, and account-specific discounts. The
+profiles below are configuration inputs, not quoted monthly prices:
 
 | Setup | Small (5-10 players) | Medium (25 players) | Large (50+ players) |
 |-------|---------------------|---------------------|---------------------|
-| Compute | $131 | $262 | $524 |
-| Database | $180 | $240 | $400 |
-| Storage | $20-30 | $50 | $100+ |
-| Load Balancer | $20 | $20 | $20 |
-| Monitoring | $0 | $0 | $0 |
-| **Total** | **$350-370/mo** | **$570-600/mo** | **$1,040+/mo** |
+| Compute | 2-3 × n2-standard-2 | 2-5 × n2-standard-4 | 3-10 × n2-standard-8 |
+| Database | db-custom-2-7680 | db-custom-4-16384 | db-custom-8-32768 |
+| Data disk per instance | 500 GB | 2 TB | 5 TB |
+| Steady-state active data disks | 1-1.5 TB | 4-10 TB | 15-50 TB |
+| One rolling-update surge disk | 500 GB | 2 TB | 5 TB |
 
-*With 1-year Committed Use Discounts: ~25% savings*
+Also price the load balancer, network traffic/NAT, Cloud Storage, Cloud Armor,
+Secret Manager, monitoring, and logging. Persistent disks use
+`auto_delete = false`, so include disks retained after scale-in, replacement,
+or a completed rollout until an operator explicitly removes them.
 
 ---
 
@@ -276,6 +280,9 @@ modules/
    - Enable Cloud KMS for database and storage encryption
    - Use Secret Manager for all sensitive data
    - Regular automated backups with point-in-time recovery
+   - A daily cron archives `/opt/foundry/data` to the versioned backups bucket
+   - Treat that live file-level archive as a limited recovery path: it does not
+     quiesce the application, create a disk snapshot, or verify a restore
 
 4. **Application Security**
    - Keep Docker images patched (use digest-pinned images)
@@ -347,7 +354,9 @@ terraform apply
 **A**: Yes! This is designed for production with HA, backups, monitoring, and security best practices.
 
 ### Q: How much does this cost?
-**A**: $350-400/month for small campaigns, $600/month for medium, $1000+/month for large. See cost table above.
+**A**: Use the current Google Cloud Pricing Calculator with the configuration
+inputs above. Include every active per-instance disk, one possible rollout
+surge disk, and all retained non-auto-delete disks.
 
 ### Q: Can I upgrade database later?
 **A**: Yes, but it requires brief downtime. Edit `cloudsql_machine_type` and apply.

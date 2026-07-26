@@ -170,10 +170,12 @@ class RecoveryDocumentationTests(unittest.TestCase):
             recovery_row,
         )
         self.assertIn(
-            "no snapshot policy is attached to application data disks in "
-            "the active deployment",
+            "a daily cron archives \\`/opt/foundry/data\\` to the backups "
+            "bucket",
             recovery_row,
         )
+        self.assertIn("live file-level archive", recovery_row)
+        self.assertIn("no snapshot policy is attached", recovery_row)
         self.assertNotIn(
             "DB backup controls plus Recovery Services VM backup",
             recovery_row,
@@ -183,7 +185,10 @@ class RecoveryDocumentationTests(unittest.TestCase):
             "not protect",
             comparison,
         )
-        self.assertIn("compute-disk recovery gaps", comparison)
+        self.assertIn("scheduled 02:00 archive", comparison)
+        self.assertIn("script does not quiesce the application", comparison)
+        self.assertIn("Treat Azure compute data as unprotected", comparison)
+        self.assertIn("GCP archive as a limited recovery path", comparison)
 
 
 if __name__ == "__main__":
