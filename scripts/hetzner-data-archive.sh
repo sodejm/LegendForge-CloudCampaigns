@@ -35,7 +35,7 @@ validate_archive_members() {
   local archive_path="$1"
 
   if ! command -v python3 >/dev/null 2>&1; then
-    echo "python3 is required to validate archive paths before restore." >&2
+    echo "python3 is required to validate archive contents." >&2
     return 1
   fi
 
@@ -228,6 +228,7 @@ backup_data() {
   tar -C "${source_absolute}" \
     --exclude='./.restore-quarantine.*' \
     -czf "${temporary_archive}" .
+  validate_archive_members "${temporary_archive}"
   checksum="$(sha256_file "${temporary_archive}")"
   printf '%s  %s\n' "${checksum}" "$(basename "${archive_absolute}")" >"${temporary_checksum}"
 

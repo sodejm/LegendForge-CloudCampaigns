@@ -103,7 +103,10 @@ Terraform state is not a backup. The Foundry data volume contains the state that
    ```
 
    If Foundry does not restart, keep the maintenance window active and resolve
-   that failure before reopening player traffic.
+   that failure before reopening player traffic. Before publishing either
+   output, the helper validates the temporary archive and rejects symbolic or
+   hard links, devices, and FIFOs. A rejected backup leaves neither the archive
+   nor its checksum sidecar.
 
 3. Transfer both files to the approved encrypted off-server destination, verify the checksum after transfer, and record the restore instructions and retention date:
 

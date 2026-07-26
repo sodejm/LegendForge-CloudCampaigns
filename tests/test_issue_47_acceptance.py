@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -15,11 +16,17 @@ ARCHIVE_SCRIPT = REPOSITORY_ROOT / "scripts" / "hetzner-data-archive.sh"
 
 
 class HetznerArchiveTests(unittest.TestCase):
-    def run_archive(self, *arguments: object, check: bool = True) -> subprocess.CompletedProcess[str]:
+    def run_archive(
+        self,
+        *arguments: object,
+        check: bool = True,
+        environment: dict[str, str] | None = None,
+    ) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
             ["bash", str(ARCHIVE_SCRIPT), *(str(argument) for argument in arguments)],
             check=check,
             capture_output=True,
+            env=environment,
             text=True,
         )
 
@@ -95,6 +102,69 @@ class HetznerArchiveTests(unittest.TestCase):
                     self.assertNotEqual(0, result.returncode)
                     self.assertIn("Refusing to overwrite", result.stderr)
                     self.assertFalse(redirected.exists())
+
+    def test_backup_rejects_unsafe_members_before_publishing_artifacts(self) -> None:
+        unsafe_types = {
+            "symlink": tarfile.SYMTYPE,
+            "hardlink": tarfile.LNKTYPE,
+            "fifo": tarfile.FIFOTYPE,
+            "character-device": tarfile.CHRTYPE,
+            "block-device": tarfile.BLKTYPE,
+        }
+
+        for member_kind, member_type in unsafe_types.items():
+            with self.subTest(member_kind=member_kind), tempfile.TemporaryDirectory() as temporary:
+                workspace = Path(temporary)
+                source = workspace / "source"
+                source.mkdir()
+                fixture_archive = workspace / "unsafe-fixture.tgz"
+                with tarfile.open(fixture_archive, "w:gz") as bundle:
+                    member = tarfile.TarInfo(f"unsafe-{member_kind}")
+                    member.type = member_type
+                    if member_type in (tarfile.SYMTYPE, tarfile.LNKTYPE):
+                        member.linkname = "target"
+                    if member_type in (tarfile.CHRTYPE, tarfile.BLKTYPE):
+                        member.devmajor = 1
+                        member.devminor = 3
+                    bundle.addfile(member)
+
+                fake_bin = workspace / "fake-bin"
+                fake_bin.mkdir()
+                fake_tar = fake_bin / "tar"
+                fake_tar.write_text(
+                    """#!/usr/bin/env bash
+set -euo pipefail
+while [[ "$#" -gt 0 ]]; do
+  if [[ "$1" == "-czf" ]]; then
+    cp "${FIXTURE_ARCHIVE}" "$2"
+    exit 0
+  fi
+  shift
+done
+exit 64
+""",
+                    encoding="utf-8",
+                )
+                fake_tar.chmod(0o755)
+
+                archive = workspace / "backup.tgz"
+                environment = {
+                    **os.environ,
+                    "FIXTURE_ARCHIVE": str(fixture_archive),
+                    "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
+                }
+                result = self.run_archive(
+                    "backup",
+                    source,
+                    archive,
+                    check=False,
+                    environment=environment,
+                )
+
+                self.assertNotEqual(0, result.returncode)
+                self.assertIn("Unsafe archive member", result.stderr)
+                self.assertFalse(archive.exists())
+                self.assertFalse(Path(f"{archive}.sha256").exists())
 
     def test_restore_rejects_checksum_corruption(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
