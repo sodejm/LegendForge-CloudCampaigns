@@ -49,7 +49,8 @@ This index is the navigation hub for LegendForge documentation. It highlights th
 
 ### GitHub Wiki Source Pages
 - **[Published GitHub Wiki](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki)** - Rendered operator guides and cross-page navigation
-- **[wiki/README.md](wiki/README.md)** - Source-page index, link conventions, and publication requirement
+- **[docs/WIKI_SYNC.md](docs/WIKI_SYNC.md)** - Canonical Wiki source, page map, and synchronization design
+- **[docs/WIKI_OPERATIONS.md](docs/WIKI_OPERATIONS.md)** - Publication, verification, recovery, and rollback procedures
 - **[wiki/Home.md](wiki/Home.md)** - Wiki landing page and overview
 - **[wiki/Quickstart.md](wiki/Quickstart.md)** - Shortest path to a first deployment
 - **[wiki/Installation.md](wiki/Installation.md)** - Setup prerequisites and configuration inputs

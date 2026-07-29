@@ -9,7 +9,7 @@ This page collects common operator tasks using the existing repository guidance.
 - Choose **GCP** for strong monitoring and managed service integrations
 - Choose **Hetzner** for the lowest-cost, simplest production path
 
-See the [Provider Guide](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Provider-Guide).
+See the [Provider Guide](Provider-Guide.md).
 
 ## How to Deploy a New Instance
 
@@ -106,6 +106,6 @@ Before major changes:
 
 ## Related Pages
 
-- [Quickstart](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Quickstart)
-- [Prompts](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Prompts)
-- [Use Cases](https://github.com/sodejm/LegendForge-CloudCampaigns/wiki/Use-Cases)
+- [Quickstart](Quickstart.md)
+- [Prompts](Prompts.md)
+- [Use Cases](Use-Cases.md)
