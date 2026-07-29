@@ -1,0 +1,93 @@
+name: Sync Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "wiki/**"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: sync-wiki-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Validate and synchronize Wiki
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # required to authenticate the Wiki Git push
+    steps:
+      - name: Check out Wiki source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Clone initialized Wiki repository
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          wiki_directory="$(mktemp -d "${RUNNER_TEMP}/legendforge-wiki.XXXXXX")"
+          git_config="$(mktemp "${RUNNER_TEMP}/legendforge-git-config.XXXXXX")"
+          chmod 600 "$git_config"
+          export GIT_CONFIG_GLOBAL="$git_config"
+
+          cleanup_credentials() {
+            git config --global --unset-all \
+              http.https://github.com/.extraheader || true
+            rm -f "$git_config"
+          }
+          trap cleanup_credentials EXIT
+
+          authorization="$(
+            printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 --wrap=0
+          )"
+          git config --global \
+            http.https://github.com/.extraheader \
+            "AUTHORIZATION: basic $authorization"
+          git clone --depth=1 \
+            https://github.com/sodejm/LegendForge-CloudCampaigns.wiki.git \
+            "$wiki_directory"
+          git config --global --unset-all \
+            http.https://github.com/.extraheader
+
+          echo "WIKI_WORKTREE=$wiki_directory" >> "$GITHUB_ENV"
+
+      - name: Mirror validated source into the Wiki
+        run: |
+          set -euo pipefail
+
+          python scripts/sync_wiki_docs.py \
+            --source wiki \
+            --destination "$WIKI_WORKTREE"
+
+      - name: Commit Wiki changes
+        id: wiki_commit
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          python scripts/commit_wiki_changes.py \
+            --repository "$WIKI_WORKTREE" \
+            --source-sha "$SOURCE_SHA" \
+            --output "$GITHUB_OUTPUT"
+
+      - name: Push Wiki changes
+        if: steps.wiki_commit.outputs.committed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          authorization="$(
+            printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 --wrap=0
+          )"
+          git -C "$WIKI_WORKTREE" \
+            -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $authorization" \
+            push origin HEAD:master

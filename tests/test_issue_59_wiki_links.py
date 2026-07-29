@@ -58,7 +58,7 @@ class Issue59WikiNavigationTests(unittest.TestCase):
                         f"{source.relative_to(REPOSITORY_ROOT)} links to missing {target}",
                     )
 
-    def test_publishable_pages_avoid_repository_only_or_extensionless_links(self) -> None:
+    def test_local_wiki_links_use_known_markdown_sources(self) -> None:
         page_names = set(WIKI_PAGE_FILES)
         page_slugs = {Path(name).stem for name in WIKI_PAGE_FILES}
 
@@ -70,32 +70,22 @@ class Issue59WikiNavigationTests(unittest.TestCase):
                     continue
 
                 local_name = Path(unquote(parsed.path)).name
+                if not local_name:
+                    continue
                 with self.subTest(source=filename, target=target):
-                    self.assertNotIn(
-                        local_name,
-                        page_names,
-                        "publishable wiki pages must not use repository-only .md links",
-                    )
                     self.assertNotIn(
                         local_name,
                         page_slugs,
-                        "extensionless wiki links break in the repository source view",
+                        "extensionless Wiki links break in the source repository",
                     )
+                    self.assertIn(local_name, page_names)
 
-    def test_published_wiki_links_name_known_pages(self) -> None:
-        page_slugs = {Path(name).stem for name in WIKI_PAGE_FILES}
-
+    def test_publishable_sources_do_not_hard_code_wiki_page_urls(self) -> None:
         for filename in PUBLISHABLE_WIKI_FILES:
             source = WIKI_ROOT / filename
             for target in link_targets(source):
-                if not target.startswith(f"{PUBLISHED_WIKI_BASE}/"):
-                    continue
-
-                slug = unquote(urlsplit(target).path).removeprefix(
-                    "/sodejm/LegendForge-CloudCampaigns/wiki/"
-                )
                 with self.subTest(source=filename, target=target):
-                    self.assertIn(slug, page_slugs)
+                    self.assertFalse(target.startswith(f"{PUBLISHED_WIKI_BASE}/"))
 
     def test_wiki_repository_links_name_existing_paths(self) -> None:
         for source in sorted(WIKI_ROOT.glob("*.md")):
@@ -116,29 +106,42 @@ class Issue59WikiNavigationTests(unittest.TestCase):
 
     def test_sidebar_links_every_published_page(self) -> None:
         sidebar_targets = set(link_targets(WIKI_ROOT / "_Sidebar.md"))
-        expected_targets = {
-            f"{PUBLISHED_WIKI_BASE}/{Path(filename).stem}"
-            for filename in WIKI_PAGE_FILES
-        }
+        expected_targets = set(WIKI_PAGE_FILES)
         self.assertLessEqual(expected_targets, sidebar_targets)
 
-    def test_source_index_explains_dual_navigation_and_publication(self) -> None:
-        source_index = (WIKI_ROOT / "README.md").read_text(encoding="utf-8")
+    def test_sync_design_defines_every_published_page(self) -> None:
+        sync_design = (REPOSITORY_ROOT / "docs" / "WIKI_SYNC.md").read_text(
+            encoding="utf-8"
+        )
 
         for filename in (*WIKI_PAGE_FILES, "_Sidebar.md"):
             with self.subTest(filename=filename):
-                self.assertIn(f"]({filename})", source_index)
+                self.assertIn(f"`wiki/{filename}`", sync_design)
 
-        self.assertIn(f"]({PUBLISHED_WIKI_BASE})", source_index)
-        self.assertIn("does not update the published wiki by itself", source_index)
-        self.assertIn("Do not use extensionless relative targets", source_index)
+        self.assertIn("Every regular `*.md` file", sync_design)
+        self.assertIn("source repository SHA", sync_design)
+        self.assertIn(
+            "[Wiki synchronization operations](WIKI_OPERATIONS.md)",
+            sync_design,
+        )
 
     def test_repository_entry_points_offer_source_and_published_navigation(self) -> None:
         for filename in ("README.md", "DOCUMENTATION_INDEX.md"):
             document = (REPOSITORY_ROOT / filename).read_text(encoding="utf-8")
             with self.subTest(filename=filename):
                 self.assertIn(f"]({PUBLISHED_WIKI_BASE})", document)
-                self.assertIn("](wiki/README.md)", document)
+                self.assertIn("](docs/WIKI_SYNC.md)", document)
+
+    def test_provider_guide_covers_every_supported_provider_and_cost_profile(self) -> None:
+        provider_guide = (WIKI_ROOT / "Provider-Guide.md").read_text(
+            encoding="utf-8"
+        )
+
+        for provider in ("AWS", "Azure", "GCP", "Hetzner"):
+            with self.subTest(provider=provider):
+                self.assertIn(f"## {provider}", provider_guide)
+
+        self.assertIn("monthly cost profile", provider_guide)
 
 
 if __name__ == "__main__":
