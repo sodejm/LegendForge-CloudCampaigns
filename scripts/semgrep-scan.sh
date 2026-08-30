@@ -6,4 +6,6 @@ if ! command -v semgrep >/dev/null 2>&1; then
   exit 1
 fi
 
-semgrep --config p/ci --error --metrics=off --exclude .terraform --exclude .git .
+# The p/ci ruleset contains rules that require the Pro engine.  Strict mode turns
+# internal matching warnings into failures so a partial scan cannot look clean.
+semgrep --pro --strict --config p/ci --error --metrics=off --exclude .terraform --exclude .git .
