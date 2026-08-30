@@ -56,7 +56,7 @@ resource "azurerm_lb_rule" "http" {
   frontend_port                  = 80
   backend_port                   = 30000
   probe_id                       = azurerm_lb_probe.http.id
-  enable_floating_ip             = false
+  floating_ip_enabled            = false
 }
 
 # Load Balancer Rule for HTTPS
@@ -69,7 +69,7 @@ resource "azurerm_lb_rule" "https" {
   frontend_port                  = 443
   backend_port                   = 30001
   probe_id                       = azurerm_lb_probe.https.id
-  enable_floating_ip             = false
+  floating_ip_enabled            = false
 }
 
 # Health Probes

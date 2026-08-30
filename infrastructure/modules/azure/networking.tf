@@ -19,11 +19,15 @@ resource "azurerm_subnet" "compute" {
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = [local.subnet_cidr]
 
-  service_endpoints = [
-    "Microsoft.KeyVault",
-    "Microsoft.Storage",
-    "Microsoft.Sql"
-  ]
+  service_endpoint {
+    service = "Microsoft.KeyVault"
+  }
+  service_endpoint {
+    service = "Microsoft.Storage"
+  }
+  service_endpoint {
+    service = "Microsoft.Sql"
+  }
 }
 
 # ===== Bastion Subnet (if Bastion is enabled) =====

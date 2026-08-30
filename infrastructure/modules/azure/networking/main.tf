@@ -78,7 +78,15 @@ resource "azurerm_subnet" "gateway" {
   virtual_network_name              = azurerm_virtual_network.main.name
   address_prefixes                  = var.subnet_config.gateway.address_prefixes
   private_endpoint_network_policies = "Enabled"
-  service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Sql"]
+  service_endpoint {
+    service = "Microsoft.Storage"
+  }
+  service_endpoint {
+    service = "Microsoft.KeyVault"
+  }
+  service_endpoint {
+    service = "Microsoft.Sql"
+  }
 }
 
 resource "azurerm_subnet" "app" {
@@ -87,7 +95,12 @@ resource "azurerm_subnet" "app" {
   virtual_network_name              = azurerm_virtual_network.main.name
   address_prefixes                  = var.subnet_config.app.address_prefixes
   private_endpoint_network_policies = "Enabled"
-  service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
+  service_endpoint {
+    service = "Microsoft.Storage"
+  }
+  service_endpoint {
+    service = "Microsoft.KeyVault"
+  }
 }
 
 resource "azurerm_subnet" "database" {
@@ -96,7 +109,9 @@ resource "azurerm_subnet" "database" {
   virtual_network_name              = azurerm_virtual_network.main.name
   address_prefixes                  = var.subnet_config.database.address_prefixes
   private_endpoint_network_policies = "Enabled"
-  service_endpoints                 = ["Microsoft.Sql"]
+  service_endpoint {
+    service = "Microsoft.Sql"
+  }
   delegation {
     name = "mysql-delegation"
     service_delegation {
@@ -111,7 +126,12 @@ resource "azurerm_subnet" "storage" {
   virtual_network_name              = azurerm_virtual_network.main.name
   address_prefixes                  = var.subnet_config.storage.address_prefixes
   private_endpoint_network_policies = "Enabled"
-  service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
+  service_endpoint {
+    service = "Microsoft.Storage"
+  }
+  service_endpoint {
+    service = "Microsoft.KeyVault"
+  }
 }
 
 # Associate NAT Gateway with App Subnet

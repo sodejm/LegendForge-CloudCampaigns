@@ -38,9 +38,8 @@ resource "azurerm_monitor_diagnostic_setting" "scale_set" {
     category = "Administrative"
   }
 
-  metric {
+  enabled_metric {
     category = "AllMetrics"
-    enabled  = true
   }
 }
 
@@ -58,9 +57,8 @@ resource "azurerm_monitor_diagnostic_setting" "load_balancer" {
     category = "LoadBalancerProbeHealthStatus"
   }
 
-  metric {
+  enabled_metric {
     category = "AllMetrics"
-    enabled  = true
   }
 }
 
@@ -82,9 +80,8 @@ resource "azurerm_monitor_diagnostic_setting" "storage" {
     category = "StorageDelete"
   }
 
-  metric {
+  enabled_metric {
     category = "Transaction"
-    enabled  = true
   }
 }
 
@@ -102,9 +99,8 @@ resource "azurerm_monitor_diagnostic_setting" "database" {
     category = "MySqlAuditLogs"
   }
 
-  metric {
+  enabled_metric {
     category = "AllMetrics"
-    enabled  = true
   }
 }
 
@@ -118,9 +114,8 @@ resource "azurerm_monitor_diagnostic_setting" "key_vault" {
     category = "AuditEvent"
   }
 
-  metric {
+  enabled_metric {
     category = "AllMetrics"
-    enabled  = true
   }
 }
 
