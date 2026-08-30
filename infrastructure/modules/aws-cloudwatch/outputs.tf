@@ -15,5 +15,5 @@ output "rds_log_group" {
 
 output "dashboard_url" {
   description = "CloudWatch dashboard URL"
-  value       = "https://console.aws.amazon.com/cloudwatch/home?region=${data.aws_region.current.name}#dashboards:name=${aws_cloudwatch_dashboard.foundry.dashboard_name}"
+  value       = "https://console.aws.amazon.com/cloudwatch/home?region=${var.aws_region}#dashboards:name=${aws_cloudwatch_dashboard.foundry.dashboard_name}"
 }
