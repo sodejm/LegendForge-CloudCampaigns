@@ -22,6 +22,7 @@ resource "azurerm_key_vault" "main" {
   soft_delete_retention_days      = 7
   purge_protection_enabled        = true
   public_network_access_enabled   = true
+  rbac_authorization_enabled      = false
 
   network_acls {
     default_action = "Deny"
@@ -92,17 +93,15 @@ resource "azurerm_private_dns_zone" "keyvault" {
 
 # Link Private DNS Zone to VNet
 resource "azurerm_private_dns_zone_virtual_network_link" "keyvault" {
-  name                  = "link-${var.environment}"
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.keyvault.name
-  virtual_network_id    = var.vnet_id
+  name                = "link-${var.environment}"
+  private_dns_zone_id = azurerm_private_dns_zone.keyvault.id
+  virtual_network_id  = var.vnet_id
 }
 
 # DNS A Record for Key Vault Private Endpoint
 resource "azurerm_private_dns_a_record" "keyvault" {
   name                = azurerm_key_vault.main.name
-  zone_name           = azurerm_private_dns_zone.keyvault.name
-  resource_group_name = var.resource_group_name
+  private_dns_zone_id = azurerm_private_dns_zone.keyvault.id
   ttl                 = 300
   records             = [azurerm_private_endpoint.keyvault.private_service_connection[0].private_ip_address]
 }

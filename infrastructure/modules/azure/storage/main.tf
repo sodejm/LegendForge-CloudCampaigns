@@ -44,25 +44,25 @@ resource "azurerm_storage_account" "main" {
 # Storage Containers
 resource "azurerm_storage_container" "foundry_data" {
   name                  = "foundry-data"
-  storage_account_name  = azurerm_storage_account.main.name
+  storage_account_id    = azurerm_storage_account.main.id
   container_access_type = "private"
 }
 
 resource "azurerm_storage_container" "foundry_worlds" {
   name                  = "foundry-worlds"
-  storage_account_name  = azurerm_storage_account.main.name
+  storage_account_id    = azurerm_storage_account.main.id
   container_access_type = "private"
 }
 
 resource "azurerm_storage_container" "foundry_modules" {
   name                  = "foundry-modules"
-  storage_account_name  = azurerm_storage_account.main.name
+  storage_account_id    = azurerm_storage_account.main.id
   container_access_type = "private"
 }
 
 resource "azurerm_storage_container" "foundry_media" {
   name                  = "foundry-media"
-  storage_account_name  = azurerm_storage_account.main.name
+  storage_account_id    = azurerm_storage_account.main.id
   container_access_type = "private"
 }
 
@@ -92,17 +92,15 @@ resource "azurerm_private_dns_zone" "blob" {
 
 # Link Private DNS Zone to VNet
 resource "azurerm_private_dns_zone_virtual_network_link" "blob" {
-  name                  = "link-${var.environment}"
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.blob.name
-  virtual_network_id    = var.vnet_id
+  name                = "link-${var.environment}"
+  private_dns_zone_id = azurerm_private_dns_zone.blob.id
+  virtual_network_id  = var.vnet_id
 }
 
 # DNS A Record for Blob Private Endpoint
 resource "azurerm_private_dns_a_record" "blob" {
   name                = azurerm_storage_account.main.name
-  zone_name           = azurerm_private_dns_zone.blob.name
-  resource_group_name = var.resource_group_name
+  private_dns_zone_id = azurerm_private_dns_zone.blob.id
   ttl                 = 300
   records             = [azurerm_private_endpoint.blob.private_service_connection[0].private_ip_address]
 }

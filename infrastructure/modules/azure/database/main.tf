@@ -132,19 +132,17 @@ resource "azurerm_private_dns_zone" "postgres" {
 
 # Link Private DNS Zones to VNet
 resource "azurerm_private_dns_zone_virtual_network_link" "mysql" {
-  count                 = var.db_engine == "mysql" ? 1 : 0
-  name                  = "link-${var.environment}"
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.mysql[0].name
-  virtual_network_id    = var.vnet_id
+  count               = var.db_engine == "mysql" ? 1 : 0
+  name                = "link-${var.environment}"
+  private_dns_zone_id = azurerm_private_dns_zone.mysql[0].id
+  virtual_network_id  = var.vnet_id
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "postgres" {
-  count                 = var.db_engine == "postgres" ? 1 : 0
-  name                  = "link-${var.environment}"
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.postgres[0].name
-  virtual_network_id    = var.vnet_id
+  count               = var.db_engine == "postgres" ? 1 : 0
+  name                = "link-${var.environment}"
+  private_dns_zone_id = azurerm_private_dns_zone.postgres[0].id
+  virtual_network_id  = var.vnet_id
 }
 
 # MySQL Configuration
