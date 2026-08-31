@@ -160,9 +160,11 @@ resource "google_compute_firewall" "deny_all_ingress" {
     protocol = "all"
   }
 
-  direction      = "INGRESS"
-  priority       = 65534
-  source_ranges  = ["0.0.0.0/0"]
-  target_tags    = []
-  enable_logging = true
+  direction     = "INGRESS"
+  priority      = 65534
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = []
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
 }
