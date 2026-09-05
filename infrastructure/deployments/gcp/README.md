@@ -64,9 +64,11 @@
 
 ## 📊 Cost Estimation
 
-Use the [Google Cloud Pricing Calculator](https://cloud.google.com/products/calculator)
-with the intended region, current prices, and account-specific discounts. The
-profiles below are configuration inputs, not quoted monthly prices:
+Use the complete [comparison BOM](../../../docs/DEPLOYMENT_MODEL_COMPARISON.md).
+The standard profile starts two instances, each with a 500 GB pd-ssd data disk,
+plus Cloud SQL and network/edge services. Retained disks continue billing after
+replacement or scale-in. For a scheduled campaign, see
+[GCP low cost](../gcp-low-cost/README.md).
 
 | Setup | Small (5-10 players) | Medium (25 players) | Large (50+ players) |
 |-------|---------------------|---------------------|---------------------|
@@ -81,8 +83,6 @@ Secret Manager, monitoring, and logging. Persistent disks use
 `auto_delete = false`, so include disks retained after scale-in, replacement,
 or a completed rollout until an operator explicitly removes them.
 
----
-
 ## 🔧 Prerequisites
 
 ### GCP Setup
@@ -91,7 +91,7 @@ or a completed rollout until an operator explicitly removes them.
 - Required APIs enabled (compute, SQL, storage, IAM, monitoring, logging, secrets, KMS)
 
 ### Local Tools
-- Terraform >= 1.5
+- Terraform >= 1.7
 - Google Cloud SDK (gcloud CLI)
 - Text editor (VS Code, nano, vim, etc.)
 
@@ -131,7 +131,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=~/terraform-key.json
 ### 2. Configure Terraform
 
 ```bash
-cd deployments/gcp
+cd infrastructure/deployments/gcp
 cp terraform.tfvars.example terraform.auto.tfvars
 
 # Edit configuration
@@ -351,7 +351,7 @@ terraform apply
 **A**: Cloud Storage is unlimited. Persistent disk size is configurable in `data_disk_size_gb`.
 
 ### Q: Can I use this for production?
-**A**: Yes! This is designed for production with HA, backups, monitoring, and security best practices.
+**A**: Complete live application, access and restore acceptance first. The [validation record](../../../docs/TERRAFORM_VALIDATION.md) establishes configuration/mock-plan checks, not production readiness or application HA.
 
 ### Q: How much does this cost?
 **A**: Use the current Google Cloud Pricing Calculator with the configuration
@@ -362,10 +362,10 @@ surge disk, and all retained non-auto-delete disks.
 **A**: Yes, but it requires brief downtime. Edit `cloudsql_machine_type` and apply.
 
 ### Q: How do I migrate from another provider?
-**A**: Export database backup from old provider, restore to Cloud SQL. Terraform imports existing resources.
+**A**: Quiesce Foundry and migrate its complete data directory using the [migration checklist](../../../docs/DEPLOYMENT_MODEL_COMPARISON.md). A database export alone does not preserve Foundry worlds and assets.
 
 ### Q: What's the recovery time if something fails?
-**A**: < 5 minutes for compute instances, < 1 minute for database failover.
+**A**: No recovery-time objective is established by the mock plans. Measure application and data recovery with a restore exercise.
 
 ---
 
@@ -387,6 +387,6 @@ This Terraform configuration is provided for LegendForge deployment on Google Cl
 ---
 
 **Created**: 2024-06-28
-**Terraform**: >= 1.5
+**Terraform**: >= 1.7
 **Google Cloud Provider**: >= 5.0
-**Status**: Production-Ready ✅
+**Validation**: Local configuration and mock plans; live operator acceptance required.

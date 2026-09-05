@@ -47,7 +47,7 @@ output "server_summary" {
   value = var.compute_enabled ? {
     server_name = hcloud_server.foundry[0].name
     public_ipv4 = hcloud_server.foundry[0].ipv4_address
-    datacenter  = hcloud_server.foundry[0].datacenter
+    location    = hcloud_server.foundry[0].location
     server_type = hcloud_server.foundry[0].server_type
     volume_size = hcloud_volume.foundry_data[0].size
   } : null

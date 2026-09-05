@@ -8,16 +8,20 @@ LegendForge is a universal, production-minded **Terraform infrastructure platfor
 
 LegendForge provides modular infrastructure for teams and game masters who want to run **Foundry VTT as system-agnostic tabletop infrastructure** instead of a single-ruleset deployment.
 
-Deploy LegendForge on:
+Choose a deployment profile before configuring Terraform:
 
-| Platform    | Cost/Month | Best For                | Status      |
-| ----------- | ---------- | ----------------------- | ----------- |
-| **AWS**     | $65-75     | Enterprise, scalability | ✅ Complete |
-| **Azure**   | $50-60     | Enterprise, RBAC        | ✅ Complete |
-| **GCP**     | $48-50     | Simplicity, monitoring  | ✅ Complete |
-| **Hetzner** | €6-8       | Cost-conscious, EU      | ✅ Complete |
+| Profile | Topology | Operator guide |
+| --- | --- | --- |
+| AWS low cost | One EC2 instance, retained EBS data disk, reversible stop/start | [AWS low cost](infrastructure/deployments/aws-low-cost/README.md) |
+| GCP low cost | One Compute Engine instance, retained persistent disk, reversible stop/start | [GCP low cost](infrastructure/deployments/gcp-low-cost/README.md) |
+| Hetzner | One server and attached volume; operator-managed recovery | [Hetzner](infrastructure/deployments/hetzner/README.md) |
+| AWS standard | Auto Scaling, RDS, NAT, ALB, CloudFront | [AWS standard](infrastructure/deployments/aws/README.md) |
+| Azure standard | VM scale set, managed database, NAT, load balancer | [Azure canonical guide](infrastructure/deployments/azure/README.md) |
+| GCP standard | Managed instance group, Cloud SQL, NAT, load balancer | [GCP standard](infrastructure/deployments/gcp/README.md) |
 
-LegendForge is designed to support **any Foundry-compatible tabletop system** by keeping infrastructure, storage, networking, backups, and operational workflows independent from the specific ruleset running inside Foundry.
+See the [deployment and cost comparison](docs/DEPLOYMENT_MODEL_COMPARISON.md) for a common workload, priced components, exclusions, and reliability trade-offs. Configuration validation and mock lifecycle tests are recorded in [Terraform validation](docs/TERRAFORM_VALIDATION.md); they do not establish live cloud readiness or Foundry world availability.
+
+LegendForge supports **any Foundry-compatible tabletop system**. Systems, worlds, and modules are installed and validated inside Foundry after deployment.
 
 ## 🎲 Multi-System Support
 
@@ -48,106 +52,41 @@ LegendForge treats Foundry as **universal tabletop infrastructure**:
 
 ## 🎯 Key Features
 
-- ✅ **LegendForge Branding**: Repositioned as universal tabletop infrastructure
-- ✅ **Multi-System Ready**: Works with Foundry deployments for many RPG systems
-- ✅ **Tunnel-First Security**: Cloudflare Tunnel for ingress (no exposed ports)
-- ✅ **IaC Everything**: Fully declarative, version-controlled infrastructure
-- ✅ **Multi-Cloud**: Deploy to any platform with the same operational model
-- ✅ **Provider-Specific Resilience**: Documented availability, backup, monitoring, and recovery trade-offs
-- ✅ **Secrets Management**: Cloud-native secret storage (Vault, Key Vault, Secret Manager)
-- ✅ **Cost Optimized**: Right-sized instances, easy spin-down
-- ✅ **Comprehensive Documentation**: Step-by-step guides for each platform and operating model
+- System-agnostic Foundry infrastructure across four cloud providers.
+- Separate low-cost and standard profiles with documented resource and recovery ownership.
+- AWS/GCP low-cost profiles use Cloudflare Tunnel, independent data disks, and declarative pause/resume.
+- Standard profiles expose different networking, secrets, monitoring, and scaling controls; consult each guide.
+- Provider locks, validation, mock plans, acceptance tests, and security gates support repeatable review.
 
 ## 📁 Repository Structure
 
 ```text
-LegendForge-CloudCampaigns/
-├── modules/
-│   ├── foundry-app/            # Provider-agnostic Foundry setup module
-│   │   ├── variables.tf        # Foundry configuration inputs
-│   │   └── templates/          # Cloud-init templates
-│   │
-│   ├── aws/                    # AWS module (EC2, VPC, EBS, IAM, CloudWatch)
-│   ├── azure/                  # Azure module (VMs, VNets, Key Vault, NSGs)
-│   ├── gcp/                    # GCP module (Compute Engine, VPC, Secret Manager)
-│   ├── providers/
-│   │   └── hetzner/            # Hetzner module (Servers, Networks, Volumes)
-│   └── [Other modules]
-│
-├── infrastructure/deployments/
-│   ├── aws/                    # AWS deployment configuration
-│   ├── azure/                  # Azure deployment configuration
-│   ├── gcp/                    # GCP deployment configuration
-│   └── hetzner/                # Hetzner deployment configuration
-│
-├── config/
-│   ├── foundry.auto.tfvars.example   # Foundry + LegendForge settings template
-│   ├── secrets.auto.tfvars.example   # Secrets template (KEEP PRIVATE!)
-│   └── [auto.tfvars files - git-ignored]
-│
-├── SUPPORTED_SYSTEMS.md        # Foundry system compatibility guidance
-├── PROJECT_PHILOSOPHY.md       # Universal tabletop infrastructure philosophy
-├── ATTRIBUTION.md              # Upstream projects and license references
-├── CREDITS.md                  # Community acknowledgments
-├── DOCUMENTATION_INDEX.md      # Documentation map
-└── README.md                   # This file
+infrastructure/
+  deployments/{aws,azure,gcp,hetzner}/   # Standard/provider-specific roots
+  deployments/{aws-low-cost,gcp-low-cost}/
+  modules/foundry-app/                 # Existing shared application bootstrap
+  modules/foundry-single-server/       # Retained-disk low-cost bootstrap
+  modules/{aws,azure,gcp,providers}/
+config/                               # Legacy Hetzner inputs
+scripts/                              # Quality gates, backups, smoke test, Wiki sync
+wiki/                                 # Canonical published Wiki sources
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-1. **Terraform** (>= 1.5)
+Install [Terraform 1.7 or later](https://developer.hashicorp.com/terraform/install), the selected provider CLI, and its credentials. Local quality checks also need Python 3, TFLint, pre-commit, Semgrep, and TruffleHog. See [validation prerequisites](docs/TERRAFORM_VALIDATION.md).
 
-   ```bash
-   # macOS
-   brew install terraform
-
-   # Linux
-   curl https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-   echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-   sudo apt-get update && sudo apt-get install terraform
-   ```
-
-2. **Cloud Provider CLI**
-   - AWS: `aws-cli`
-   - Azure: `az` CLI
-   - GCP: `gcloud` CLI
-   - Hetzner: None required (uses API token)
-
-3. **Foundry VTT Prerequisites**
-   - Valid Foundry VTT license key
-   - Foundry admin password (generate a strong random value)
-   - Cloudflare account with DNS zone
-   - Cloudflare Tunnel created and token generated
-   - A target Foundry system or world you plan to install after deployment
+Prepare a valid Foundry license, download credentials, a strong setup password, and a public hostname. Tunnel profiles require an existing Cloudflare tunnel and hostname route; standard load-balancer profiles have additional provider-specific DNS and certificate inputs. Verify Foundry, system, module, and image compatibility before choosing versions.
 
 ### Configuration
 
-1. **Copy configuration templates:**
+Start at the repository root and follow **one** profile guide from the table above. AWS, Azure, GCP, and both low-cost roots have their own `terraform.tfvars.example`; copy it to `terraform.tfvars` inside the selected root and replace every placeholder. AWS standard also uses its own secrets example as described in its guide. GCP's project input is `gcp_project_id`. The legacy `config/*.auto.tfvars` flow is specific to Hetzner and is not interchangeable with these root inputs.
 
-   ```bash
-   cp config/foundry.auto.tfvars.example config/foundry.auto.tfvars
-   cp config/secrets.auto.tfvars.example config/secrets.auto.tfvars
-   ```
+Keep credentials, variable files, state, saved plans, and backups private. `sensitive = true` hides ordinary Terraform display; it does not encrypt state or instance metadata. Use an encrypted, access-controlled state backend with locking before collaborating. Never run two writers against the same state.
 
-2. **Edit `config/foundry.auto.tfvars`:**
-
-   ```hcl
-   foundry_hostname = "vtt.yourdomain.com"
-   cloudflare_zone = "yourdomain.com"
-   data_volume_size_gb = 20
-   compute_enabled = true
-   ```
-
-3. **Edit `config/secrets.auto.tfvars`** (⚠️ Keep private!):
-   ```hcl
-   cloudflare_account_id = "your-account-id"
-   cloudflare_api_token = "your-token"
-   foundry_license_key = "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
-   foundry_admin_key = "very-long-secure-random-password"
-   cloudflare_tunnel_token = "your-tunnel-token"
-   ```
+Run `terraform init`, `terraform validate`, and `terraform plan -out=deployment.tfplan` in the chosen root. Review the complete plan, costs, public access, and data lifecycle before `terraform apply deployment.tfplan`, which provisions billable resources. Apply only a freshly reviewed plan.
 
 ## 🗺️ Choosing a Game System
 
@@ -156,7 +95,7 @@ LegendForge does not hard-code a single ruleset into the infrastructure. After F
 Recommended operator workflow:
 
 1. Deploy LegendForge infrastructure on your preferred cloud.
-2. Confirm the Foundry instance is healthy and reachable through Cloudflare Tunnel.
+2. Confirm the Foundry instance is healthy and reachable through the selected profile's ingress.
 3. Install your desired Foundry game system.
 4. Restore or create worlds for one or more campaigns.
 5. Add system-specific modules only after validating core platform stability.
@@ -165,165 +104,30 @@ For guidance on common system families, see **[SUPPORTED_SYSTEMS.md](SUPPORTED_S
 
 ## 🎯 Platform Deployment Guides
 
-### AWS Deployment
-
-```bash
-cd infrastructure/deployments/aws
-terraform init
-terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
-terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
-```
-
-**Features:** VPC, EC2, EBS, RDS-ready, CloudWatch monitoring, Systems Manager Session Manager
-
-→ [AWS Deployment Guide](infrastructure/deployments/aws/README.md)
-
-### Azure Deployment
-
-```bash
-cd infrastructure/deployments/azure
-terraform init
-terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
-terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
-```
-
-**Features:** VNet, VMs, Key Vault RBAC, Bastion break-glass, Managed Disks
-
-→ [Azure Deployment Guide](infrastructure/deployments/azure/README.md)
-
-### GCP Deployment
-
-```bash
-cd infrastructure/deployments/gcp
-terraform init
-terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars" -var="project_id=your-project-id"
-terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars" -var="project_id=your-project-id"
-```
-
-**Features:** Compute Engine, VPC, Cloud NAT, OS Login, Secret Manager, Cloud Monitoring
-
-→ [GCP Deployment Guide](infrastructure/deployments/gcp/README.md)
-
-### Hetzner Deployment
-
-```bash
-export HCLOUD_TOKEN="your-hetzner-token"
-cd infrastructure/deployments/hetzner
-terraform init
-terraform plan -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
-terraform apply -var-file="../../../config/foundry.auto.tfvars" -var-file="../../../config/secrets.auto.tfvars"
-```
-
-**Features:** Simple, cost-effective, EU-based, SSD volumes, straightforward management
-
-→ [Hetzner Deployment Guide](infrastructure/deployments/hetzner/README.md)
+Use the profile links in the overview. The [Azure deployment README](infrastructure/deployments/azure/README.md) is the canonical Azure setup and operations guide; older top-level Azure documents are supplementary. Do not combine commands from different deployment directories or reuse their state.
 
 ## 📖 Common Operations
 
 ### View Infrastructure State
 
-```bash
-# AWS
-cd infrastructure/deployments/aws
-terraform state list
-terraform state show aws_instance.foundry
-
-# Azure
-cd infrastructure/deployments/azure
-terraform state list
-terraform state show azurerm_linux_virtual_machine.foundry
-
-# GCP
-cd infrastructure/deployments/gcp
-terraform state list
-terraform state show google_compute_instance.foundry
-```
+In your chosen deployment directory, run `terraform state list` and inspect only the returned resource addresses with `terraform state show`. Standard deployments manage scale sets/groups; their addresses differ from the single-instance low-cost profiles. State details can contain secrets.
 
 ### Access Instances
 
-**AWS** (Systems Manager):
+AWS uses Systems Manager Session Manager. Azure standard uses VM scale set operations (`az vmss`, with a selected instance ID), not standalone `az vm` commands. GCP low cost uses OS Login through IAP. Hetzner SSH requires an explicitly permitted administration CIDR. Each guide lists its access prerequisites.
 
-```bash
-aws ssm start-session --target i-xxxxx --region us-east-1
-```
+### Back Up, Pause, Resize, and Upgrade
 
-**Azure** (Bastion or SSH):
+For AWS/GCP low cost, follow [shared operations](docs/LOW_COST_OPERATIONS.md). Back up the actual Foundry data directory, store an encrypted copy off-host, and rehearse a restore. Managed database backups in standard profiles do not back up Foundry's world files.
 
-```bash
-az vm run-command invoke --resource-group rg-name --name vm-name --command-id RunShellScript --scripts "whoami"
-```
+Low-cost `paused=true` stops compute while retaining the VM identity and disks. Storage and backup charges remain. Wait for initial bootstrap and verify the mount before the first pause. Resize and image changes require a reviewed maintenance plan.
 
-**GCP** (OS Login):
-
-```bash
-gcloud compute ssh instance-name --zone us-central1-a
-```
-
-**Hetzner** (SSH):
-
-```bash
-ssh root@<public-ip>
-```
-
-### Monitor Foundry Container
-
-```bash
-# Connect to instance first, then:
-docker ps
-docker logs -f foundry
-docker exec -it foundry bash
-```
-
-### Create Manual Backup
-
-**AWS:**
-
-```bash
-aws ec2 create-snapshot --volume-id vol-xxxxx --description "LegendForge backup $(date)"
-```
-
-**Azure:**
-
-```bash
-az snapshot create --resource-group rg-name --name snapshot-name --source vault-id
-```
-
-**GCP:**
-
-```bash
-gcloud compute disks snapshot disk-name --snapshot-names=backup-$(date +%Y%m%d%H%M%S)
-```
-
-**Hetzner:**
-
-Use the tested application-data archive procedure in the
-[Hetzner deployment guide](infrastructure/deployments/hetzner/README.md#backup-and-recovery).
-The repository does not provision scheduled Hetzner backups, and a provider-side
-copy does not replace an encrypted off-server archive.
-
-### Pause or Scale Down a Deployment
-
-Inspect the provider-specific Terraform plan and guide before disabling compute.
-The persistence behavior is not uniform across providers.
-
-For Hetzner, `compute_enabled=false` deletes both the server and the
-Terraform-managed data volume. It is not a data-preserving pause. Follow the
-[Hetzner lifecycle guidance](infrastructure/deployments/hetzner/README.md#pause-and-resume)
-and verify an off-server backup before any teardown-like action.
-
-### Destroy Infrastructure
-
-```bash
-terraform destroy   -var-file="../../../config/foundry.auto.tfvars"   -var-file="../../../config/secrets.auto.tfvars"
-```
-
-⚠️ **WARNING:** Destroy can delete data volumes. Verify a tested, independent
-backup before continuing.
+For Hetzner, `compute_enabled=false` deletes the server **and** its managed data volume. It is not a data-preserving pause. Use the [Hetzner lifecycle guide](infrastructure/deployments/hetzner/README.md#pause-and-resume), including its billing and off-server backup requirements. Destruction is a separate, reviewed retirement operation for every profile.
 
 ### Post-Deployment Reachability Smoke Test
 
 After `terraform apply`, verify the public deployment URL with the
-provider-neutral smoke test:
+provider-neutral smoke test **from the repository root**:
 
 ```bash
 # Read only the foundry_url output from the selected deployment directory.
@@ -347,33 +151,11 @@ inspect a Foundry world, or prove that authenticated Foundry workflows succeed.
 
 ## 🔐 Security Best Practices
 
-1. **Secrets Management**
-   - Store `secrets.auto.tfvars` in `.gitignore` (never commit)
-   - Use cloud-native secret managers (Secrets Manager, Key Vault, Secret Manager)
-   - Rotate credentials regularly
+Protect state, saved plans, metadata, logs, and local secrets as well as cloud secret stores. Low-cost bootstrap stores credentials in state and instance user data; its host configuration directory is restricted to root. Do not print container environments or tunnel tokens while troubleshooting.
 
-2. **Access Control**
-   - Disable inbound SSH by default (break-glass only)
-   - Use cloud-native access methods:
-     - AWS: Systems Manager Session Manager
-     - Azure: Bastion Host
-     - GCP: OS Login
-     - Hetzner: Firewall rules
+Review ingress per profile: low-cost AWS has no inbound rules and low-cost GCP permits IAP SSH only; their Foundry port is internal to Docker. Standard profiles include public load balancers and different administration rules. Configure Cloudflare Access separately when required.
 
-3. **Encryption**
-   - All disks encrypted at rest by default
-   - HTTPS required for Foundry access
-   - Cloudflare Tunnel provides TLS termination
-
-4. **Networking**
-   - No public ports exposed to Foundry (Tunnel ingress only)
-   - Cloud NAT / firewalls restrict egress
-   - VPC/VNet isolation
-
-5. **Monitoring**
-   - CloudWatch (AWS), Monitor (Azure), Cloud Monitoring (GCP)
-   - VPC Flow Logs enabled where supported
-   - Instance health checks
+Choose encryption and backup controls for each provider. Do not assume a managed database, scale group, or provider snapshot protects Foundry world files. Monitor disk usage, bootstrap failures, patch status, and restore success. The low-cost roots deliberately omit managed log ingestion and scheduled snapshots.
 
 ## 📊 Terraform Best Practices
 
@@ -391,116 +173,15 @@ This repository follows Terraform best practices:
 
 ## 🐛 Troubleshooting
 
-### Terraform Validation Errors
+Run validation from the selected Terraform root and use [the validation matrix](docs/TERRAFORM_VALIDATION.md) to separate provider/schema failures from credentials, quotas, and runtime failures. Verify identity using `aws sts get-caller-identity`, `az account show`, or your GCP application-default credential setup. Hetzner uses the Terraform input `hcloud_token` (for example, `TF_VAR_hcloud_token` supplied by your secret manager).
 
-```bash
-cd infrastructure/deployments/<platform>
-terraform validate
-```
-
-### Provider Authentication Issues
-
-**AWS:**
-
-```bash
-aws sts get-caller-identity  # Verify credentials
-```
-
-**Azure:**
-
-```bash
-az account show  # Verify subscription
-```
-
-**GCP:**
-
-```bash
-gcloud config list  # Verify project and auth
-```
-
-**Hetzner:**
-
-```bash
-export HCLOUD_TOKEN="your-token"
-# Token is verified on first API call
-```
-
-### Instance Not Starting
-
-Check cloud provider logs:
-
-- AWS: CloudWatch Logs
-- Azure: Diagnostics blade
-- GCP: Cloud Logging / Serial port output
-- Hetzner: SSH and check `/var/log/cloud-init-output.log`
-
-### Foundry Container Won't Start
-
-```bash
-# SSH to instance
-docker logs foundry
-
-# Check free disk space
-df -h
-
-# Check free memory
-free -h
-
-# Restart container
-docker restart foundry
-```
-
-### DNS / Cloudflare Issues
-
-```bash
-# Verify DNS resolution
-dig vtt.yourdomain.com
-
-# Check Cloudflare Tunnel status
-cloudflared tunnel list
-cloudflared tunnel status
-
-# Verify tunnel token in container
-docker exec foundry env | grep TUNNEL
-```
+On a low-cost host, inspect `sudo cloud-init status --long`, `sudo systemctl status legendforge`, `findmnt /srv/foundry-data`, and `sudo docker compose -f /opt/legendforge/compose.json logs --tail=100`. Treat logs as private. For standard profiles use their provider guide and actual container names. Check DNS, the configured Cloudflare route, and tunnel connector health in the Cloudflare dashboard without exposing tokens.
 
 ## 📈 Monitoring & Maintenance
 
-### Regular Backups
+AWS RDS, Azure managed databases, and GCP Cloud SQL have database backup controls. AWS/GCP storage buckets have their own policies. None proves that the active Foundry data disk has been backed up; the active Azure root does not attach VM backup protection through a Recovery Services Vault. Hetzner and both low-cost roots require operator-managed application backups.
 
-Backup automation and recovery ownership vary by provider:
-
-- AWS: RDS automated-backup retention and versioned S3 data buckets; the active
-  deployment does not schedule application-volume snapshots
-- Azure: database backup-retention/geo-redundancy controls and a VM backup
-  policy through the active Recovery Services Vault module
-- GCP: Cloud SQL automated backups and versioned Cloud Storage data/backup
-  buckets; the active deployment does not attach a disk snapshot policy
-- Hetzner: Operator-managed application archive, off-server transfer, checksum
-  verification, and restore drills; see the
-  [Hetzner deployment guide](infrastructure/deployments/hetzner/README.md#backup-and-recovery)
-
-### Disk Usage Monitoring
-
-Monitor persistent volume usage:
-
-```bash
-ssh <instance> "df -h"
-```
-
-Expand volume if needed by updating `data_volume_size_gb`.
-
-### Updates
-
-Update Foundry by changing `foundry_image` in config and re-applying:
-
-```bash
-# Edit config/foundry.auto.tfvars
-foundry_image = "felddy/foundryvtt@sha256:new-digest"
-
-# Apply changes
-terraform apply -var-file="../../../config/foundry.auto.tfvars"                 -var-file="../../../config/secrets.auto.tfvars"
-```
+Measure disk and memory use during sessions. Disk variable names and filesystem expansion steps differ by profile. Cloud-init is initial bootstrap: changing an image or credential variable does not guarantee an in-place application update and may propose replacement. Follow the [low-cost upgrade and restore procedure](docs/LOW_COST_OPERATIONS.md) or the selected provider guide.
 
 ### Multi-System Change Management
 
@@ -628,21 +309,21 @@ A: No. LegendForge is intentionally system-agnostic infrastructure for Foundry d
 A: Yes. Foundry data is stored on persistent volumes. Export data, back up the volume, and import to the new platform.
 
 **Q: What's the expected monthly cost?**
-A: See the overview table above. AWS/Azure are roughly $50-75, GCP is roughly $48-50, and Hetzner is roughly €6-8 depending on configuration.
+A: Use the dated [deployment comparison](docs/DEPLOYMENT_MODEL_COMPARISON.md) and the selected profile's bill of materials. Region, operating hours, retained disks, traffic, backups, and managed services affect the total.
 
 **Q: How do I update Foundry?**
-A: Change the `foundry_image` digest in config and re-apply Terraform.
+A: Take and verify a restorable backup first, then follow the selected profile's maintenance procedure. The AWS/GCP low-cost profiles use the [shared update procedure](docs/LOW_COST_OPERATIONS.md); changing bootstrap variables alone does not update an existing server.
 
 **Q: Can I use this for production?**
 A: Yes, after reviewing the selected provider's availability and recovery model.
-AWS, Azure, and GCP include more managed controls; Hetzner is a single-server
-deployment whose backups, restore drills, monitoring, and maintenance are
-operator responsibilities.
+Standard AWS, Azure, and GCP profiles include more managed controls. The AWS/GCP
+low-cost profiles and Hetzner use a single server whose backups, restore drills,
+monitoring, and maintenance are operator responsibilities.
 
 **Q: How do I access Foundry if Cloudflare is down?**
-A: Cloudflare Tunnel is the primary ingress path. For break-glass operations, enable an administrative access path such as SSH or Bastion according to your provider model.
+A: Profiles using Cloudflare Tunnel need a separate administrative access path. Follow the selected guide for SSM, IAP SSH, or provider-specific SSH/Bastion access; standard load-balancer profiles have a different ingress model.
 
 ---
 
-**Last Updated:** July 23, 2026
+**Last Updated:** September 5, 2026
 **Project Identity:** LegendForge - universal tabletop infrastructure for Foundry VTT

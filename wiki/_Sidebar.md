@@ -4,6 +4,7 @@
 - [Quickstart](Quickstart.md)
 - [Installation](Installation.md)
 - [Provider Guide](Provider-Guide.md)
+- [Low-Cost Profiles](Low-Cost-Profiles.md)
 - [How-To](How-To.md)
 - [Prompts](Prompts.md)
 - [Use Cases](Use-Cases.md)

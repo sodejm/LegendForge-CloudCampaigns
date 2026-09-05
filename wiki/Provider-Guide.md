@@ -1,81 +1,38 @@
 # Provider Guide
 
-Use this page to decide which provider path matches your operational needs.
+Compare the full monthly cost profile, availability and recovery responsibilities
+in the [deployment comparison](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/docs/DEPLOYMENT_MODEL_COMPARISON.md).
+All paths need operator acceptance; mock validation is not a production guarantee.
 
 ## AWS
 
-**Best for:** enterprise patterns, scaling, and deeper AWS integrations
-
-Common capabilities described in the repository:
-
-- VPC networking
-- EC2 and auto-scaling
-- CloudWatch monitoring
-- IAM roles and policies
-- Persistent storage and backups
-
-Start with:
-
-- [AWS deployment README](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws/README.md)
-- [AWS deployment guide](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws/DEPLOYMENT_GUIDE.md)
-- [AWS architecture](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws/ARCHITECTURE.md)
-- [AWS quick reference](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws/QUICK_REFERENCE.md)
+Choose [standard AWS](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws/README.md) for its
+managed network/database topology, or [AWS low cost](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/aws-low-cost/README.md)
+for one campaign server with SSM administration and retained-disk pause.
 
 ## Azure
 
-**Best for:** Azure-native administration, RBAC, and break-glass patterns
-
-Repository guidance includes:
-
-- Azure quick setup
-- Key Vault and managed identity patterns
-- VM scale set operations
-- Monitoring and alerting guidance
-
-Start with:
-
-- [AZURE_QUICKSTART.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/AZURE_QUICKSTART.md)
-- [AZURE_DEPLOYMENT.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/AZURE_DEPLOYMENT.md)
-- [README_AZURE.md](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/README_AZURE.md)
+Use the [canonical Azure guide](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/azure/README.md)
+for the active VM scale set and MySQL deployment. Its reduced standard profile
+still provisions NAT, DDoS Protection and managed services; it is not equivalent
+to the AWS/GCP low-cost roots. Root-level legacy Azure documents describe older
+paths and are secondary references.
 
 ## GCP
 
-**Best for:** managed services, observability, and global load-balancing features
-
-Repository guidance includes:
-
-- Cloud SQL HA
-- Cloud Storage lifecycle policies
-- Secret Manager and KMS
-- Cloud Monitoring and Logging
-
-Start with:
-
-- [GCP deployment README](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/README.md)
-- [GCP deployment guide](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/DEPLOYMENT_GUIDE.md)
-- [GCP architecture](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/ARCHITECTURE.md)
-- [GCP quick reference](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/QUICK_REFERENCE.md)
+Choose [standard GCP](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/README.md) for managed
+Cloud SQL and edge services, or [GCP low cost](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp-low-cost/README.md)
+for a single VM with IAP/OS Login and retained-disk pause.
 
 ## Hetzner
 
-**Best for:** low-cost hosting and simple operations
+The [Hetzner guide](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/hetzner/README.md) covers a
+single server with an attached volume and operator-managed backups. Confirm
+current server availability. Power-off remains billed, and `compute_enabled=false`
+deletes both the server and managed volume.
 
-Repository guidance includes:
+## Next steps
 
-- Single-server deployment
-- Persistent volume storage
-- Cloudflare Tunnel-based ingress
-- Low monthly cost profile
-
-Start with:
-
-- [Hetzner deployment README](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/hetzner/README.md)
-
-## Fast Selection Guide
-
-Choose:
-
-- **AWS** if you want stronger enterprise patterns and broader scale features
-- **Azure** if your operations already live in Azure
-- **GCP** if you want strong managed observability and GCP-native services
-- **Hetzner** if cost is the main driver
+- [Quickstart](Quickstart.md)
+- [Low-Cost Profiles](Low-Cost-Profiles.md)
+- [How-To](How-To.md)

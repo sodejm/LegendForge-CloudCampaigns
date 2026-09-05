@@ -61,7 +61,7 @@ variable "db_engine" {
 variable "db_version" {
   description = "Database setting used by LegendForge's persistent multi-system data services."
   type        = string
-  default     = "8.0"
+  default     = "8.0.21"
 }
 
 variable "db_storage_size" {
@@ -73,7 +73,7 @@ variable "db_storage_size" {
 variable "db_sku_name" {
   description = "Resource name used by LegendForge infrastructure for db sku name."
   type        = string
-  default     = "Standard_B2s"
+  default     = "GP_Standard_D2ds_v4"
 }
 
 variable "backup_retention_days" {

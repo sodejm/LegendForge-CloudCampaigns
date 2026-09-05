@@ -19,8 +19,11 @@ resource "azurerm_mysql_flexible_server" "main" {
   backup_retention_days        = var.backup_retention_days
   geo_redundant_backup_enabled = var.geo_redundant_backup_enabled
   zone                         = "1"
-  high_availability {
-    mode = var.high_availability_enabled ? "ZoneRedundant" : "SameZone"
+  dynamic "high_availability" {
+    for_each = var.high_availability_enabled ? [1] : []
+    content {
+      mode = "ZoneRedundant"
+    }
   }
 
   delegated_subnet_id = var.database_subnet_id
@@ -57,8 +60,11 @@ resource "azurerm_postgresql_flexible_server" "main" {
   geo_redundant_backup_enabled = var.geo_redundant_backup_enabled
   zone                         = "1"
 
-  high_availability {
-    mode = var.high_availability_enabled ? "ZoneRedundant" : "SameZone"
+  dynamic "high_availability" {
+    for_each = var.high_availability_enabled ? [1] : []
+    content {
+      mode = "ZoneRedundant"
+    }
   }
 
   delegated_subnet_id = var.database_subnet_id

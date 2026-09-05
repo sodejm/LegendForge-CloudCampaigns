@@ -12,7 +12,7 @@ if ! command -v tflint >/dev/null 2>&1; then
 fi
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TARGETS="${TERRAFORM_QUALITY_TARGETS:-aws}"
+TARGETS="${TERRAFORM_QUALITY_TARGETS:-aws,azure,gcp,hetzner,aws-low-cost,gcp-low-cost}"
 
 terraform fmt -check -recursive "${ROOT_DIR}"
 
@@ -28,6 +28,9 @@ for target in "${target_list[@]}"; do
   echo "Running Terraform validate + TFLint in ${deployment_dir}"
   terraform -chdir="${deployment_dir}" init -backend=false -input=false -no-color >/dev/null
   terraform -chdir="${deployment_dir}" validate -no-color
+  if compgen -G "${deployment_dir}/tests/*.tftest.hcl" >/dev/null; then
+    terraform -chdir="${deployment_dir}" test -no-color
+  fi
   tflint --chdir="${deployment_dir}" --init
   tflint --chdir="${deployment_dir}"
 done
