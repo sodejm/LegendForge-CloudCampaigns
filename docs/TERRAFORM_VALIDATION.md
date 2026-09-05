@@ -72,6 +72,13 @@ record the reproduction commands, versions and observed failures under
 validation umbrella [#50](https://github.com/sodejm/LegendForge-CloudCampaigns/issues/50).
 The plan tests retain the regression checks.
 
+The first Linux CI run passed all six configurations and 12 mock plans, then
+failed because initialization added missing Linux package checksums to the
+standard GCP and Hetzner lockfiles. [#95](https://github.com/sodejm/LegendForge-CloudCampaigns/issues/95)
+tracks that failure. `terraform providers lock -platform=darwin_arm64
+-platform=linux_amd64` regenerated those checksums from the provider registries,
+preserving every existing checksum, provider version and constraint.
+
 ## Operator acceptance before production
 
 Follow the selected root's README for authentication and its own variable file.
