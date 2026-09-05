@@ -7,14 +7,14 @@ This page collects common operator tasks using the existing repository guidance.
 - Choose **AWS** for broader enterprise patterns and scalability
 - Choose **Azure** for Azure-native RBAC and portal-based operations
 - Choose **GCP** for strong monitoring and managed service integrations
-- Choose **Hetzner** for the lowest-cost, simplest production path
+- Choose **Hetzner** for the single-server hosting with operator-managed recovery
 
 See the [Provider Guide](Provider-Guide.md).
 
 ## How to Deploy a New Instance
 
-1. Prepare `config/foundry.auto.tfvars`
-2. Prepare `config/secrets.auto.tfvars`
+1. Choose a profile from the [Provider Guide](Provider-Guide.md)
+2. Follow its README and prepare its own required variable files from that deployment directory
 3. Run `terraform init`
 4. Run `terraform plan`
 5. Run `terraform apply`
@@ -48,7 +48,7 @@ Use Systems Manager Session Manager.
 
 ### Azure
 
-Use Bastion, SSH, or `az vm run-command invoke`.
+Use the configured administrator path or `az vmss run-command invoke` for the active scale set.
 
 ### GCP
 
@@ -70,6 +70,9 @@ terraform output
 Use provider-specific resource names when inspecting details with `terraform state show`.
 
 ## How to Spin Down and Bring Back Compute
+
+For AWS/GCP low cost, follow [Low-Cost Profiles](Low-Cost-Profiles.md) to use
+`paused=true` after first boot and backup; restore `false` to resume.
 
 Persistence behavior differs by provider. Review the generated Terraform plan
 and the provider-specific deployment guide before disabling compute.

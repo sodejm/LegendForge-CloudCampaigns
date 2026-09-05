@@ -23,6 +23,7 @@ python scripts/sync_wiki_docs.py \
 | `wiki/Quickstart.md` | `Quickstart.md` |
 | `wiki/Installation.md` | `Installation.md` |
 | `wiki/Provider-Guide.md` | `Provider-Guide.md` |
+| `wiki/Low-Cost-Profiles.md` | `Low-Cost-Profiles.md` |
 | `wiki/How-To.md` | `How-To.md` |
 | `wiki/Prompts.md` | `Prompts.md` |
 | `wiki/Use-Cases.md` | `Use-Cases.md` |

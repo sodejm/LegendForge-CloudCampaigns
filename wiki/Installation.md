@@ -1,99 +1,34 @@
 # Installation
 
-This page summarizes the setup inputs and prerequisites needed before your first LegendForge deployment.
+Install Terraform 1.7 or newer and the CLI for the selected cloud (`aws`, `az`,
+or `gcloud`). Hetzner requires an API token. Prepare a Foundry license and
+administrator key; download credentials or a release URL depend on the profile.
 
-## Local Tooling
+## Configuration and credentials
 
-Install:
+Use the selected directory's canonical README and examples. Standard AWS,
+Azure, GCP and the two low-cost roots have different variable schemas. Only
+Hetzner consumes the shared `config/` examples. Supply its provider token with
+`TF_VAR_hcloud_token`; do not assume a different environment variable overrides
+the explicitly configured Terraform token.
 
-- Terraform
-- Your provider CLI:
-  - `aws`
-  - `az`
-  - `gcloud`
-- A text editor for `*.tfvars`
+AWS requires a configured identity, Azure a selected subscription and public SSH
+key, and GCP a billing-enabled project, enabled APIs and application-default
+credentials or an approved service identity. Each guide states the exact flow.
+Never commit populated tfvars, plans, state, tunnel tokens or license credentials.
+Use an encrypted, access-controlled remote state backend for an operated service.
 
-For Hetzner, Terraform and an API token are sufficient for the basic flow.
+## Ingress
 
-## Foundry Requirements
+Hetzner and AWS/GCP low cost require an existing Cloudflare Tunnel token and
+published route, with optional Access policy configured separately. For the
+low-cost roots, route to `http://foundry:30000`. They do not create Cloudflare
+DNS or Access policies. Standard AWS/Azure/GCP use their own networking and
+load-balancer configuration; review each guide's TLS limitations.
 
-You need:
+## Validate first
 
-- A valid Foundry VTT license key
-- A Foundry account username/password, or a timed release URL
-- A strong admin key for `/setup`
-- A target game system or world plan for post-deployment setup
-
-## Cloudflare Requirements
-
-LegendForge assumes a Cloudflare-managed domain and tunnel-based ingress.
-
-Prepare:
-
-- Cloudflare account ID
-- Scoped Cloudflare API token
-- DNS zone
-- Tunnel token
-- Optional Cloudflare Access allow-list emails
-
-## Configuration Files
-
-### `config/foundry.auto.tfvars`
-
-This file contains non-secret deployment settings such as:
-
-- hostname
-- Cloudflare zone
-- access gate emails
-- compute enable/disable control
-- optional break-glass SSH settings
-- data volume size
-
-### `config/secrets.auto.tfvars`
-
-This file contains sensitive values such as:
-
-- Cloudflare credentials
-- Foundry download credentials
-- Foundry license key
-- Foundry admin key
-
-Do not commit this file.
-
-## Provider-Specific Notes
-
-### AWS
-
-- AWS account and CLI credentials
-- Route53 if you are using AWS DNS workflows
-- Optional remote Terraform backend in S3 with DynamoDB locking
-
-### Azure
-
-- Azure subscription
-- Azure CLI login
-- SSH key for VM access if required
-
-### GCP
-
-- Billing-enabled GCP project
-- Required APIs enabled
-- Service account credentials for Terraform
-
-### Hetzner
-
-- `HCLOUD_TOKEN`
-- Simple single-provider deployment path
-
-## Security Defaults
-
-- Prefer Cloudflare Tunnel over public exposure
-- Keep SSH disabled unless you need break-glass access
-- Scope Cloudflare API tokens narrowly
-- Treat all secrets as private and rotate them if exposed
-
-## Related Pages
-
-- [Quickstart](Quickstart.md)
-- [Architecture and Security](Architecture-and-Security.md)
-- [Provider Guide](Provider-Guide.md)
+Read the [validation record](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/docs/TERRAFORM_VALIDATION.md), then follow
+[Quickstart](Quickstart.md) and the [Provider Guide](Provider-Guide.md).
+For low-cost backup, stop, restore and resize procedures see
+[Low-Cost Profiles](Low-Cost-Profiles.md).

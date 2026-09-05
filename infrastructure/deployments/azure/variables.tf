@@ -52,13 +52,13 @@ variable "database_engine" {
 variable "database_version" {
   description = "Database setting used by LegendForge's persistent multi-system data services."
   type        = string
-  default     = "8.0"
+  default     = "8.0.21"
 }
 
 variable "database_sku_name" {
   description = "Resource name used by LegendForge infrastructure for database sku name."
   type        = string
-  default     = "Standard_B2s"
+  default     = "GP_Standard_D2ds_v4"
 }
 
 variable "database_storage_size" {

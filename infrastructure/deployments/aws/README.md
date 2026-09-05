@@ -1,6 +1,6 @@
 # Production AWS Infrastructure for Foundry VTT
 
-This directory contains production-ready Terraform infrastructure for deploying Foundry VTT on AWS with high availability, security, and comprehensive monitoring.
+This directory contains the standard AWS Terraform deployment. See [validation scope](../../../docs/TERRAFORM_VALIDATION.md) before production use and [AWS low cost](../aws-low-cost/README.md) for a single-server campaign profile.
 
 ## Architecture Overview
 
@@ -46,7 +46,7 @@ This directory contains production-ready Terraform infrastructure for deploying 
 ### Prerequisites
 
 1. **AWS Account** with appropriate permissions
-2. **Terraform** >= 1.0 installed
+2. **Terraform** >= 1.7 installed
 3. **AWS CLI** configured with credentials
 4. **Route53 Zone** for your domain
 5. **Foundry VTT** license key
@@ -59,7 +59,7 @@ This directory contains production-ready Terraform infrastructure for deploying 
 ```bash
 # Copy template files
 cp terraform.tfvars.example terraform.tfvars
-cp ../aws/secrets.tfvars.example ../aws/secrets.tfvars
+cp secrets.tfvars.example secrets.tfvars
 
 # Edit configuration
 vim terraform.tfvars
@@ -308,25 +308,10 @@ Configure in cloud-init to forward logs to CloudWatch:
 
 ## Cost Estimation
 
-**Monthly Cost Breakdown** (t3.medium, 2 instances):
-
-| Component | Monthly Cost | Notes |
-|-----------|--------------|-------|
-| **EC2** | $30 × 2 = $60 | On-demand, 2 instances |
-| **RDS** | $40 | db.t3.medium + storage |
-| **ALB** | $18 | Load balancer + hours |
-| **CloudFront** | $0 | Assets only, minimal traffic |
-| **S3** | $2 | 100GB storage + lifecycle |
-| **Data Transfer** | $5-20 | Outbound only |
-| **VPC/NAT/Route53** | $10 | VPC, NAT, DNS |
-| **CloudWatch** | $2 | Logs + dashboards |
-| **Total** | ~$145-175 | Estimates only |
-
-**Cost Optimization**:
-- Use Reserved Instances for 30-40% savings
-- Use Savings Plans for 20-30% savings
-- Archive old backups to S3 Glacier
-- Set up Budget Alerts in AWS Billing
+Price the complete [configuration-derived BOM](../../../docs/DEPLOYMENT_MODEL_COMPARISON.md),
+including Multi-AZ RDS, NAT, ALB, CloudFront, disks, backup retention and egress.
+The default two-instance managed-service profile cannot be compared to a single
+VM's compute price. For scheduled use, consider [AWS low cost](../aws-low-cost/README.md).
 
 ## Troubleshooting
 

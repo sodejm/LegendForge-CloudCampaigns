@@ -11,9 +11,9 @@ foundry_version      = "11.315"
 foundry_license_key  = "YOUR_LICENSE_KEY_HERE"  # Get from https://foundryvtt.com/me/account
 
 # Database Configuration
-database_engine             = "mysql"  # or "postgres"
-database_version            = "8.0"
-database_sku_name          = "Standard_B2s"  # For production: Standard_D2s_v3 or higher
+database_engine             = "mysql"  # validated default; PostgreSQL also requires engine-specific version, SKU and subnet delegation
+database_version            = "8.0.21"
+database_sku_name          = "GP_Standard_D2ds_v4"  # General Purpose supports high availability
 database_storage_size       = 100  # GB
 database_admin_username    = "azureadmin"
 database_password          = "ChangeMe!Secure123"  # Use a strong password

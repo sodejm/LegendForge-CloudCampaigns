@@ -1,0 +1,14 @@
+gcp_project_id = "REPLACE_WITH_PROJECT_ID"
+# Copy to terraform.tfvars (ignored by Git); replace every placeholder.
+# Use reviewed numeric image versions or sha256 digests, not floating/latest tags.
+paused = false
+app = {
+  hostname       = "foundry.example.com"
+  foundry_image  = "ghcr.io/felddy/foundryvtt:14.367.0"
+  tunnel_image   = "cloudflare/cloudflared:REPLACE_WITH_REVIEWED_VERSION"
+  tunnel_token   = "REPLACE_WITH_TUNNEL_TOKEN"
+  license_key    = "REPLACE_WITH_FOUNDRY_LICENSE"
+  admin_password = "REPLACE_WITH_ADMIN_PASSWORD"
+  username       = "REPLACE_WITH_FOUNDRY_USERNAME"
+  password       = "REPLACE_WITH_FOUNDRY_PASSWORD"
+}

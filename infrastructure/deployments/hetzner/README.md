@@ -21,7 +21,7 @@ Players -> Cloudflare DNS / Tunnel -> cloudflared container -> foundry container
 
 ## Prerequisites
 
-- Terraform 1.0 or later and a Hetzner Cloud account/API token.
+- Terraform 1.7 or later and a Hetzner Cloud account/API token.
 - A Cloudflare-managed zone, plus a pre-created Cloudflare Tunnel and hostname route. Obtain its token from Cloudflare; this repository only passes it to `cloudflared`.
 - Foundry image and licence configuration, along with an ignored secrets file.
 - For backup or restore: an encrypted off-server storage location and a tested administrative access method. The Hetzner console is a manual prerequisite for provider snapshots/backups and recovery operations.
@@ -65,7 +65,7 @@ SSH works only when a reachable SSH credential and a narrowly scoped `admin_ssh_
 
 ## Sizing and cost
 
-The Terraform defaults are `cx21`, `fsn1-dc14`, and a 20 GB volume. Treat them as a starting point for a small group, not a capacity commitment: monitor memory, CPU, and `/opt/foundry/data` during sessions, then choose a supported Hetzner server type and increase `data_volume_size_gb` when measured demand requires it.
+The compatibility defaults are `cx21`, `datacenter = "fsn1-dc14"`, and a 20 GB volume. The retired datacenter argument now maps to `location = "fsn1"`. For new resources, review `location = "fsn1"` and `server_type = "cx23"` against current availability. The `server_summary` output now reports `location` instead of `datacenter`; update consumers of that field. Existing deployments must review any replacement caused by corrected raw cloud-init user data before applying. Treat them as a starting point for a small group, not a capacity commitment: monitor memory, CPU, and `/opt/foundry/data` during sessions, then choose a supported Hetzner server type and increase `data_volume_size_gb` when measured demand requires it.
 
 As of 2026-07-20, repository planning material budgets this deployment at roughly **€6–8/month** for a small server and 20 GB volume, before optional services, taxes, backups, or transfer-related charges. This is an estimate, not a guarantee; confirm the current region, server type, volume, traffic, and backup pricing in the [Hetzner Cloud pricing page](https://www.hetzner.com/cloud/) before applying.
 
@@ -255,7 +255,7 @@ for selection decisions; the issue-critical differences are summarized here:
 | --- | --- | --- | --- | --- |
 | **Availability** | One server and one volume, with no failover or autoscaling | Two-instance application baseline behind an ALB and Multi-AZ RDS | Two-instance VM scale set behind a load balancer with database HA enabled | Two-instance managed group behind a load balancer; Cloud SQL is managed, while multi-region is disabled by default |
 | **Database** | No managed database; application state remains operator-managed on the attached volume | Managed PostgreSQL RDS with Multi-AZ enabled by default | Managed MySQL flexible server with HA enabled by default | Managed PostgreSQL Cloud SQL; public IP is disabled by default |
-| **Backup** | No scheduled backup resource; operators must test off-server archives, and Hetzner Server backups exclude the attached Volume | RDS automated retention and versioned S3 are configured, but no scheduled application-volume snapshot is active | Database backup controls, geo-redundant backup, and Recovery Services VM backup are configured | Cloud SQL automated backups and versioned buckets are configured, but no attached-disk snapshot policy is active |
+| **Backup** | No scheduled backup resource; operators must test off-server archives, and Hetzner Server backups exclude the attached Volume | RDS automated retention and versioned S3 are configured, but no scheduled application-volume snapshot is active | Database backups and geo redundancy are configured; no active Recovery Services VM/disk backup | Cloud SQL automated backups and versioned buckets are configured, but no attached-disk snapshot policy is active |
 | **Monitoring** | Console, host, Docker, Foundry, and Cloudflare checks are operator-run; no Terraform-managed alerts or retention | CloudWatch dashboards, logs, and alarms are part of the deployment | Azure Monitor, Log Analytics, Application Insights, and alerts are integrated | Google monitoring, logging, dashboards, and alerts are integrated |
 
 ## Operational limits and trade-offs

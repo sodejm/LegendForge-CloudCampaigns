@@ -59,6 +59,7 @@ module "foundry_hetzner" {
   # Compute
   server_type = var.server_type
   datacenter  = var.datacenter
+  location    = var.location
 
   # Storage
   data_volume_size_gb = var.data_volume_size_gb

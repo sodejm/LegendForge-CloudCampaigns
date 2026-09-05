@@ -42,8 +42,14 @@ variable "server_type" {
   default     = "cx21"
 }
 
+variable "location" {
+  description = "Hetzner location, for example fsn1, nbg1, or hel1. Overrides the legacy datacenter input."
+  type        = string
+  default     = null
+}
+
 variable "datacenter" {
-  description = "Hetzner datacenter that hosts LegendForge application resources."
+  description = "Legacy datacenter input; its location prefix is used when location is unset. Datacenter placement is no longer supported by Hetzner."
   type        = string
   default     = "fsn1-dc14"
 }

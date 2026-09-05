@@ -102,7 +102,7 @@ class GcpStorageBillOfMaterialsTests(unittest.TestCase):
         required_language = (
             "at least 2 × 500 GB",
             "1 TB",
-            "one 500 GB \\`pd-ssd\\` data disk",
+            "one 500 GB `pd-ssd` data disk",
             "Every additional active group member adds another 500 GB",
             "2.5 TB steady-state at five",
             "one possible 500 GB rolling-update surge disk",

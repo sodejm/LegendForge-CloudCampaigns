@@ -170,7 +170,7 @@ class RecoveryDocumentationTests(unittest.TestCase):
             recovery_row,
         )
         self.assertIn(
-            "a daily cron archives \\`/opt/foundry/data\\` to the backups "
+            "a daily cron archives `/opt/foundry/data` to the backups "
             "bucket",
             recovery_row,
         )

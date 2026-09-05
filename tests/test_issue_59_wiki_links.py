@@ -17,6 +17,7 @@ WIKI_PAGE_FILES = (
     "Quickstart.md",
     "Installation.md",
     "Provider-Guide.md",
+    "Low-Cost-Profiles.md",
     "How-To.md",
     "Prompts.md",
     "Use-Cases.md",

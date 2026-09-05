@@ -34,7 +34,7 @@ You need an Azure subscription in which you can create the resources above,
 Azure CLI (`az`), Terraform, and a Foundry VTT license key. Azure authentication
 also supplies the tenant and principal IDs used by the Key Vault module.
 
-From this directory, authenticate and select the intended subscription:
+From the repository root, authenticate and select the intended subscription:
 
 ```sh
 az login
@@ -56,6 +56,10 @@ cat "$HOME/.ssh/legendforge_azure.pub"
 Foundry license, database password, storage key, and Key Vault secrets. Do not
 commit, paste into issue comments, or upload either without an approved secure
 storage process.
+
+Only the MySQL path is mock-plan validated. The PostgreSQL option requires a
+matching delegated subnet configuration; the active networking defaults delegate
+to MySQL. See [validation evidence](../../../docs/TERRAFORM_VALIDATION.md).
 
 ## Configure an environment
 
@@ -83,12 +87,12 @@ in `terraform.tfvars.example`.
 ### Standard profile
 
 The example template is the standard profile: `Standard_D4s_v5`, two initial
-instances, minimum two, maximum ten, `Standard_B2s` database, 100 GB database
+instances, minimum two, maximum ten, `GP_Standard_D2ds_v4` database, 100 GB database
 storage, monitoring and CDN enabled, 35-day backup retention, geo-redundant
 backups, and database high availability. This profile still requires a reviewed
 plan; it is not a cost quote or a production approval.
 
-### Low-cost profile
+### Reduced standard profile
 
 For a non-production, interruption-tolerant environment, change only existing
 root variables to a profile such as:
@@ -99,8 +103,8 @@ vm_size                      = "Standard_B2s"
 scale_set_capacity           = 1
 scale_set_min_capacity       = 1
 scale_set_max_capacity       = 1
-database_sku_name            = "Standard_B1ms"
-database_storage_size        = 20
+database_sku_name            = "B_Standard_B1ms"
+database_storage_size        = 32
 backup_retention_days        = 7
 geo_redundant_backup_enabled = false
 high_availability_enabled    = false

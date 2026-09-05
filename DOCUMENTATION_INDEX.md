@@ -40,9 +40,11 @@ This index is the navigation hub for LegendForge documentation. It highlights th
   - Best for understanding who makes LegendForge possible
 
 ### Platform-Specific Documentation
-- **[README_AZURE.md](README_AZURE.md)** - Azure-specific setup and configuration
-  - Contains Azure deployment guidance
-  - Complements the LegendForge core docs with provider-specific details
+- **[Azure deployment guide](infrastructure/deployments/azure/README.md)** - Canonical active VMSS/MySQL configuration; [legacy Azure overview](README_AZURE.md) is a secondary reference
+- **[AWS standard](infrastructure/deployments/aws/README.md)** and **[AWS low cost](infrastructure/deployments/aws-low-cost/README.md)**
+- **[GCP standard](infrastructure/deployments/gcp/README.md)** and **[GCP low cost](infrastructure/deployments/gcp-low-cost/README.md)**
+- **[Low-cost operations](docs/LOW_COST_OPERATIONS.md)** - Backup, restore, pause, resize and retirement
+- **[Terraform validation](docs/TERRAFORM_VALIDATION.md)** - Reproducible commands, provider versions and validation limits
 
 - **[Deployment model comparison](docs/DEPLOYMENT_MODEL_COMPARISON.md)** - Terraform-grounded provider profiles, cost drivers, and operational trade-offs
 - **[Hetzner deployment guide](infrastructure/deployments/hetzner/README.md)** - Single-server topology, security, tested off-server archive workflow, recovery, and destructive lifecycle limits
@@ -54,6 +56,7 @@ This index is the navigation hub for LegendForge documentation. It highlights th
 - **[wiki/Home.md](wiki/Home.md)** - Wiki landing page and overview
 - **[wiki/Quickstart.md](wiki/Quickstart.md)** - Shortest path to a first deployment
 - **[wiki/Installation.md](wiki/Installation.md)** - Setup prerequisites and configuration inputs
+- **[wiki/Low-Cost-Profiles.md](wiki/Low-Cost-Profiles.md)** - Single-server cost and operating guide
 - **[wiki/Provider-Guide.md](wiki/Provider-Guide.md)** - Provider selection and platform-specific doc links
 - **[wiki/How-To.md](wiki/How-To.md)** - Common operator tasks and workflows
 - **[wiki/Prompts.md](wiki/Prompts.md)** - Planning and operational checklist prompts
@@ -130,6 +133,10 @@ published wiki.
 - `infrastructure/deployments/gcp/README.md`
 - `infrastructure/deployments/hetzner/README.md`
 - `docs/DEPLOYMENT_MODEL_COMPARISON.md`
+- `docs/LOW_COST_OPERATIONS.md`
+- `docs/TERRAFORM_VALIDATION.md`
+- `infrastructure/deployments/aws-low-cost/README.md`
+- `infrastructure/deployments/gcp-low-cost/README.md`
 - `README_AZURE.md`
 
 ### GitHub Wiki Pages
@@ -137,6 +144,7 @@ published wiki.
 - `wiki/Quickstart.md`
 - `wiki/Installation.md`
 - `wiki/Provider-Guide.md`
+- `wiki/Low-Cost-Profiles.md`
 - `wiki/How-To.md`
 - `wiki/Prompts.md`
 - `wiki/Use-Cases.md`
@@ -150,7 +158,7 @@ published wiki.
 The deployment entry points under `infrastructure/deployments/*/main.tf` should continue to reflect upstream dependencies and provider assumptions where appropriate.
 
 ### Shared App Layer
-The `modules/foundry-app/` area is the clearest expression of the project's system-agnostic design. When this layer changes, update the core docs first.
+The `infrastructure/modules/foundry-app/` and `infrastructure/modules/foundry-single-server/` area is the clearest expression of the project's system-agnostic design. When this layer changes, update the core docs first.
 
 ---
 
@@ -210,6 +218,6 @@ Please open an issue or submit a pull request.
 
 ---
 
-**Last Updated:** July 23, 2026
+**Last Updated:** September 5, 2026
 
 **LegendForge Positioning:** Universal tabletop infrastructure for Foundry-compatible systems

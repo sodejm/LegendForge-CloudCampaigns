@@ -13,6 +13,10 @@ terraform {
   }
 }
 
+locals {
+  location = coalesce(var.location, replace(var.datacenter, "/-dc[0-9]+$/", ""))
+}
+
 # Data source: Latest Ubuntu 22.04 LTS image
 data "hcloud_image" "ubuntu" {
   name = "ubuntu-22.04"
@@ -73,7 +77,7 @@ resource "hcloud_server" "foundry" {
   name        = "${var.project_name}-${var.environment}-server"
   image       = data.hcloud_image.ubuntu.id
   server_type = var.server_type
-  datacenter  = var.datacenter
+  location    = local.location
   public_net {
     ipv4_enabled = true
     ipv6_enabled = true
@@ -84,7 +88,7 @@ resource "hcloud_server" "foundry" {
     env     = var.environment
   }
 
-  user_data = module.foundry_app.user_data
+  user_data = module.foundry_app.user_data_raw
 
   depends_on = [hcloud_network_subnet.foundry]
 }
@@ -94,7 +98,7 @@ resource "hcloud_volume" "foundry_data" {
   count     = var.compute_enabled ? 1 : 0
   name      = "${var.project_name}-${var.environment}-data-volume"
   size      = var.data_volume_size_gb
-  location  = var.datacenter
+  location  = local.location
   automount = false
   format    = "ext4"
 
