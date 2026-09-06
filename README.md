@@ -327,3 +327,9 @@ A: Profiles using Cloudflare Tunnel need a separate administrative access path. 
 
 **Last Updated:** September 5, 2026
 **Project Identity:** LegendForge - universal tabletop infrastructure for Foundry VTT
+
+## Milestone development workflow
+
+Use the [reusable goal prompt](prompts/next-milestone.md) to run a bounded
+milestone with an orchestrating agent. The [usage guide](prompts/README.md) covers
+the shared skill, task-specific model routing, decision summaries, and safe storage.
