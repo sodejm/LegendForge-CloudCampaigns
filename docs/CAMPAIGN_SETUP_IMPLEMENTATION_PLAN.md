@@ -101,7 +101,8 @@ A normalized catalog record contains:
 - publisher and title;
 - `system`, `module`, or other package kind;
 - zero or more verified Foundry package IDs;
-- lifecycle: `released`, `optional_enhancement`, or `preorder`;
+- `release_state`: `released` or `preorder`;
+- `is_enhancement`: boolean classification independent of release state;
 - release/manifest metadata when supplied by an authoritative package source;
 - observation time and cache expiry; and
 - source evidence identifiers that contain no credentials or customer data.
@@ -109,15 +110,25 @@ A normalized catalog record contains:
 Unknown fields are tolerated only at the transport boundary. Required fields,
 types, enumerations, and pagination links are validated before normalization.
 A schema failure returns a typed adapter error and does not silently omit a
-listing. Preorders may be displayed but never selected for installation.
+listing. Missing or unrecognized release states fail validation. Recipes define
+whether a package is required or optional independently of its release state and
+enhancement classification. Preorders may be displayed but never selected for
+installation, including optional enhancements that are also preorders.
 
 ### Entitlement results
 
 The stable result contract is:
 
 ```text
+schema_version: entitlement result schema version
 status: owned | not_owned | unknown | not_required
 subject: content package or Foundry license identifier
+provider: ownership authority identifier
+verifier: verifier identifier and implementation version
+policy_version: reviewed verification and freshness policy version
+principal_ref: opaque nonsecret reference to the verified consumer account
+credential_ref: opaque reference to the credential used for the check
+credential_generation: credential revision, advanced on replacement
 evidence_source: verifier-defined nonsecret source label
 checked_at: UTC timestamp
 valid_until: UTC timestamp or null
@@ -130,6 +141,23 @@ result. `unknown` covers unavailable APIs, stale evidence, malformed responses,
 authentication failure, rate limiting after bounded retries, and paths for
 which no authorized consumer check exists. `not_required` is valid only for a
 recipe item explicitly marked as not requiring ownership.
+
+Evidence and its cache key are scoped to the schema, subject, provider, verifier,
+policy version, principal reference, credential reference, and credential
+generation. References must not expose account IDs, emails, credentials, or
+hashes of secret values. The verifier must establish the consumer principal;
+an unresolved principal cannot authorize `owned`. Identity fields may be null
+for an unauthenticated `unknown` result, but that result cannot authorize
+installation. `not_required` may omit principal and credential identity only
+for the explicit recipe path that requires no ownership check.
+
+Account switching, credential replacement, and credential deletion invalidate
+associated evidence, including evidence loaded from a resumed journal.
+Replacement advances the credential generation even when its opaque reference
+is retained. Review, apply, and resume compare the evidence identity against the
+current credential-store identity and generation before accepting a cached
+result. A changed identity requires a new check; evidence for one account cannot
+authorize another account's installation.
 
 Protected content proceeds only with a fresh `owned` result. `unknown` and
 expired results fail closed. Review and apply both reevaluate freshness; a
@@ -148,10 +176,25 @@ digest, stage outcomes, timestamps, success evidence, retry classification, and
 recovery checkpoints. It rejects credential material and secret wrapper values
 during serialization.
 
-Approval binds to a canonical serialization of the complete nonsecret
-`DeploymentPlan`. Changing selected content, versions, profile, region,
-hostname, storage, resource actions, cost facts, credential references, or
-preflight outcomes changes the digest and clears approval.
+Approval binds to a versioned, canonically serialized projection of the
+nonsecret `DeploymentPlan`. The projection includes selected content and recipe
+versions, pinned releases, profile, region, hostname, storage, resource actions,
+cost amounts and assumptions, credential references and generations, unresolved
+requirements, and material preflight outcomes. Entitlement outcomes include
+status, subject, provider, verifier/schema/policy versions, principal and
+credential identity, evidence source, and reason code. Changes to any of these
+fields change the digest and clear approval. New material plan fields require
+an explicit projection/schema update rather than being silently excluded.
+
+Observation and freshness metadata, including `checked_at`, `valid_until`, cache
+expiry, and check execution timestamps, remain in the full plan and journal but
+are excluded from the approval projection. Refreshing those values alone keeps
+the approved digest only when the material outcomes and identities are
+unchanged. Digest equality never substitutes for a successful preflight check:
+apply and resume still validate current identity, enforce freshness policies,
+and perform required online rechecks before proceeding. Expired, failed,
+unknown, or missing required evidence blocks execution even with a matching
+digest. Material changes require renewed review and acknowledgement.
 
 ## Milestone gates
 
@@ -171,9 +214,10 @@ preflight outcomes changes the digest and clears approval.
 4. Maintain reviewed mapping data separately from transport fixtures. Initial
    recipes cover Cosmere and D&D system-only paths plus only premium items whose
    package IDs and supported install paths are verified.
-5. Test publisher add-ons that a system-only query would miss, preorder
-   classification, duplicate listings, stale cache behavior, pagination, rate
-   limiting, and additive/breaking schema changes.
+5. Test publisher add-ons that a system-only query would miss, independent
+   release/enhancement/recipe-optionality classifications, rejection of optional
+   preorders and missing/unknown release states, duplicate listings, stale cache
+   behavior, pagination, rate limiting, and additive/breaking schema changes.
 
 Acceptance evidence: deterministic fixture-backed contract tests, fixture
 provenance/sanitization notes, and a mapping review identifying every unresolved
@@ -190,6 +234,9 @@ package ID. A storefront description alone is not compatibility evidence.
    test entitlement outside recorded fixtures and logs.
 4. Test all four statuses, expired evidence, authentication failure, throttling,
    malformed responses, content/license separation, and apply-time rechecks.
+   Verify that cross-account cache reuse, credential replacement under the same
+   reference, deletion, and resume with a changed principal or generation cannot
+   reuse affirmative evidence. An unresolved principal must never yield `owned`.
 5. Mark paths without an authorized ownership check `unknown` and list the
    precise upstream capability or permission needed to unblock them.
 
@@ -203,8 +250,12 @@ Start only after package IDs and compatibility sources are verified. Pin
 Foundry core/image, system, module, and content versions. Prove system-only world
 creation before premium import. Every step must document whether it uses a
 supported Foundry/package interface, its idempotency key, observable success,
-retry class, and recovery action. Premium tests use separately authorized test
-entitlements and never commit exported content.
+retry class, and recovery action. Premium tests additionally depend on increment
+C (#108) producing fresh affirmative consumer ownership evidence bound to the
+same principal and credential generation used for installation. They use
+separately authorized test entitlements and never commit exported content.
+An entitlement blocker is not a qualified premium path; system-only proof can
+proceed while that premium path remains blocked.
 
 #### #110 Runtime secret-delivery proof
 
@@ -295,7 +346,8 @@ HTTPS health response is intermediate evidence, not playable-world completion.
 | --- | --- | --- |
 | Browser | macOS/Linux discovery fixtures; valid round trips; invalid origin/host/schema; stale, duplicate, expiry, cancellation; security headers. | Supported installed browsers render the wizard and a qualified Foundry client. |
 | Credentials | Fake approved/denied backends; paste/reveal UI; reference lifecycle; locked store; no readback; serialization/log redaction. | Keychain, Secret Service, and KWallet qualification on their native OS/session. |
-| Catalog/preflight | Schema mutations, pagination cycles, stale cache, preorders, add-ons, incompatible releases, missing/unknown ownership. | Endpoint permission and sanitized-fixture review. |
+| Catalog/preflight | Schema mutations, pagination cycles, stale cache, optional preorders, add-ons, incompatible releases, missing/unknown ownership, identity-scoped entitlement cache and resume. | Endpoint permission and sanitized-fixture review. |
+| Approval | Timestamp-only successful refresh preserves the digest; material outcome/identity changes clear approval; expired or failed required rechecks block apply/resume despite a matching digest. | Review of the versioned material-field projection and freshness policies. |
 | Infrastructure | Offline Terraform tests for six profiles; synthetic leakage scan; replacement and writer-invariant state-machine tests. | Authorized provider plans and sandbox deployments; DNS/HTTPS reconciliation. |
 | Recovery | Fault injection after every stage; restart/resume; stable resource/world/import idempotency keys. | Authorized server replacement and retained-storage recovery. |
 | Playability | Recipe/schema and mocked launch-verification tests. | Cosmere and D&D system-only worlds, then each qualified premium recipe, GM login, and asset loading. |
@@ -319,7 +371,7 @@ change, but all six targets run before a release qualification claim.
 | A. Contracts and test harness | None | Typed protocols/models, fake adapters, journal/secret serialization guards, and unit tests. |
 | B. Catalog proof (#107) | A | Sanitized fixtures, adapter and mapping tests, reviewed unresolved IDs. |
 | C. Entitlement proof (#108) | A, verified content inventory | Contract tests plus authorized evidence or precise blocker for each premium path. |
-| D. Installation proof (#109) | B, compatibility manifests | Reproducible system-only setup and qualified premium paths without committed content. |
+| D. Installation proof (#109) | B, C (affirmative evidence for premium paths), compatibility manifests | Reproducible system-only setup and qualified premium paths without committed content; a C blocker cannot satisfy premium qualification. |
 | E. Secret proof (#110) | A | Six-profile design evidence, synthetic leakage checks, restart/replacement proof, Hetzner decision. |
 | F. Wizard (#111–#114) | A, C | Secure callback and approved credential lifecycle. |
 | G. Plan/review (#115–#118) | B, C, F | Pinned recipe resolution and digest-bound approval. |
