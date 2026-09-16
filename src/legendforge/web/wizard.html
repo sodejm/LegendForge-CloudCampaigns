@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LegendForge campaign setup</title><link rel="stylesheet" href="/wizard.css"><script src="/wizard.js" defer></script></head>
+<body><main><h1>Campaign setup</h1><p>Choose a game and save credentials locally. Deployment remains blocked until ownership, compatibility, installation and provider checks are proven.</p>
+<p id="status" role="status" aria-live="polite">Paste the pairing code displayed by your launcher.</p>
+<form id="pair"><label>Launcher pairing code <input id="pairing" type="password" required autocomplete="off"></label><button>Connect</button></form>
+<section id="setup" hidden>
+<form id="selection"><label>Campaign identifier <input name="campaign" required pattern="[a-z0-9][a-z0-9-]{0,62}" value="my-campaign"></label>
+<label>Game system <select name="system" id="system"><option value="cosmere-rpg">Cosmere RPG</option><option value="dnd5e">Dungeons &amp; Dragons 5e</option></select></label>
+<button type="button" id="load-catalog">Find game content</button><p>Content is optional for a system-only world. Listings are requests, subject to ownership, release and compatibility verification before installation.</p><fieldset><legend>Requested content</legend><div id="catalog"></div></fieldset>
+<label>Deployment profile <select name="profile"><option value="aws">AWS standard</option><option value="aws-low-cost">AWS low cost</option><option value="gcp">GCP standard</option><option value="gcp-low-cost">GCP low cost</option><option value="azure">Azure standard</option><option value="hetzner">Hetzner</option></select></label><button>Confirm selection</button></form>
+<p id="chosen"></p>
+<form id="credential"><h2>Secure credentials</h2><p>Use an account alias, not your password or email, for the reference. Values are saved in your operating system credential store. Saving a code does not verify ownership.</p>
+<label>Account alias <input name="account" required pattern="[A-Za-z0-9_-]{1,80}" autocomplete="off"></label>
+<label>Credential <select name="kind"><option value="foundry-license">Foundry license code</option><option value="foundry-username">Foundry account username</option><option value="foundry-password">Foundry account password</option><option value="foundry-admin">Foundry administration password</option><option value="gm-password">GM password</option><option value="provider-token">Provider token</option><option value="cloudflare-token">Cloudflare API token</option></select></label>
+<label>Value <input name="value" id="secret" type="password" autocomplete="new-password" maxlength="16384"></label><button type="button" id="reveal" aria-controls="secret" aria-pressed="false">Show value</button>
+<button type="submit" name="action" value="save">Save or replace</button><button type="submit" name="action" value="delete">Delete saved credential</button>
+<p>Deleting a local credential does not revoke it at its provider.</p></form><ul id="references"></ul><button id="cancel">End setup</button>
+</section></main></body></html>

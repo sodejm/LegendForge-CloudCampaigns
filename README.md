@@ -23,6 +23,10 @@ See the [deployment and cost comparison](docs/DEPLOYMENT_MODEL_COMPARISON.md) fo
 
 LegendForge supports **any Foundry-compatible tabletop system**. Systems, worlds, and modules are installed and validated inside Foundry after deployment.
 
+## Local campaign setup preview
+
+The [development wizard](docs/CAMPAIGN_SETUP.md) provides public game discovery, authenticated browser selection, and OS-backed credential management. Provisioning and installation remain gated by the end-to-end roadmap.
+
 ## 🎲 Multi-System Support
 
 LegendForge is built for campaigns and communities running multiple systems side by side, including:

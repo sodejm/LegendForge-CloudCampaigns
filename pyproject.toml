@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "legendforge-campaigns"
+version = "0.1.0"
+description = "Local Foundry campaign discovery and deployment preflight"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+credentials = ["keyring>=25,<26"]
+
+[project.scripts]
+legendforge = "legendforge.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+legendforge = ["web/*.html", "web/*.js", "web/*.css"]

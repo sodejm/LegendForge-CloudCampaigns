@@ -1,0 +1,9 @@
+body { font: 1rem/1.6 system-ui, sans-serif; color: #e8ecf5; background: #141925; margin: 0; }
+main { max-width: 48rem; margin: 2rem auto; padding: 1.5rem; }
+label { display: block; margin: 1rem 0; }
+input, select, button { font: inherit; padding: .6rem; border-radius: .3rem; border: 1px solid #9da9c2; }
+input, select { display: block; box-sizing: border-box; width: 100%; }
+button { cursor: pointer; margin: .4rem .4rem .4rem 0; }
+:focus-visible { outline: 3px solid #78b9ff; outline-offset: 3px; }
+#status { padding: 1rem; border: 1px solid #78b9ff; }
+[hidden] { display: none; }
