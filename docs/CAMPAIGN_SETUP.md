@@ -68,7 +68,7 @@ A read-only live catalog smoke check on 2026-09-15 returned 62 system filters an
 
 ## Implementation checkpoint
 
-The initial implementation is on `codex/campaign-setup`, in `/private/tmp/legendforge-campaign-setup`, based on `89db25c`. It adds the `src/legendforge/` Python package, bundled browser assets, packaging metadata, campaign regression tests, and the setup/wiki guides. The original checkout's unrelated changes remain untouched. This is local work; no code has been pushed or deployed.
+The initial implementation is on `codex/campaign-setup`, in `/private/tmp/legendforge-campaign-setup`, based on `89db25c`. It adds the `src/legendforge/` Python package, bundled browser assets, packaging metadata, campaign regression tests, and the setup/wiki guides. The original checkout's unrelated changes remain untouched. This branch is the initial reviewable implementation slice; no infrastructure has been deployed.
 
 On 2026-09-15, the repository acceptance suite passed all 93 tests. Pre-commit checks passed for every changed file, including secret scanning and wiki navigation validation. An explicit Semgrep scan of the new source and campaign tests completed with zero findings. A wheel build and smoke check confirmed the CLI and all three bundled wizard assets. Terraform resources were not changed, so no provider validation or live provisioning result is claimed.
 
