@@ -13,6 +13,11 @@ This index is the navigation hub for LegendForge documentation. It highlights th
   - Explains the universal tabletop positioning
 
 ### New Strategy and Positioning Documents
+- **[End-to-end campaign setup implementation plan](docs/CAMPAIGN_SETUP_IMPLEMENTATION_PLAN.md)** - Milestone gates and shared contracts for issue #106
+  - Defines the launcher/provider boundary and nonsecret workflow state
+  - Specifies the first catalog, entitlement, installation, and secret-delivery proofs
+  - Records validation evidence and blockers without enabling premium or billable actions
+
 - **[SUPPORTED_SYSTEMS.md](SUPPORTED_SYSTEMS.md)** - Compatible Foundry systems and operational guidance
   - Lists the major system families LegendForge is designed to host
   - Explains what "system-agnostic infrastructure" means in practice
