@@ -106,7 +106,9 @@ class DeploymentPlan:
 def check_ownership(packages, evidence: tuple[Entitlement, ...], *, account_ref,
                     now, trusted_sources):
     """License ownership is required even for a system-only campaign."""
-    requirements = [("foundry-license", True)] + [(p.package_id, p.protected) for p in packages]
+    requirements = [("foundry-license", True)] + [
+        ("package:" + package.package_id, package.protected) for package in packages
+    ]
     missing = []
     for subject, protected in requirements:
         matches = [e for e in evidence if e.subject == subject and e.account_ref == account_ref]

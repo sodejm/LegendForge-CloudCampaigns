@@ -27,7 +27,9 @@ class Entitlement:
             return False
         if self.evidence_source not in trusted_sources:
             return False
-        if not all(math.isfinite(x) for x in (self.checked_at, self.valid_until, now)):
+        timestamps = (self.checked_at, self.valid_until, now)
+        if not all(type(timestamp) in (int, float) and math.isfinite(timestamp)
+                   for timestamp in timestamps):
             return False
         if not self.checked_at <= now < self.valid_until:
             return False

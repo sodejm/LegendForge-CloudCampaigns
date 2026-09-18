@@ -110,7 +110,8 @@ class EntitlementPlanTests(unittest.TestCase):
         for changes in ({'status': Ownership.UNKNOWN}, {'status': Ownership.NOT_OWNED},
                         {'status': Ownership.NOT_REQUIRED}, {'account_ref': 'other'},
                         {'evidence_source': 'store'}, {'checked_at': 151},
-                        {'valid_until': 150}, {'valid_until': float('nan')}):
+                        {'valid_until': 150}, {'valid_until': float('nan')},
+                        {'checked_at': None}, {'valid_until': '200'}):
             with self.subTest(changes=changes):
                 self.assertFalse(self.evidence(**changes).permits(**params))
         self.assertFalse(UnavailableVerifier().verify('foundry-license', 'account').permits(**params))
@@ -124,6 +125,17 @@ class EntitlementPlanTests(unittest.TestCase):
         self.assertTrue(check_ownership((), (owned,), account_ref='account', now=150,
                                        trusted_sources={'trusted'}).passed)
         self.assertFalse(check_ownership((), (owned, owned), account_ref='account', now=150,
+                                        trusted_sources={'trusted'}).passed)
+
+    def test_package_ownership_cannot_reuse_license_evidence(self):
+        package = PackagePin('foundry-license', '1.0.0', 'module', True)
+        license_evidence = self.evidence()
+        package_evidence = replace(license_evidence, subject='package:foundry-license')
+
+        self.assertFalse(check_ownership((package,), (license_evidence,), account_ref='account',
+                                         now=150, trusted_sources={'trusted'}).passed)
+        self.assertTrue(check_ownership((package,), (license_evidence, package_evidence),
+                                        account_ref='account', now=150,
                                         trusted_sources={'trusted'}).passed)
 
     def plan(self):
@@ -330,6 +342,7 @@ class BrowserTests(unittest.TestCase):
         self.assertEqual(
             lint_config, {'browser': True, 'esversion': 11, 'strict': 'global'}
         )
+        self.assertEqual((root / '.hound.yml').read_text(), 'jshint:\n  config_file: .jshintrc\n')
 
     def test_mac_discovery_ignores_missing_and_invalid_versions(self):
         with tempfile.TemporaryDirectory() as folder:
