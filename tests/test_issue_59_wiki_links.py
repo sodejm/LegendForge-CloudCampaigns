@@ -18,6 +18,7 @@ WIKI_PAGE_FILES = (
     "Installation.md",
     "Provider-Guide.md",
     "Low-Cost-Profiles.md",
+    "Campaign-Setup.md",
     "How-To.md",
     "Prompts.md",
     "Use-Cases.md",

@@ -25,6 +25,7 @@ python scripts/sync_wiki_docs.py \
 | `wiki/Provider-Guide.md` | `Provider-Guide.md` |
 | `wiki/Low-Cost-Profiles.md` | `Low-Cost-Profiles.md` |
 | `wiki/How-To.md` | `How-To.md` |
+| `wiki/Campaign-Setup.md` | `Campaign-Setup.md` |
 | `wiki/Prompts.md` | `Prompts.md` |
 | `wiki/Use-Cases.md` | `Use-Cases.md` |
 | `wiki/Architecture-and-Security.md` | `Architecture-and-Security.md` |

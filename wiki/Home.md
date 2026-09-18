@@ -14,6 +14,8 @@ If you are new to LegendForge, read these pages in order:
 4. [How-To](How-To.md)
 5. [Use Cases](Use-Cases.md)
 
+See also the [campaign setup wizard preview](Campaign-Setup.md) and its current release gates.
+
 ## What LegendForge Covers
 
 - Multi-cloud Foundry VTT deployment

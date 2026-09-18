@@ -90,3 +90,7 @@ __pycache__/
 # Build output
 dist/
 build/
+
+# Local campaign wizard environment and packaging metadata
+.venv/
+*.egg-info/
