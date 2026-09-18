@@ -49,6 +49,8 @@ class DeploymentPlan:
     schema_version: int = 1
 
     def __post_init__(self):
+        if type(self.schema_version) is not int or self.schema_version != 1:
+            raise ValueError("unsupported schema version")
         if self.profile not in PROFILES or self.system not in ("dnd5e", "cosmere-rpg"):
             raise ValueError("unsupported profile or system")
         if self.active_servers != 1:

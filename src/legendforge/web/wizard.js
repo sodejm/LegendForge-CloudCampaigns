@@ -3,6 +3,17 @@ let token = '';
 let selected = null;
 const byId = id => document.getElementById(id);
 const report = message => { byId('status').textContent = message; };
+
+function resetSession() {
+  token = ''; selected = null;
+  byId('pairing').value = '';
+  byId('pair').hidden = false; byId('setup').hidden = true;
+  byId('selection').reset(); byId('catalog').replaceChildren(); byId('chosen').textContent = '';
+  byId('credential').reset(); byId('references').replaceChildren();
+  byId('secret').type = 'password';
+  byId('reveal').setAttribute('aria-pressed', 'false'); byId('reveal').textContent = 'Show value';
+}
+
 byId('system').addEventListener('change', () => { byId('catalog').replaceChildren(); });
 byId('load-catalog').addEventListener('click', async () => {
   const system = byId('system').value;
@@ -85,7 +96,7 @@ byId('credential').addEventListener('submit', async event => {
 });
 byId('cancel').addEventListener('click', async () => {
   try { await post('/cancel', {}); } catch (error) { report(error.message); return; }
-  token = ''; selected = null; byId('secret').value = ''; byId('setup').hidden = true;
+  resetSession();
   report('Setup ended. Nothing was provisioned. You can close this tab.');
 });
-window.addEventListener('pagehide', () => { token = ''; byId('secret').value = ''; });
+window.addEventListener('pagehide', resetSession);

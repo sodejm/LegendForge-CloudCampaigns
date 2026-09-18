@@ -151,6 +151,10 @@ class EntitlementPlanTests(unittest.TestCase):
             replace(plan, active_servers=2)
         with self.assertRaises(ValueError):
             replace(plan, credential_refs=(Secret('synthetic-only'),))
+        for schema_version in (0, 2, True, "1"):
+            with self.subTest(schema_version=schema_version):
+                with self.assertRaises(ValueError):
+                    replace(plan, schema_version=schema_version)
 
 
 class FakeBackend:
@@ -263,6 +267,19 @@ class WizardTests(unittest.TestCase):
         self.catalog.clock = lambda: 1000
         self.assertEqual(self.post('/selection', desired)[0], 422)
 
+    def test_duplicate_selection_survives_catalog_expiry(self):
+        self.connect()
+        desired = dict(self.selection, content=['one'])
+        self.assertEqual(self.post('/catalog', {'system': 'cosmere-rpg'})[0], 200)
+        self.assertEqual(self.post('/selection', desired)[0], 200)
+
+        self.catalog.clock = lambda: 1000
+        status, payload = self.post('/selection', desired)
+
+        self.assertEqual(status, 200)
+        self.assertTrue(payload['acknowledged'])
+        self.assertEqual(payload['selection'], desired)
+
     def test_secrets_never_returned_or_logged(self):
         self.connect(); self.post('/selection', self.selection)
         body = dict(account='account', campaign='campaign', kind='foundry-license', value='synthetic-only')
@@ -278,6 +295,17 @@ class WizardTests(unittest.TestCase):
         body.pop('value')
         self.assertEqual(self.post('/credentials/delete', body)[0], 200)
 
+    def test_invalid_secret_value_is_a_client_error(self):
+        self.connect(); self.post('/selection', self.selection)
+        status, payload = self.post(
+            '/credentials/save',
+            dict(account='account', campaign='campaign', kind='foundry-license', value=''),
+        )
+
+        self.assertEqual(status, 422)
+        self.assertEqual(payload, {'error': 'invalid_credential_value'})
+        self.assertIsNone(self.session.store)
+
     def test_security_headers_and_body_limits(self):
         conn = http.client.HTTPConnection('127.0.0.1', self.server.server_port)
         conn.request('GET', '/')
@@ -291,6 +319,18 @@ class WizardTests(unittest.TestCase):
 
 
 class BrowserTests(unittest.TestCase):
+    def test_pagehide_resets_paired_ui_and_jshint_targets_modern_browser_js(self):
+        root = Path(__file__).resolve().parents[1]
+        script = (root / 'src' / 'legendforge' / 'web' / 'wizard.js').read_text()
+        lint_config = json.loads((root / '.jshintrc').read_text())
+
+        self.assertIn("window.addEventListener('pagehide', resetSession);", script)
+        self.assertIn("token = ''; selected = null;", script)
+        self.assertIn("byId('pair').hidden = false; byId('setup').hidden = true;", script)
+        self.assertEqual(
+            lint_config, {'browser': True, 'esversion': 11, 'strict': 'global'}
+        )
+
     def test_mac_discovery_ignores_missing_and_invalid_versions(self):
         with tempfile.TemporaryDirectory() as folder:
             bundle = Path(folder) / 'Google Chrome.app' / 'Contents'

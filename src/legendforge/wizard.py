@@ -98,11 +98,16 @@ class WizardSession:
                         or any(not isinstance(item, str) for item in content)
                         or len(content) != len(set(content))):
                     return 422, {"error": "invalid_content_selection"}
+                # Acknowledged selections are immutable. An identical retry is
+                # safe even when the short-lived discovery catalog has expired.
+                if self.selection is not None and body == self.selection:
+                    return 200, {"acknowledged": True, "selection": self.selection,
+                                 "deployment": "blocked_pending_preflight"}
                 available = self.listings.get(body["system"], {})
                 if any(item not in available or available[item].expires_at <= self.catalog.clock()
                        for item in content):
                     return 422, {"error": "content_missing_or_stale_reload_catalog"}
-                if self.selection is not None and body != self.selection:
+                if self.selection is not None:
                     return 409, {"error": "selection_locked_restart_to_change"}
                 self.selection = dict(body)
                 return 200, {"acknowledged": True, "selection": self.selection,
@@ -117,6 +122,10 @@ class WizardSession:
                     return 400, {"error": "invalid_credential_request"}
                 if not isinstance(body.get("kind"), str) or body["kind"] not in KINDS:
                     return 400, {"error": "invalid_credential_kind"}
+                if path.endswith("save") and (
+                        not isinstance(body["value"], str) or not body["value"]
+                        or len(body["value"]) > 16_384):
+                    return 422, {"error": "invalid_credential_value"}
                 try:
                     ref = CredentialRef(body["account"], body["campaign"], body["kind"])
                     if self.store is None:
