@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
 
       - name: Scan commits for secrets
-        uses: trufflesecurity/trufflehog@20652fbbdefffcdaa493a5bf57ab2ac6b1db715b # v3.97.1
+        uses: trufflesecurity/trufflehog@363923b901c911a9164f50b6c423f47c15372b1c # v3.97.4
         with:
           extra_args: --results=verified,unknown
 
@@ -45,7 +45,7 @@ jobs:
         uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
 
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@6e1e0642c0289bd619021bf6b34e3c08ed1e005a # v6.3.0
+        uses: terraform-linters/setup-tflint@1cf010d3c7aef302051ccdb68c14c5dc2efa34ef # v6.3.1
 
       - name: Install hook runtime tools
         run: |
