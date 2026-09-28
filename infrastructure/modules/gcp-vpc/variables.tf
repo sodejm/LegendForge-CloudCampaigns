@@ -41,7 +41,7 @@ variable "enable_secondary_subnet" {
 }
 
 variable "admin_source_ranges" {
-  description = "List of CIDR ranges allowed for SSH admin access for LegendForge's universal tabletop infrastructure."
+  description = "List of CIDR ranges allowed for SSH admin access for LegendForge's universal tabletop infrastructure; defaults to IAP TCP forwarding."
   type        = list(string)
-  default     = ["0.0.0.0/0"] # IMPORTANT: Restrict this in production!
+  default     = ["35.235.240.0/20"]
 }

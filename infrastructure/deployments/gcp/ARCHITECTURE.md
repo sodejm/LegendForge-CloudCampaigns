@@ -108,20 +108,25 @@
 **Components**:
 - **VPC Network**: `legendforge-vpc`
   - Regional routing
-  - Private by default (no public IPs except load balancer)
+  - Foundry VMs have no external IPs; the load balancer provides the public frontend
 
 - **Subnets**:
   - Primary: `10.0.0.0/20` (us-central1)
   - Secondary: `10.16.0.0/20` (us-east1, optional for DR)
 
-- **Cloud NAT**: Enables outbound internet for Docker pulls, package updates
+- **Cloud NAT**: Enables outbound internet for Docker pulls, package updates, and startup downloads; Private Google Access remains enabled on the primary subnet for Google APIs
 
 - **Firewall Rules**:
-  - SSH: Only from admin IP ranges (least privilege)
+  - SSH: IAP TCP forwarding (`35.235.240.0/20`) by default, with OS Login; explicit administrator CIDR overrides remain supported
   - Internal: All traffic within subnet
   - Health checks: From GCP infrastructure (35.191.0.0/16, 130.211.0.0/22)
-  - Load balancer: Port 30030 from 0.0.0.0/0
+  - Load balancer: Both backend rules allow TCP 30030 only from `35.191.0.0/16` and `130.211.0.0/22`, the load balancer and health-check ranges
   - Deny all: Default deny with logging
+
+The HTTPS listener, HTTP-to-HTTPS redirect, and internal traffic rules remain in
+place. See [administrator access and migration guidance](DEPLOYMENT_GUIDE.md#91-use-iap-and-os-login)
+before replacing existing instances. Cloud Armor attachment is tracked separately
+in [#145](https://github.com/sodejm/LegendForge-CloudCampaigns/issues/145).
 
 ### 2. Compute Layer
 

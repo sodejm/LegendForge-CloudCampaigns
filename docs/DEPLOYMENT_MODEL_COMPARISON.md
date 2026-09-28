@@ -88,8 +88,11 @@ scale-in, replacement, or a completed surge remain separately billable until
 an operator removes them and are not included in the active-group total. The
 active deployment configures no snapshot policy for these data disks, so any
 operator-created snapshots are a separate storage cost rather than part of the
-baseline. The default `admin_source_ranges` includes `0.0.0.0/0` and must be
-narrowed before production use.
+baseline. Foundry VMs have no external IPs and use Cloud NAT for outbound internet
+access. The default `admin_source_ranges` is IAP's `35.235.240.0/20`; administrator
+SSH uses IAP with OS Login. Existing explicit overrides must include this range
+to retain IAP access. Review the [GCP migration and administrator prerequisites](../infrastructure/deployments/gcp/DEPLOYMENT_GUIDE.md#91-use-iap-and-os-login)
+before updating an existing campaign.
 
 ### Hetzner
 
@@ -215,7 +218,7 @@ for that use. No production HA or recovery-time guarantee is implied.
 | Application availability | ASG has a two-instance desired/minimum capacity behind ALB | VMSS starts at two behind load balancer | Managed instance group starts at two behind load balancer | One server; service interruption follows host maintenance/failure |
 | Database availability | Multi-AZ RDS default | DB HA enabled by default | Managed Cloud SQL; multi-region is disabled by default | No managed database in this deployment |
 | Secret handling | Sensitive Terraform inputs and IAM integration; review state handling | Key Vault security module and managed identity wiring | Secrets module and service-account IAM wiring | Sensitive variables; protect tfvars/state and host access |
-| Network exposure | Private app/database tiers, security groups, ALB/CDN | NSGs, private endpoints, Key Vault/storage private DNS | Cloud SQL public IP disabled; firewall design requires restricted admin CIDRs | Tunnel-oriented ingress plus optional SSH CIDR; host remains the trust boundary |
+| Network exposure | Private app/database tiers, security groups, ALB/CDN | NSGs, private endpoints, Key Vault/storage private DNS | Foundry and Cloud SQL have no public IP; backend ingress is limited to load balancer/health-check ranges; SSH defaults to IAP with OS Login | Tunnel-oriented ingress plus optional SSH CIDR; host remains the trust boundary |
 | Recovery posture | RDS automated-backup retention and versioned S3 buckets; no scheduled application-volume snapshot in the active deployment | 35-day, geo-redundant Flexible Server backups and GZRS object storage by default; no blob versioning/soft delete or Recovery Services VM/disk backup in the active deployment | Cloud SQL automated backups/PITR and versioned Cloud Storage buckets; a daily cron archives `/opt/foundry/data` to the backups bucket, but it is a live file-level archive rather than an application-consistent disk snapshot, and no snapshot policy is attached | Operator must maintain and test independent off-server archives; Hetzner Server backups exclude the attached Volume |
 
 Database backups and object-storage redundancy/versioning do not protect

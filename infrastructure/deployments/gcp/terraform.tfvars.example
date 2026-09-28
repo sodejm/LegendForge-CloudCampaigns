@@ -17,9 +17,9 @@ enable_multi_region = false
 primary_subnet_cidr = "10.0.0.0/20"
 secondary_subnet_cidr = "10.16.0.0/20"
 
-# IMPORTANT: Restrict SSH access to your IP(s) in production!
-# Get your public IP: curl -s https://api.ipify.org
-admin_source_ranges = ["203.0.113.0/32"]  # Example: your office IP
+# Private VMs use IAP TCP forwarding and OS Login for administrator access.
+# Explicit overrides must include the IAP range to retain tunnel access.
+admin_source_ranges = ["35.235.240.0/20"]
 
 # Foundry Hostname and Domain
 foundry_hostname = "foundry.example.com"

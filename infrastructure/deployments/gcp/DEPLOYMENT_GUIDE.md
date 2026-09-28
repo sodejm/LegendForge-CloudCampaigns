@@ -14,6 +14,7 @@ This guide provides step-by-step instructions to deploy a production-ready Legen
 - ✓ Comprehensive monitoring and alerting
 - ✓ Secret Manager for secure credential storage
 - ✓ Cloud NAT for private outbound internet access
+- ✓ Private Foundry VMs with IAP and OS Login for administrator SSH
 
 ---
 
@@ -31,6 +32,7 @@ This guide provides step-by-step instructions to deploy a production-ready Legen
    ```bash
    gcloud services enable \
      compute.googleapis.com \
+     iap.googleapis.com \
      sqladmin.googleapis.com \
      storage-api.googleapis.com \
      cloudresourcemanager.googleapis.com \
@@ -72,6 +74,33 @@ This guide provides step-by-step instructions to deploy a production-ready Legen
 - **Foundry License Key**: Get from your Foundry account at https://foundryvtt.com
 - **Admin Password**: Secure password for initial Foundry setup
 - **Cloudflare Account**: Free tier is sufficient (for Cloudflare Tunnel)
+
+### 4. Administrator Access with IAP and OS Login
+
+The standard deployment's Foundry VMs have no external IPs. Before deployment or
+migration, enable the IAP API as above and have an IAM administrator grant trusted
+operators the following permissions. Terraform does not automatically grant
+administrator access.
+
+- **IAP-secured Tunnel User / Tunnel Resource Accessor**
+  (`roles/iap.tunnelResourceAccessor`) on the intended VM's IAP tunnel resource,
+  or at project scope when access to the managed group's replacement VMs is
+  required. Restrict the grant to TCP port 22 with an IAM condition where appropriate.
+- **Compute OS Admin Login** (`roles/compute.osAdminLogin`) on the intended VMs,
+  or at project scope for managed-group administration. This supplies OS Login
+  access with administrative privileges. Instance-scoped grants also require
+  `compute.projects.get` at project scope for the gcloud CLI.
+- **Service Account User** (`roles/iam.serviceAccountUser`) on the service
+  account attached to the Foundry VMs, rather than on every project service account.
+- The gcloud CLI also needs `compute.instances.get`, `compute.instances.list`,
+  and `compute.projects.get`; provide these through a scoped custom role or an
+  existing appropriate role. Operators outside the project's organization also
+  need `roles/compute.osLoginExternalUser` on that organization.
+
+See Google's [IAP TCP forwarding requirements](https://docs.cloud.google.com/iap/docs/using-tcp-forwarding)
+and [OS Login setup](https://docs.cloud.google.com/compute/docs/oslogin/set-up-oslogin).
+Confirm that the grants cover replacement VMs before applying a managed-group
+update; grants tied only to an old instance will not cover a new instance.
 
 ---
 
@@ -129,7 +158,7 @@ foundry_license_key       = "YOUR_LICENSE_KEY"
 foundry_admin_key         = "YOUR_ADMIN_PASSWORD"
 cloudflare_tunnel_token   = "YOUR_TUNNEL_TOKEN"
 database_password         = "YOUR_DB_PASSWORD" # Generate a strong password
-admin_source_ranges       = ["YOUR_IP/32"]     # Your office/home IP
+admin_source_ranges       = ["35.235.240.0/20"] # IAP TCP forwarding
 ```
 
 ### 2.4 Validate Syntax
@@ -160,6 +189,21 @@ Review the output carefully. You should see:
 - Secret Manager secrets
 
 ### 3.2 Apply Configuration
+
+**Existing campaigns:** removing the external-IP configuration changes the
+instance template and can replace managed VMs. Before applying, review the
+replacement actions and rolling-update behavior in the plan, schedule a
+maintenance window, and verify a current off-host world backup and a tested
+restore procedure. Retained data disks alone do not establish safe reattachment:
+replacement VMs may receive new disks. Record how to restore the world to a
+replacement VM and how to recover if startup or player access fails. Restore and
+verify campaign data before resuming play. Review any rollback plan as another
+potential replacement, including the exposure caused by restoring public IPs.
+
+For both new deployments and migrations, complete the IAP/OS Login prerequisites
+and update explicit `admin_source_ranges` overrides to include
+`35.235.240.0/20` before removing the external IPs. An office/home public CIDR
+alone does not permit IAP tunnel traffic.
 
 ```bash
 terraform apply tfplan
@@ -410,14 +454,56 @@ Enable cost savings with CUDs in GCP Console:
 
 ## Step 9: Security Hardening
 
-### 9.1 Restrict SSH Access
+### 9.1 Use IAP and OS Login
 
-Edit `terraform.auto.tfvars`:
+For an existing campaign, review the [replacement and backup precautions](#32-apply-configuration)
+before applying this change.
+
+The standard deployment and VPC module default SSH ingress to IAP's source range.
+Keep that range in any explicit `terraform.auto.tfvars` override:
 
 ```hcl
-# Only allow SSH from your office/home IP
-admin_source_ranges = ["203.0.113.0/32"]
+admin_source_ranges = ["35.235.240.0/20"]
 ```
+
+Additional private administrator CIDRs can remain in the list when a separate
+private access path requires them. Connect using OS Login through IAP:
+
+```bash
+gcloud compute ssh INSTANCE_NAME --project=PROJECT_ID --zone=ZONE --tunnel-through-iap
+```
+
+Use an operator identity with the [required permissions](#4-administrator-access-with-iap-and-os-login).
+The VMs have no external IPs, and both backend firewall rules admit TCP 30030 only
+from `35.191.0.0/16` and `130.211.0.0/22`, following Google's
+[load balancer firewall requirements](https://docs.cloud.google.com/load-balancing/docs/firewall-rules).
+The existing HTTPS listener, HTTP redirect, health checks, internal rules, Cloud
+NAT, and Private Google Access are retained. Outbound startup downloads use NAT;
+Google API access, including Secret Manager, retains Private Google Access.
+
+#### Private-origin deployment acceptance
+
+After an approved test-environment deployment, record evidence for all of these
+checks before treating [#142](https://github.com/sodejm/LegendForge-CloudCampaigns/issues/142)
+as complete:
+
+- List every Foundry VM's network interfaces and confirm there are no external
+  IPv4 or IPv6 addresses, including rolling-update replacements. For example:
+  `gcloud compute instances list --project=PROJECT_ID --filter="tags.items=foundry-compute" --format="json(name,zone,networkInterfaces)"`.
+- Confirm both backend rules retain only the documented source ranges and that
+  the private origin cannot be reached directly from the Internet on TCP 30030.
+- Verify healthy load balancer backends and successful startup downloads through
+  NAT, plus successful Secret Manager reads from the private VMs. Inspect startup
+  logs and test outbound access from an authorized IAP session.
+- Verify HTTPS sign-in, asset loading, WebSocket play, and the HTTP-to-HTTPS redirect.
+- Verify authorized IAP SSH succeeds and an identity without the required tunnel
+  or OS Login permissions cannot obtain administrator access.
+- For migrated campaigns, restore and verify the world and assets using the
+  documented off-host backup procedure.
+
+Local mock plans and a merged PR do not establish this live acceptance. Keep the
+issue open until these checks pass. Cloud Armor attachment (#145), broader SSH
+hardening, and low-cost deployments are separate work.
 
 ### 9.2 Enable VPC Service Controls (Optional)
 

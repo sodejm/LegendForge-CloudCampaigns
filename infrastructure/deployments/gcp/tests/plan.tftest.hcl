@@ -14,6 +14,10 @@ variables {
 run "default_topology_plan" {
   command = plan
   assert {
+    condition     = toset(var.admin_source_ranges) == toset(["35.235.240.0/20"])
+    error_message = "The standard deployment must default administrator access to IAP."
+  }
+  assert {
     condition     = output.foundry_url == "https://example.test"
     error_message = "The public URL must use the configured load-balancer domain."
   }

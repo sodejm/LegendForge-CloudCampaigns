@@ -57,10 +57,6 @@ resource "google_compute_instance_template" "foundry" {
     network    = var.vpc_network_name
     subnetwork = var.subnet_name
     network_ip = null # Assigned automatically
-
-    access_config {
-      nat_ip = null # No public IP (behind load balancer)
-    }
   }
 
   # Metadata and startup script
@@ -195,6 +191,6 @@ resource "google_compute_firewall" "foundry_lb" {
     ports    = ["30030"]
   }
 
-  source_ranges = ["0.0.0.0/0"]
+  source_ranges = ["35.191.0.0/16", "130.211.0.0/22"]
   target_tags   = ["foundry-compute"]
 }
