@@ -32,7 +32,7 @@ nano terraform.auto.tfvars
 # - foundry_admin_key
 # - cloudflare_tunnel_token
 # - domain_name
-# - admin_source_ranges (your IP)
+# - admin_source_ranges (include IAP's 35.235.240.0/20)
 ```
 
 ### 3. Initialize & Plan
@@ -149,12 +149,15 @@ gcloud compute instance-groups managed set-autoscaling foundry-legendforge-igm \
 
 ### Troubleshooting
 
+Complete the [IAP and OS Login prerequisites](DEPLOYMENT_GUIDE.md#4-administrator-access-with-iap-and-os-login)
+before using SSH.
+
 ```bash
 # Check startup script output
 gcloud compute instances get-serial-port-output INSTANCE_NAME
 
-# SSH into instance (if admin IP is in whitelist)
-gcloud compute ssh INSTANCE_NAME --zone=ZONE
+# SSH into a private instance with IAP and OS Login
+gcloud compute ssh INSTANCE_NAME --project=PROJECT_ID --zone=ZONE --tunnel-through-iap
 
 # View firewall rules
 gcloud compute firewall-rules list

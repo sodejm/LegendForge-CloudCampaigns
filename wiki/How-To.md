@@ -52,7 +52,14 @@ Use the configured administrator path or `az vmss run-command invoke` for the ac
 
 ### GCP
 
-Use `gcloud compute ssh` with OS Login.
+Use IAP and OS Login to reach the standard deployment's private VMs:
+
+```bash
+gcloud compute ssh INSTANCE_NAME --project=PROJECT_ID --zone=ZONE --tunnel-through-iap
+```
+
+Complete the [GCP administrator prerequisites](https://github.com/sodejm/LegendForge-CloudCampaigns/blob/main/infrastructure/deployments/gcp/DEPLOYMENT_GUIDE.md#4-administrator-access-with-iap-and-os-login)
+first. Explicit `admin_source_ranges` overrides must include `35.235.240.0/20`.
 
 ### Hetzner
 
