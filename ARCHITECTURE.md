@@ -119,7 +119,7 @@ resources and host configuration.
 | --- | --- | --- | --- |
 | AWS | [`infrastructure/deployments/aws`](infrastructure/deployments/aws) | VPC, security groups, RDS, S3, IAM, ALB, CloudFront, ASG/EC2, CloudWatch, Route 53, and ACM | The launch template creates a per-instance EBS data volume with deletion on termination disabled. An ASG replacement creates a new volume rather than reattaching the retained one, so application-data recovery requires an operator to identify and reattach the old volume or restore an externally created snapshot or backup. RDS and S3 have separate recovery controls. |
 | Azure | [`infrastructure/deployments/azure`](infrastructure/deployments/azure) | VNet and subnets, NSGs, NAT, DDoS protection, storage, Key Vault, managed database, VM scale set, public Load Balancer, and optional monitoring | The current VM scale-set bootstrap writes `/opt/foundry/data` to its local OS disk and does not synchronize it to Blob Storage. It is not durable across instance replacement, and no application-data backup is configured; managed-database backups are separate. The deployment exposes a public Load Balancer, while TLS, hostname, and tunnel behavior must be verified from the selected plan. |
-| GCP | [`infrastructure/deployments/gcp`](infrastructure/deployments/gcp) | VPC, IAM, Secret Manager, Cloud SQL, Cloud Storage, compute, load balancer, and optional monitoring/CDN/Cloud Armor | The startup configuration retrieves secrets, starts Foundry and Cloudflare Tunnel, mounts persistent data, and includes a Cloud Storage backup path. Terraform creates a Cloud Armor policy and a separate Armor-backed service, but the active URL map routes to the backend without that security policy, so Cloud Armor is not enforced on served traffic. |
+| GCP | [`infrastructure/deployments/gcp`](infrastructure/deployments/gcp) | VPC, IAM, Secret Manager, Cloud SQL, Cloud Storage, compute, load balancer, and optional monitoring/CDN/Cloud Armor | The startup configuration retrieves secrets, starts Foundry and Cloudflare Tunnel, mounts persistent data, and includes a Cloud Storage backup path. Cloud Armor is attached to the active HTTPS backend by default, with WAF and rate rules initially in preview pending live tuning and acceptance. |
 | Hetzner | [`infrastructure/deployments/hetzner`](infrastructure/deployments/hetzner) | Network, subnet, firewall, server, attached volume, server networking, and the shared `foundry-app` module | The intended application path is an outbound Cloudflare Tunnel with no general inbound application exposure. The attached volume is persistent, but off-server archiving is a separate operational responsibility; use the Hetzner archive helper and deployment guidance. |
 
 These topologies are alternatives, not layers that are automatically deployed
@@ -180,10 +180,11 @@ therefore remain security boundaries.
   AWS and GCP also compose provider load-balancing resources. Azure's current
   deployment path is a public Load Balancer and should not be documented as
   tunnel-only without a corresponding active configuration.
-- GCP's active URL map routes to the backend service without a Cloud Armor
-  security policy. The separately declared Armor-backed backend is unattached,
-  so enabling Adaptive Protection does not currently enforce Cloud Armor on
-  served traffic.
+- GCP's active HTTPS backend has a Cloud Armor policy attached by default. WAF
+  and rate rules start in preview; operators must tune shared-IP campaign traffic
+  and complete [live acceptance](infrastructure/deployments/gcp/DEPLOYMENT_GUIDE.md#94-roll-out-cloud-armor)
+  before enforcement. Adaptive Protection is an independent opt-in. Backend
+  policies cover CDN cache misses and initial WebSocket handshakes.
 - Databases and storage services are intended to be reachable only through
   the application or private service paths required by the provider design.
 - Administrative access is a break-glass capability and should be narrowed to

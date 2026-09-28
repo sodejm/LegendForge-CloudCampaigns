@@ -125,8 +125,9 @@
 
 The HTTPS listener, HTTP-to-HTTPS redirect, and internal traffic rules remain in
 place. See [administrator access and migration guidance](DEPLOYMENT_GUIDE.md#91-use-iap-and-os-login)
-before replacing existing instances. Cloud Armor attachment is tracked separately
-in [#145](https://github.com/sodejm/LegendForge-CloudCampaigns/issues/145).
+before replacing existing instances. The active HTTPS backend has a Cloud Armor
+policy attached by default; follow the [preview rollout and acceptance guidance](DEPLOYMENT_GUIDE.md#94-roll-out-cloud-armor)
+before enabling enforcement.
 
 ### 2. Compute Layer
 
@@ -284,11 +285,17 @@ snapshots are separate storage costs.
   - Automatic compression
 
 - **Cloud Armor**:
-  - Rate limiting: 100 req/min per IP
-  - SQL injection detection
-  - XSS detection
-  - Optional: DDoS adaptive protection (beta)
-  - Optional: Geo-blocking rules
+  - Policy attached to the backend serving all HTTPS routes by default
+  - SQL injection (priority 3000) and XSS (3100) evaluated before rate limiting (4000)
+  - WAF and rate rules start in preview; the default allow rule remains enforced
+  - Configurable rate-based ban, initially 100 requests per 60 seconds per IP with a 600-second ban; tune these uncalibrated defaults for shared-IP asset loads and reconnects
+  - Adaptive Protection is an independent opt-in, disabled by default
+  - `NORMAL` policy logging with backend request logging enabled
+
+Backend policies cover requests reaching the backend, including CDN cache misses;
+cache hits require an edge policy, which is outside this deployment change.
+WebSocket filtering applies to the initial handshake. See the
+[rollout, migration, and rollback procedure](DEPLOYMENT_GUIDE.md#94-roll-out-cloud-armor).
 
 ### 6. Monitoring & Observability
 

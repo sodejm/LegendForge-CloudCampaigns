@@ -86,8 +86,17 @@ enable_deletion_protection = true
 # Load Balancer & CDN
 # =============================================================================
 
-enable_cdn = true
-enable_cloud_armor = true
+enable_cdn                 = true
+enable_cloud_armor         = true
+cloud_armor_preview        = true  # Tune with live campaign traffic before enforcement
+enable_adaptive_protection = false # Independent opt-in; review service tier and costs
+
+# Uncalibrated preview defaults, not approved production limits. Shared public
+# IPs, asset loads, and reconnect bursts share the rate counter.
+cloud_armor_rate_limit_count        = 100
+cloud_armor_rate_limit_interval_sec = 60
+cloud_armor_ban_duration_sec        = 600
+# See DEPLOYMENT_GUIDE.md section 9.4 for migration, acceptance, and rollback.
 
 # =============================================================================
 # Monitoring & Alerting
