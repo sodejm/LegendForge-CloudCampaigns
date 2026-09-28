@@ -90,15 +90,34 @@ resource "google_compute_backend_service" "foundry" {
 }
 
 # --- HTTPS redirect policy (HTTP -> HTTPS) ---
-resource "google_compute_backend_service" "foundry_http_redirect" {
-  name     = "${var.project_name}-foundry-http-redirect"
-  protocol = "HTTP"
+resource "google_compute_url_map" "foundry_http_redirect" {
+  name = "${var.project_name}-foundry-http-redirect"
 
-  health_checks = [var.health_check_id]
+  default_url_redirect {
+    https_redirect         = true
+    redirect_response_code = "MOVED_PERMANENTLY_DEFAULT"
+    strip_query            = false
+  }
 
-  # Custom health check for redirect
-  backend {
-    group = var.instance_group_id
+  test {
+    host                            = var.domain_name
+    path                            = "/join?world=campaign&return=%2Fgame"
+    expected_output_url             = "https://${var.domain_name}/join?world=campaign&return=%2Fgame"
+    expected_redirect_response_code = 301
+  }
+
+  test {
+    host                            = var.domain_name
+    path                            = "/modules/example/styles.css?v=1"
+    expected_output_url             = "https://${var.domain_name}/modules/example/styles.css?v=1"
+    expected_redirect_response_code = 301
+  }
+
+  test {
+    host                            = var.domain_name
+    path                            = "/socket.io/?EIO=4&transport=polling"
+    expected_output_url             = "https://${var.domain_name}/socket.io/?EIO=4&transport=polling"
+    expected_redirect_response_code = 301
   }
 }
 
@@ -146,7 +165,7 @@ resource "google_compute_target_https_proxy" "foundry" {
 # --- HTTP Proxy (for redirect) ---
 resource "google_compute_target_http_proxy" "foundry_redirect" {
   name    = "${var.project_name}-foundry-http-proxy"
-  url_map = google_compute_url_map.foundry.id
+  url_map = google_compute_url_map.foundry_http_redirect.id
 }
 
 # --- Managed SSL Certificate ---
@@ -162,6 +181,7 @@ resource "google_compute_managed_ssl_certificate" "foundry" {
 resource "google_compute_global_forwarding_rule" "foundry_https" {
   name                  = "${var.project_name}-foundry-https-rule"
   ip_version            = "IPV4"
+  ip_address            = google_compute_global_address.foundry_lb.address
   load_balancing_scheme = "EXTERNAL"
   port_range            = "443"
   target                = google_compute_target_https_proxy.foundry.id
@@ -171,6 +191,7 @@ resource "google_compute_global_forwarding_rule" "foundry_https" {
 resource "google_compute_global_forwarding_rule" "foundry_http" {
   name                  = "${var.project_name}-foundry-http-rule"
   ip_version            = "IPV4"
+  ip_address            = google_compute_global_address.foundry_lb.address
   load_balancing_scheme = "EXTERNAL"
   port_range            = "80"
   target                = google_compute_target_http_proxy.foundry_redirect.id
@@ -284,9 +305,8 @@ resource "google_compute_backend_service" "foundry_with_armor" {
 }
 
 # --- Reserve static IP for load balancer ---
-resource "google_compute_address" "foundry_lb" {
+resource "google_compute_global_address" "foundry_lb" {
   name         = "${var.project_name}-foundry-ip"
   address_type = "EXTERNAL"
-  network_tier = "PREMIUM"
   ip_version   = "IPV4"
 }

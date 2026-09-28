@@ -192,6 +192,14 @@ Save these values:
 
 ### 4.1 Update DNS
 
+When upgrading an existing deployment to the shared HTTP/HTTPS frontend, review
+the Terraform plan before applying. The previously unused regional address is
+replaced by a global address, and both forwarding rules move from their separate
+ephemeral addresses to that global address. This can interrupt ingress during the
+update and changes the DNS target. Schedule a maintenance window, update the A
+record to the new `load_balancer_ip`, and allow DNS and certificate provisioning
+to complete before testing player access.
+
 Point your domain to the load balancer IP:
 
 ```bash
@@ -237,7 +245,18 @@ LB_IP=$(terraform output -raw load_balancer_ip)
 curl -I https://foundry.example.com
 
 # Should return 200 or redirect to Foundry login
+
+# HTTP must return 301 with the same host, path, and query in Location
+curl -sS -D - -o /dev/null 'http://foundry.example.com/join?world=campaign'
+# Expected: Location: https://foundry.example.com/join?world=campaign
+# No Foundry content or application Set-Cookie header should be returned over HTTP
 ```
+
+After the certificate is ACTIVE, verify HTTPS login in a browser, load a world
+and its static assets, and confirm Socket.IO/WebSocket play works without mixed
+content errors. The local mocked Terraform tests check routing configuration;
+they do not establish deployed browser behavior. Enable HSTS only after these
+HTTPS checks succeed.
 
 ---
 

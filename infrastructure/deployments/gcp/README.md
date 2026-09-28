@@ -238,6 +238,7 @@ modules/
 ### Load Balancer Module (`gcp-loadbalancer`)
 - Creates global HTTPS load balancer
 - Configures SSL/TLS termination
+- Redirects HTTP to HTTPS with status 301 while preserving host, path, and query; both frontends share the exported global IP
 - Implements Cloud CDN for static assets
 - Sets up Cloud Armor with DDoS protection and WAF
 

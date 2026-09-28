@@ -1,6 +1,6 @@
 output "load_balancer_ip" {
   description = "Static IP of the load balancer"
-  value       = google_compute_address.foundry_lb.address
+  value       = google_compute_global_address.foundry_lb.address
 }
 
 output "backend_service_id" {
