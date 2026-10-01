@@ -29,7 +29,7 @@
 ### ✅ Security
 - VPC with private networking
 - Firewall rules with least-privilege access
-- Cloud Armor DDoS protection and WAF
+- Cloud Armor on the active backend, with WAF and rate rules initially in preview
 - Secret Manager for sensitive data
 - Cloud KMS encryption
 - IAM service accounts with minimal permissions
@@ -240,7 +240,10 @@ modules/
 - Configures SSL/TLS termination
 - Redirects HTTP to HTTPS with status 301 while preserving host, path, and query; both frontends share the exported global IP
 - Implements Cloud CDN for static assets
-- Sets up Cloud Armor with DDoS protection and WAF
+- Attaches Cloud Armor to the active backend; WAF and configurable rate rules start in preview
+
+Tune shared-IP asset loads and reconnects before enforcement. Adaptive Protection
+is independently disabled by default. See [Cloud Armor migration, rollout, and rollback](DEPLOYMENT_GUIDE.md#94-roll-out-cloud-armor).
 
 **Inputs**: Domain name, instance group, health check
 **Outputs**: Load balancer IP, certificate details
@@ -288,7 +291,7 @@ modules/
 4. **Application Security**
    - Keep Docker images patched (use digest-pinned images)
    - Enable Shielded VM (secure boot, vTPM, integrity monitoring)
-   - Use Cloud Armor for DDoS/WAF protection
+   - Tune Cloud Armor in preview and complete live acceptance before enforcing WAF and rate rules
 
 5. **Monitoring & Compliance**
    - Enable Cloud Audit Logs for compliance

@@ -11,6 +11,7 @@ resource "google_compute_backend_service" "foundry" {
   protocol         = "HTTP"
   port_name        = "foundry"
   session_affinity = "CLIENT_IP" # Sticky sessions for Foundry
+  security_policy  = var.enable_cloud_armor ? google_compute_security_policy.foundry.id : null
 
   health_checks = [var.health_check_id]
 
@@ -205,19 +206,22 @@ resource "google_compute_security_policy" "foundry" {
   # Default rule (allow)
   rule {
     action   = "allow"
-    priority = "65535"
+    priority = 2147483647
+    preview  = false
     match {
-      expr {
-        expression = "true"
+      versioned_expr = "SRC_IPS_V1"
+      config {
+        src_ip_ranges = ["*"]
       }
     }
     description = "Default rule"
   }
 
-  # Rate limiting: Max 100 requests per minute per IP
+  # Evaluate WAF rules before the catch-all rate rule. Tune in preview first.
   rule {
     action   = "rate_based_ban"
-    priority = "1000"
+    priority = 4000
+    preview  = var.cloud_armor_preview
     match {
       expr {
         expression = "true"
@@ -229,14 +233,14 @@ resource "google_compute_security_policy" "foundry" {
 
       enforce_on_key      = "IP"
       enforce_on_key_name = ""
-      ban_duration_sec    = 600
+      ban_duration_sec    = var.cloud_armor_ban_duration_sec
 
       rate_limit_threshold {
-        count        = 100
-        interval_sec = 60
+        count        = var.cloud_armor_rate_limit_count
+        interval_sec = var.cloud_armor_rate_limit_interval_sec
       }
     }
-    description = "Rate limiting: 100 req/min per IP"
+    description = "Rate limiting: ${var.cloud_armor_rate_limit_count} requests per ${var.cloud_armor_rate_limit_interval_sec}s per IP"
   }
 
   # GeoIP blocking (optional)
@@ -254,7 +258,8 @@ resource "google_compute_security_policy" "foundry" {
   # SQL injection detection
   rule {
     action   = "deny(403)"
-    priority = "3000"
+    priority = 3000
+    preview  = var.cloud_armor_preview
     match {
       expr {
         expression = "evaluatePreconfiguredExpr('sqli-v33-stable')"
@@ -266,7 +271,8 @@ resource "google_compute_security_policy" "foundry" {
   # XSS detection
   rule {
     action   = "deny(403)"
-    priority = "3100"
+    priority = 3100
+    preview  = var.cloud_armor_preview
     match {
       expr {
         expression = "evaluatePreconfiguredExpr('xss-v33-stable')"
@@ -284,24 +290,9 @@ resource "google_compute_security_policy" "foundry" {
 
   advanced_options_config {
     json_parsing            = "STANDARD"
-    log_level               = "VERBOSE"
+    log_level               = "NORMAL"
     user_ip_request_headers = []
   }
-}
-
-# --- Attach Cloud Armor to backend service ---
-resource "google_compute_backend_service" "foundry_with_armor" {
-  name            = "${var.project_name}-foundry-backend-armor"
-  protocol        = "HTTP"
-  security_policy = google_compute_security_policy.foundry.id
-
-  backend {
-    group = var.instance_group_id
-  }
-
-  health_checks = [var.health_check_id]
-
-  depends_on = [google_compute_security_policy.foundry]
 }
 
 # --- Reserve static IP for load balancer ---

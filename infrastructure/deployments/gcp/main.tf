@@ -188,12 +188,17 @@ module "compute" {
 module "loadbalancer" {
   source = "../../modules/gcp-loadbalancer"
 
-  project_name               = var.project_name
-  domain_name                = var.domain_name
-  instance_group_id          = module.compute.instance_group_id
-  health_check_id            = module.compute.health_check_id
-  enable_cdn                 = var.enable_cdn
-  enable_adaptive_protection = var.enable_cloud_armor
+  project_name                        = var.project_name
+  domain_name                         = var.domain_name
+  instance_group_id                   = module.compute.instance_group_id
+  health_check_id                     = module.compute.health_check_id
+  enable_cdn                          = var.enable_cdn
+  enable_cloud_armor                  = var.enable_cloud_armor
+  enable_adaptive_protection          = var.enable_adaptive_protection
+  cloud_armor_preview                 = var.cloud_armor_preview
+  cloud_armor_rate_limit_count        = var.cloud_armor_rate_limit_count
+  cloud_armor_rate_limit_interval_sec = var.cloud_armor_rate_limit_interval_sec
+  cloud_armor_ban_duration_sec        = var.cloud_armor_ban_duration_sec
 
   depends_on = [module.compute]
 }
