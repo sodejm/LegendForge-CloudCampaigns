@@ -18,7 +18,21 @@ run "default_topology_plan" {
     error_message = "The standard deployment must default administrator access to IAP."
   }
   assert {
+    condition     = var.enable_cloud_armor && var.cloud_armor_preview && !var.enable_adaptive_protection
+    error_message = "Standard deployments must attach the policy in preview with Adaptive Protection opt-in."
+  }
+  assert {
     condition     = output.foundry_url == "https://example.test"
     error_message = "The public URL must use the configured load-balancer domain."
   }
+}
+
+run "reject_invalid_root_rate_controls" {
+  command = plan
+  variables {
+    cloud_armor_rate_limit_count        = 10001
+    cloud_armor_rate_limit_interval_sec = 45
+    cloud_armor_ban_duration_sec        = 30
+  }
+  expect_failures = [var.cloud_armor_rate_limit_count, var.cloud_armor_rate_limit_interval_sec, var.cloud_armor_ban_duration_sec]
 }

@@ -502,8 +502,9 @@ as complete:
   documented off-host backup procedure.
 
 Local mock plans and a merged PR do not establish this live acceptance. Keep the
-issue open until these checks pass. Cloud Armor attachment (#145), broader SSH
-hardening, and low-cost deployments are separate work.
+issue open until these checks pass. Cloud Armor rollout is covered in
+[section 9.4](#94-roll-out-cloud-armor); broader SSH hardening and low-cost
+deployments are separate work.
 
 ### 9.2 Enable VPC Service Controls (Optional)
 
@@ -517,15 +518,111 @@ gcloud projects get-iam-policy legendforge
 
 Ensure only authorized service accounts have necessary permissions.
 
-### 9.4 Enable Cloud Armor Rules
+### 9.4 Roll Out Cloud Armor
 
-Cloud Armor is already enabled with:
-- Rate limiting (100 requests/minute per IP)
-- SQL injection detection
-- XSS detection
-- DDoS protection
+The standard deployment attaches the existing Cloud Armor policy to
+`google_compute_backend_service.foundry`, the backend used by every HTTPS URL
+map route. The unused `foundry_with_armor` backend has been removed. The active
+backend's name, routes, health checks, session affinity, CDN settings, and output
+remain stable.
 
-To add geo-blocking, uncomment in `modules/gcp-loadbalancer/main.tf`.
+Start with these settings in your private `terraform.tfvars`:
+
+```hcl
+enable_cloud_armor                  = true
+cloud_armor_preview                = true
+cloud_armor_rate_limit_count       = 100
+cloud_armor_rate_limit_interval_sec = 60
+cloud_armor_ban_duration_sec        = 600
+enable_adaptive_protection         = false
+```
+
+These are the defaults. **100 requests per 60 seconds with a 600-second ban is
+an uncalibrated starting point for preview, not an approved production limit.**
+Players behind a shared public IP share the rate counter, and asset downloads
+and reconnect bursts can generate many requests. Tune using representative
+campaign traffic before enforcement. Terraform validates an integer count from
+1 to 10,000 and the interval and ban-duration values supported by
+[Google's rate-based ban configuration](https://docs.cloud.google.com/armor/docs/rate-limiting-overview).
+
+SQL injection and XSS rules at priorities 3000 and 3100 run before the catch-all
+rate rule at 4000. All three start in preview; the default allow rule at
+2147483647 remains enforced. Preview records potential matches without blocking
+players. Setting `cloud_armor_preview = false` enforces all three rules, with
+WAF denials returning 403 and rate-limit denials returning 429.
+
+#### Existing deployment migration
+
+Previously, `enable_cloud_armor` controlled Adaptive Protection on a policy
+attached to an unused backend. It now controls attachment to the active backend.
+Set `enable_adaptive_protection = true` explicitly if you intend to retain that
+feature, after reviewing its service-tier requirements and costs. Adaptive
+Protection is independent of attachment and defaults to false. See
+[Adaptive Protection](https://docs.cloud.google.com/armor/docs/adaptive-protection-overview).
+
+Review the Terraform plan before an approved deployment: expect a policy update,
+attachment to the existing active backend, and deletion of the unused backend.
+This change alone does not require replacing Foundry VMs. If the plan also
+includes the private-origin migration from #142, follow its replacement review,
+off-host backup, and restore requirements in [section 9.1](#91-use-iap-and-os-login).
+Live cloud provisioning requires explicit approval.
+
+`enable_cloud_armor = false` detaches the policy; it retains the policy resource
+and `cloud_armor_policy_id` output and may still incur policy charges. Use preview
+for rollout and rollback rather than detaching the policy.
+
+#### Preview and enforcement acceptance
+
+After an approved test-environment deployment:
+
+1. Confirm the active backend references the policy and remains healthy:
+
+   ```bash
+   gcloud compute backend-services describe PROJECT_NAME-foundry-backend --project=PROJECT_ID --global --format="yaml(name,securityPolicy,enableCDN,logConfig)"
+   gcloud compute backend-services get-health PROJECT_NAME-foundry-backend --project=PROJECT_ID --global
+   gcloud compute security-policies describe PROJECT_NAME-foundry-armor --project=PROJECT_ID --format="yaml(name,rules,adaptiveProtectionConfig,advancedOptionsConfig)"
+   ```
+
+2. Exercise HTTPS sign-in, asset loads, WebSocket connections and reconnects,
+   and sustained play with multiple players behind one public IP. Review preview
+   matches and request bursts, then tune the rate count, interval, and ban duration.
+   Resolve WAF false positives before enabling enforcement; leave preview on
+   while further rule tuning is needed.
+3. In Logs Explorer, filter load balancer requests by the policy name:
+
+   ```text
+   resource.type="http_load_balancer"
+   (jsonPayload.enforcedSecurityPolicy.name="PROJECT_NAME-foundry-armor" OR
+    jsonPayload.previewSecurityPolicy.name="PROJECT_NAME-foundry-armor")
+   ```
+
+   Inspect matching priorities and rate-limit outcomes. Backend request logging
+   remains enabled at sample rate 1.0. Cloud Armor uses `NORMAL` logging to avoid
+   adding verbose matched request content; load balancer logs still contain
+   request metadata. Restrict log access and retention appropriately. See
+   [per-request logging](https://docs.cloud.google.com/armor/docs/request-logging)
+   and [Cloud Armor best practices](https://docs.cloud.google.com/armor/docs/best-practices).
+4. After preview tuning and approval to apply, set `cloud_armor_preview = false`.
+   In the test environment, use controlled SQL injection/XSS probes and a bounded
+   rate burst to confirm 403/429 responses and matching enforced-policy logs.
+   Repeat normal sign-in, shared-IP asset loading, WebSocket reconnects, and play.
+   Rate enforcement is approximate, so verify observed outcomes rather than
+   requiring a block at an exact request number.
+5. Confirm the private origin still has no external IP and cannot bypass the
+   load balancer. Record the configuration, test traffic, logs, and results before
+   completing [#145](https://github.com/sodejm/LegendForge-CloudCampaigns/issues/145).
+
+Cloud CDN remains enabled. A backend security policy evaluates requests that
+reach the backend, including cache misses; it does not filter CDN cache hits.
+An edge policy for cache hits is outside this change. WebSocket policy evaluation
+applies to the initial HTTP handshake, not messages on an established connection.
+See [security policy coverage](https://docs.cloud.google.com/armor/docs/security-policy-overview).
+
+If enforcement disrupts players, restore `cloud_armor_preview = true` and apply
+after reviewing the plan. Keep `enable_cloud_armor = true` and the private-origin
+controls in place, inspect the matches, retune, and repeat acceptance before
+enforcing again. Local tests and merge do not establish live acceptance; keep
+#145 open until the deployment checks pass.
 
 ---
 

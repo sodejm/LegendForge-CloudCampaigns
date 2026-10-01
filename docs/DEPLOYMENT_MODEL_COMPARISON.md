@@ -74,7 +74,8 @@ group at two `n2-standard-2` instances (maximum five), uses PostgreSQL 15
 Cloud SQL at `db-custom-2-7680`, and provisions one 500 GB `pd-ssd` data disk
 for every managed instance group member. The default minimum of two instances
 therefore keeps at least 2 × 500 GB, or 1 TB, of active data disks. CDN and
-Cloud Armor are enabled by default; Cloud SQL public IP is disabled and
+Cloud Armor attachment are enabled by default, with WAF and rate rules initially
+in preview pending [live tuning and acceptance](../infrastructure/deployments/gcp/DEPLOYMENT_GUIDE.md#94-roll-out-cloud-armor); Cloud SQL public IP is disabled and
 deletion protection is enabled. The root composes VPC, IAM, secrets, Cloud SQL,
 storage, compute, load balancing, and monitoring modules.
 
