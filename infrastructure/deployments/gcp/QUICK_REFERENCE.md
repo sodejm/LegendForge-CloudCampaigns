@@ -376,12 +376,19 @@ max_instances = 10             # Higher ceiling
 cpu_target_utilization = 0.6   # Scale earlier
 ```
 
-### Enable Advanced Caching
+### Cloud CDN and Cloud Armor
 
-```bash
-# In modules/gcp-loadbalancer/main.tf
-# Uncomment: enable_adaptive_protection = true
+```hcl
+enable_cdn                 = true
+enable_cloud_armor         = true
+cloud_armor_preview        = true
+enable_adaptive_protection = false
 ```
+
+Cloud Armor is attached to the active backend; WAF and rate rules start in preview.
+Tune shared-IP asset loads and reconnects before setting `cloud_armor_preview = false`.
+Adaptive Protection is an independent opt-in, with service-tier and cost requirements.
+Follow the [deployment rollout and rollback procedure](DEPLOYMENT_GUIDE.md#94-roll-out-cloud-armor).
 
 ---
 
