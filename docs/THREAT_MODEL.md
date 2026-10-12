@@ -2,7 +2,11 @@
 
 ## Status and scope
 
-Source baseline: `537d27c8c5d1152d070087fc7ea8b961a166d1a4`. Adoption: 2026-10-08.
+Source baseline: `d47bfa710330f4aab6cb743286b01ae9e5c79939`. Adoption: 2026-10-08.
+The baseline includes two dependency-only commits newer than the commit from
+which this document was drafted: `18fada7` updates CI security actions and
+`d47bfa7` updates the GCP provider lockfile; both belong to the R-CI inventory
+and T07 scope, not to the reviewed component evidence below.
 Status: source-based initial model; independent human security review pending.
 This model contains attack hypotheses, not validated vulnerability findings.
 Existing canonical security documentation and stricter acceptance gates remain
@@ -29,18 +33,31 @@ private payloads and real identifiers must never be copied into this document.
 | Flow | Boundary and effective authority |
 | --- | --- |
 | Browser → loopback wizard → credential store | Session bearer token, Host and Origin guards protect a privileged local service; local processes remain a different threat. |
-| CLI → plan/config → Terraform provider → cloud account | Untrusted values and provider execution can gain resource creation and billing authority. |
-| Credential reference → OS backend → provider invocation | Only intended recipients should receive credential material; repr redaction does not remove memory or state exposure. |
+| Foundry Store API → CatalogAdapter → wizard/CLI → browser | Live remote boundary in `src/legendforge/catalog.py`: bounded HTTPS GETs to two allowlisted endpoints on `www.foundryvtt.store` return untrusted JSON/HTML metadata that is size-limited, schema-checked and text-normalized before the wizard serves it to the browser; authentic transport does not make remote content trusted. |
+| CLI → plan/config → Terraform provider → cloud account | **Proposed, not supported.** The CLI intentionally has no apply command and no production code constructs a `DeploymentPlan`; Terraform roots run only under an operator with separate authorization. If connected, untrusted values and provider execution can gain resource creation and billing authority. |
+| Credential reference → OS backend → provider invocation | **Proposed, not supported.** The OS keyring boundary at `src/legendforge/credentials.py` is implemented; no production call site reads credentials back for a provider. Only intended recipients should receive credential material; repr redaction does not remove memory or state exposure. |
+| Player/operator → DNS/ingress → Foundry runtime | Deployed boundary documented in ARCHITECTURE.md: a provider load balancer or Cloudflare Tunnel fronts the Foundry host. Ingress rules and tunnel tokens are per-provider recipe behavior whose live effectiveness is unverified. |
+| Foundry runtime → campaign data, secrets, database, backups, monitoring | Deployed data paths documented in ARCHITECTURE.md: provider-specific persistence, cloud-native secret stores, managed databases and backup paths with differing durability guarantees (Azure lacks application-data backup). |
 
 ```mermaid
 flowchart LR
   O[Operator browser] --> W[Loopback wizard with session token]
-  W --> P[Validated immutable deployment plan]
-  P --> T[Terraform and deployment scripts]
+  F[Foundry Store API] --> A[CatalogAdapter]
+  A --> W
+  W --> P[Validated immutable deployment plan - proposed]
+  P --> T[Terraform and deployment scripts - operator-run only]
   T --> S[Backend state and credentials]
   T --> C[Cloud account and billable resources]
   R[Repository dependencies and CI] --> T
+  U[Players and operators] --> D[DNS and ingress]
+  D --> FR[Deployed Foundry runtime]
+  FR --> DA[Campaign data, secrets, database, backups, monitoring]
 ```
+
+The plan-to-Terraform connection is a supported path only as manual operator
+execution; automated CLI apply remains proposed. The deployed-runtime rows
+extend the model to the hosted service described in ARCHITECTURE.md; their
+evidence is configuration-level, not live operation.
 
 The flow table defines the project-specific boundaries behind this overview.
 Authentication of an upstream service does not make its content trusted. Review
@@ -50,8 +67,10 @@ account and credential recipient rather than only their user-supplied labels.
 ## Implementation evidence inventory
 
 - `src/legendforge/wizard.py`: inspect at the baseline revision; evidence scope is limited to this component.
+- `src/legendforge/catalog.py`: inspect at the baseline revision; evidence scope is limited to this component.
 - `src/legendforge/credentials.py`: inspect at the baseline revision; evidence scope is limited to this component.
 - `infrastructure/deployments`: inspect at the baseline revision; evidence scope is limited to this component.
+- `infrastructure/modules`: inspect at the baseline revision; the active deployment roots delegate IAM, networking, secrets, storage, databases, compute and load balancing to these local modules, so T03–T05 evidence must include the referenced modules rather than the deployment roots alone. Evidence scope is limited to the modules each active root consumes.
 - `AGENTS.md`: inspect at the baseline revision; evidence scope is limited to this component.
 
 ## Threat register and prioritization
@@ -88,6 +107,15 @@ validation before the affected release/capability expansion and schedule P2 with
 - Residual risk / status: unverified; human review and evidence pending. Retain
   this entry until a reviewer records outcome, exact revision and remaining risk.
 
+### T02.1: Malicious catalog content
+
+- Attack path / prerequisite: The Foundry Store service, its network path or a page of its results returns crafted JSON/HTML metadata, inconsistent pagination or oversized responses that reach the wizard and operator browser.
+- Inherent impact: Medium; likelihood: Medium; priority: P2.
+- Existing evidence / limitation: catalog.py allowlists two endpoints, disables redirects, requires JSON content type, bounds responses at 4 MiB, checks pagination consistency, restricts identifiers and strips markup to plain text; CatalogError payloads never include remote bodies.
+- Proposed mitigation and validation: Test malformed/oversized responses, unexpected content types, redirect and endpoint abuse, inconsistent or cyclic pagination and HTML/script payloads; confirm remote text cannot execute in the wizard page.
+- Residual risk / status: unverified; human review and evidence pending. Retain
+  this entry until a reviewer records outcome, exact revision and remaining risk.
+
 ### T03: Plan/state disclosure
 
 - Attack path / prerequisite: Terraform state, plans or user-data expose secrets through Git, logs or artifacts.
@@ -99,10 +127,10 @@ validation before the affected release/capability expansion and schedule P2 with
 
 ### T04: Excessive cloud authority
 
-- Attack path / prerequisite: A plan targets the wrong account/project or creates broad network access.
+- Attack path / prerequisite: A plan targets the wrong account/project or creates broad network access; on the deployed service, the public ingress (load balancer or Cloudflare Tunnel) is abused to reach the Foundry runtime or its administrative paths.
 - Inherent impact: High; likelihood: Medium; priority: P1.
-- Existing evidence / limitation: Recipes exist for multiple providers; actual IAM/firewall effectiveness is unverified.
-- Proposed mitigation and validation: Review exact account/project, least-privilege role and inbound rules in the plan; test policy and deployment separately.
+- Existing evidence / limitation: Recipes exist for multiple providers; actual IAM/firewall effectiveness is unverified. ARCHITECTURE.md documents per-provider ingress (provider load balancer or Cloudflare Tunnel; GCP Cloud Armor in preview); no live rule set is validated by this model.
+- Proposed mitigation and validation: Review exact account/project, least-privilege role and inbound rules in the plan; test policy and deployment separately. For the runtime boundary, validate hostname/DNS binding, tunnel token handling and ingress rule scope per provider before exposure.
 - Residual risk / status: unverified; human review and evidence pending. Retain
   this entry until a reviewer records outcome, exact revision and remaining risk.
 
@@ -135,10 +163,12 @@ validation before the affected release/capability expansion and schedule P2 with
 
 ### T08: Incident recovery failure
 
-- Attack path / prerequisite: Credentials, data or service availability cannot be recovered after compromise or accidental change.
+- Attack path / prerequisite: Credentials, campaign data or service availability cannot be recovered after compromise or accidental change; provider-specific gaps (retained volumes not
+reattached to replacements, Azure's ephemeral data path, unarchived Hetzner
+volumes) turn a routine replacement into data loss.
 - Inherent impact: High; likelihood: Low; priority: P2.
-- Existing evidence / limitation: Operational checkpoints preserve code history; data and credential recovery require separate procedures.
-- Proposed mitigation and validation: Human owner must document detection signals, restricted incident evidence, credential revocation, backups and a disposable restore exercise.
+- Existing evidence / limitation: Operational checkpoints preserve code history; data and credential recovery require separate procedures. ARCHITECTURE.md documents per-provider persistence and backup behavior, including the absence of Azure application-data backup.
+- Proposed mitigation and validation: Human owner must document detection signals, restricted incident evidence, credential revocation, backups and a disposable restore exercise per provider; verify the documented recovery path for each supported deployment root.
 - Residual risk / status: unverified; human review and evidence pending. Retain
   this entry until a reviewer records outcome, exact revision and remaining risk.
 

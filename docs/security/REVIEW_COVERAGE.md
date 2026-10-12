@@ -11,12 +11,16 @@ these subsystem entries are prioritization, not proof of exhaustive review.
 | R1 | Browser → loopback wizard → credential store and all implementing code/configuration/tests | Pending independent human review | Maintainer assignment pending | Before affected release; triage within 30 days, first pass within 90 days |
 | R2 | CLI → plan/config → Terraform provider → cloud account and all implementing code/configuration/tests | Pending independent human review | Maintainer assignment pending | Before affected release; triage within 30 days, first pass within 90 days |
 | R3 | Credential reference → OS backend → provider invocation and all implementing code/configuration/tests | Pending independent human review | Maintainer assignment pending | Before affected release; triage within 30 days, first pass within 90 days |
+| R4 | Foundry Store API → CatalogAdapter → wizard/CLI → browser and all implementing code/configuration/tests | Pending independent human review | Maintainer assignment pending | Before affected release; triage within 30 days, first pass within 90 days |
 | R-CI | All CI, dependencies, packaging, release, scripts and agent/tool authority | Pending independent human review | Maintainer assignment pending | Before affected release; triage within 30 days, first pass within 90 days |
 | R-REST | All remaining tracked first-party files; enumerate and reconcile against Git inventory | Pending independent human review | Maintainer assignment pending | First pass within 90 days |
 
 For each reviewed row add exact paths, reviewed SHA, reviewer identity/date,
 checks/evidence, findings, disposition, residual risk acceptance/expiry and next
-review trigger. Record third-party provenance and review separately. Changed
-behavior invalidates prior scope approval. Follow the
+review trigger. Record third-party provenance and review separately. Any
+material change to reviewed files, dependencies, CI/workflows, configuration,
+trust boundaries or security assumptions invalidates prior scope approval —
+approval never survives a change merely because observable behavior is not yet
+known to differ. Follow the
 [engineering review policy](../ENGINEERING_REVIEW.md). No automated result or
 threat-model entry closes this human-review backlog.
