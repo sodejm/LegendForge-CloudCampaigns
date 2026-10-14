@@ -91,6 +91,8 @@ published wiki.
 1. Read **[PROJECT_PHILOSOPHY.md](PROJECT_PHILOSOPHY.md)** before changing messaging
 2. Keep **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** current when adding major docs
 3. Update **[ATTRIBUTION.md](ATTRIBUTION.md)** and **[CREDITS.md](CREDITS.md)** when upstream relationships change
+4. Follow **[docs/ENGINEERING_REVIEW.md](docs/ENGINEERING_REVIEW.md)** for checkpoint commits and independent human review
+5. Consult **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)** and **[docs/security/REVIEW_COVERAGE.md](docs/security/REVIEW_COVERAGE.md)** for security assumptions and review status
 
 ---
 
@@ -131,6 +133,11 @@ published wiki.
 ### Attribution and Compliance
 - `ATTRIBUTION.md`
 - `CREDITS.md`
+
+### Engineering and Security Policy
+- `docs/ENGINEERING_REVIEW.md`
+- `docs/THREAT_MODEL.md`
+- `docs/security/REVIEW_COVERAGE.md`
 
 ### Provider-Specific Guidance
 - `infrastructure/deployments/aws/README.md`
