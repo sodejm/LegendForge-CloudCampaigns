@@ -1,9 +1,17 @@
 # Repository Guidance
 
+## Agent compatibility
+
+When changing agent-facing instructions or integrations, follow the applicable
+specifications listed in the [AAIF project directory](https://aaif.io/projects).
+Keep this file discoverable and scoped according to [AGENTS.md](https://agents.md/).
+For changes to repository skills, verify the skill directory, frontmatter and
+referenced files against the [Agent Skills specification](https://agentskills.io/specification).
+
 ## Layout and validation
 
 - Terraform deployments live under `infrastructure/deployments/`; documentation is in root Markdown files, `docs/`, and `wiki/`.
-- For multi-cloud Terraform changes, run `TERRAFORM_QUALITY_TARGETS=aws,azure,gcp,hetzner scripts/terraform-quality.sh`.
+- For multi-cloud Terraform changes, run `scripts/terraform-quality.sh` to cover all six deployments, including both low-cost configurations.
 - Run applicable pre-commit and pre-push hooks for quality and security changes.
 
 ## Safety and workflow
